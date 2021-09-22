@@ -1,0 +1,461 @@
+$prim = #07d
+$prim1 = #07d1
+$prim2 = #07d2
+// $fontFamily = unquote("'Verdana',sans-serif")
+// $fontSize = 9pt
+// $fontFamily = unquote("'Roboto',sans-serif")
+// $fontSize = 10pt
+$fontFamily = unquote("'Solis','Roboto Condensed',sans-serif")
+$fontSize = 12pt
+// $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
+// $fontSize = 12pt
+body, h1, h2, h3, h4, h5, h6, p, a, span
+	font-family $fontFamily !important
+body
+	font-size $fontSize
+#_app
+	position fixed
+	inset 0
+	display flex
+	box-sizing border-box
+	color #000
+	pointer-events none
+	z-index 120000
+	*
+		box-sizing border-box
+._sideLeft
+._sideCenter
+._sideRight
+	position relative
+	pointer-events none
+	> *
+		pointer-events auto
+._sideLeft
+._sideRight
+	width 20%
+	background #fff
+._button
+	padding 4px 8px
+	border 0
+	font inherit
+	background $prim
+	color #fff
+	outline 0
+._input
+	padding 4px 8px
+	border 0
+	font inherit
+	background #f0f1f2
+	outline 0
+	&:focus
+		box-shadow 0 0 0 2px $prim
+		z-index 1
+._notifies
+	display flex
+	flex-direction column
+	align-items center
+	pointer-events none
+._notify
+	margin-top 4px
+	padding 4px 8px
+	display inline-flex
+	align-items center
+	background #112
+	color #fff
+	animation _fadeIn5 .1s forwards
+._modals
+	pointer-events none
+._modal
+	position absolute
+	top 6%
+	width fit-content
+	max-height 80%
+	background #fff
+	box-shadow 0 2px 4px #888c,0 8px 16px 4px #8883
+	transition margin-top .1s
+	animation _fadeIn95 .1s forwards
+	pointer-events auto
+._modalClose
+	width 24px
+	height 24px
+	border 0
+	display flex
+	justify-content center
+	align-items center
+	background #0000
+	outline 0
+	&:hover
+		background #f43
+		color #fff
+	&:active
+		background #c43
+		color #fff
+._mark
+	position fixed
+	pointer-events none
+	z-index 120010
+._copy
+	position fixed
+	left -10px
+	width 1px
+	height 1px
+	opacity 0
+._fadeOut95
+	animation _fadeOut95 .1s forwards
+@keyframes _fadeIn5
+	from
+		transform scale(.5)
+		opacity 0
+	to
+		transform scale(1)
+		opacity 1
+@keyframes _fadeIn95
+	from
+		transform scale(.95)
+		opacity 0
+	to
+		transform scale(1)
+		opacity 1
+@keyframes _fadeOut95
+	from
+		transform scale(1)
+		opacity 1
+	to
+		transform scale(.95)
+		opacity 0
+._wiki
+	*
+		box-sizing border-box
+		cursor default !important
+	body
+		background #fff
+	.mw-page-container
+		background #fff
+	.mw-body-content
+		font-size $fontSize
+	.mw-mmv-lightbox-open> *
+		display unset
+	.mwe-popups
+		border-radius 0 !important
+		font-size $fontSize
+		overflow hidden
+		box-shadow 0 2px 4px #3338,0 8px 16px 4px #3333
+		pointer-events none
+		z-index 2040
+		footer
+			display none
+	.mw-mmv-image> img
+		max-width 60%
+		max-height 100%
+		height unset
+	.mw-mmv-image-wrapper
+		bottom 60px
+	.mwe-popups-fade-in-up
+	.mwe-popups-fade-in-down
+		animation _fadeIn95 .1s forwards
+	.mwe-popups-fade-out-up
+	.mwe-popups-fade-out-down
+		animation _fadeOut95 .1s forwards
+	.infobox.biota
+		padding 0
+		border-spacing 0 8px
+		th
+			padding 4px 8px
+		td
+			padding 0 8px
+	img[src$="/7/74/Red_Pencil_Icon.png"]
+	.thumbinner .magnify
+		display none
+	#toc
+		display block
+		overflow auto
+		user-select none
+		ul
+			background unset
+			box-shadow unset
+	.noresize
+		overflow hidden
+	#firstHeading
+		> *
+			pointer-events none
+	._summTitle
+		margin 0 0 .25em
+		padding 0
+	._summImg
+		max-width 100%
+		max-height 240px
+	._summExtract
+		> p
+			margin 0
+	ul
+		&:hover
+			background $prim1
+			box-shadow 0 0 0 2px $prim1
+		ul
+			&:hover
+				background $prim2
+				box-shadow 0 0 0 2px $prim2
+	a[data-opened-a]
+		border-bottom solid 2px currentColor
+		text-decoration none
+._wikicommons
+	.mw-parser-output
+		> *
+			display none
+		> .gallery
+		> #wdinfobox
+			display unset !important
+	#wdinfoboxcaption
+		background none !important
+._google
+	.hm60ue
+		opacity 0
+	.ZGGHx
+		display none
+._imgurEdit
+	._sideRight
+		width 150px
+		align-self flex-end
+._inaturalist
+	*
+		cursor default !important
+	body
+		background #fff
+	#header
+	#footer
+	#inatnotice
+	#bodywrapper:after
+		display none !important
+	#filters
+		padding 0
+	#taxa-grid
+		margin-top 24px
+	.form-control
+		border 0
+		box-shadow 0 0 0 1px inset #ccc
+		transition none
+		&:focus
+			box-shadow 0 0 0 2px inset #07d
+	.thumbnail
+	.ac-menu
+		overflow hidden !important
+	.photo-hover
+		overflow hidden
+		transition-duration 50ms
+		> .btn
+			opacity 0
+			cursor default
+	.photo
+	.CoverImage
+		background-size contain !important
+		background-repeat no-repeat
+		background-color #ccc
+._inaturalistSearch
+	#wrapper
+		padding-top 16px
+		> h2
+			display none
+	#q
+		outline 0
+	.modal_link
+		border solid 1px #ccc !important
+	.modal-dialog
+		transform none !important
+		transition none
+		animation _fadeIn5 .1s forwards
+	.modal-backdrop
+		background #8886 !important
+	.photo-modal-content
+		overflow hidden
+	.ui-dialog
+		position fixed
+		top 5%
+		width fit-content !important
+		border 0
+		border-radius 0
+		> .ui-dialog-content
+			height 100% !important
+			max-height 90% !important
+	.taxon_list_taxon
+		margin-bottom 0 !important
+		> a.right
+			margin-top 6px
+		> h3
+			margin 0
+		.taxon
+			margin-top 8px
+			font-size $fontSize + 4
+			color #e26
+			> span
+				font-weight 400
+				font-style normal
+		.species
+		.subspecies
+			font-size $fontSize + 2
+	#iconic_taxa_facet
+		display none
+._ebird
+	.Tooltip--license
+		display none !important
+._seriouslyfish
+	#ezmobfooter
+		display none !important
+
+._row
+	display flex
+	flex-direction row
+._column
+	display flex
+	flex-direction column
+._col
+	flex-grow 1
+._col0
+	flex-shrink 0
+for i in range(1, 12)
+	val = floor(i / 12 * 100%, 2)
+	._row > ._col{i}
+		width val
+	._column > ._col{i}
+		height val
+	val = floor(100% / i, 2)
+	._row{i}
+		display grid
+		grid-template-columns repeat(i,1fr)
+		> ._col{i}
+			grid-column span (i)
+._full
+	position absolute
+	left 0
+	top 0
+	width 100%
+	height 100%
+._wrap
+	flex-wrap wrap
+._nowrap
+	flex-wrap nowrap
+for dir in row column
+	._{dir}
+		prop = dir is row ? "justify-content" : "align-items"
+		&._start
+			{prop} flex-start
+		&._center
+			{prop} center
+		&._end
+			{prop} flex-end
+		prop = dir is row ? "align-items" : "justify-content"
+		&._top
+			{prop} flex-start
+		&._middle
+			{prop} center
+		&._bottom
+			{prop} flex-end
+._between
+	justify-content space-between
+._around
+	justify-content space-around
+._evenly
+	justify-content space-evenly
+._stretch
+	align-items stretch
+props = {p: padding, m: margin}
+sides = {t: top, r: right, b: bottom, l: left}
+sizes = 48px 40px 32px 24px 16px 8px 4px 2px 0
+for size, i in sizes
+	._gap{8 - i}
+		grid-gap size
+for p, prop in props
+	for size, i in sizes
+		i = 8 - i
+		hasNegate = p is m and i
+		._{p}{i}
+			{prop} size
+		if hasNegate
+			._-{p}{i}
+				{prop} -(size)
+for p, prop in props
+	for size, i in sizes
+		i = 8 - i
+		hasNegate = p is m and i
+		._{p}x{i}
+			{prop}-left size
+			{prop}-right size
+		._{p}y{i}
+			{prop}-top size
+			{prop}-bottom size
+		if hasNegate
+			._-{p}x{i}
+				{prop}-left -(size)
+				{prop}-right -(size)
+			._-{p}y{i}
+				{prop}-top -(size)
+				{prop}-bottom -(size)
+for p, prop in props
+	for size, i in sizes
+		i = 8 - i
+		hasNegate = p is m and i
+		for s, side in sides
+			._{p}{s}{i}
+				{prop}-{side} size
+			if hasNegate
+				.-_{p}{s}{i}
+					{prop}-{side} -(size)
+for pos in absolute relative fixed
+	._{pos}
+		position pos
+for dis in block inline-block inline flex inline-flex
+	._{dis}
+		display dis
+._w100
+	width 100%
+._h100
+	height 100%
+._hidden, [hidden]
+	display none
+aligns = {left: Left, center: Center, right: Right, justify: Justify}
+for align, a in aligns
+	._text{a}
+		text-align unquote(align)
+._textNowrap
+	white-space nowrap
+	word-break break-word
+._textTruncate
+	overflow hidden
+	text-overflow ellipsis
+	white-space nowrap
+	word-break break-word
+._textBold
+	font-weight 700
+._textItalic
+	font-style italic
+small
+._textSmall
+	font-size smaller
+._scroll
+	overflow auto
+._scrollY
+	overflow-x hidden
+	overflow-y auto
+._noscroll
+	overflow hidden
+._event
+	pointer-events auto
+._noevent
+	pointer-events none
+._round8
+	border-radius 8px
+._round6
+	border-radius 6px
+._border
+	border solid 1px #a2a9b1
+._border0
+	border 0
+._bgWhite
+	background #fff
+._textGreen
+	color #2a3
+._textRed
+	color #f43
+._active
+._hover:hover
+		background $prim
+		color #fff

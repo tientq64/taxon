@@ -1,0 +1,57 @@
+{
+	"name": "taxon",
+	"version": "0.2",
+	"manifest_version": 2,
+	"author": "tiencoffee",
+	"description": "taxon",
+	"content_scripts": [{
+		"matches": [
+			"<all_urls>"
+		],
+		"exclude_matches": [
+			"*://localhost/*",
+			"*://*.wikipedia.org/w/api.php?*",
+			"*://taxon.vercel.app/*",
+			"*://taxon.tiencoffee.vercel.app/*",
+			"*://diori.vercel.app/*",
+			"*://diori.tiencoffee.vercel.app/*",
+			"*://*.messenger.com/*",
+			"*://*.facebook.com/*",
+			"*://codepen.io/*",
+			"*://*.youtube.com/*",
+			"*://github.com/*"
+			"*://*/*.css",
+			"*://*/*.js",
+			"*://*/*.json"
+		],
+		"js": [
+			"libs/livescript.min.js",
+			"libs/stylus.min.js",
+			"libs/mithril.min.js",
+			"extension.js"
+		],
+		"css": [
+			"extension.css"
+		],
+		"run_at": "document_start",
+		"all_frames": false
+	}],
+	"background": {
+		"scripts": [
+			"libs/livescript.min.js",
+			"background.js"
+		],
+		"persistent": true
+	},
+	"web_accessible_resources": [
+		"extension.ls",
+		"extension.styl",
+		"background.ls"
+	],
+	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+	"permissions": [
+		"tabs",
+		"storage",
+		"http://localhost:5500/*"
+	]
+}

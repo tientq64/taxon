@@ -1,0 +1,287 @@
+// @import "https://cdn.jsdelivr.net/gh/tiencoffee/fonts/Monoid/Monoid.css"
+// @import "https://fonts.googleapis.com/css?family=Verdana:400,700"
+// @import "https://fonts.googleapis.com/css?family=Roboto:400,700"
+@import "https://cdn.jsdelivr.net/gh/tiencoffee/fonts/Solis.css"
+@import "https://fonts.googleapis.com/css?family=Roboto Condensed:400,700"
+// @import "https://fonts.googleapis.com/css?family=Schoolbell:400,700"
+@font-face
+	font-family "DejaVuSansMono"
+	src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
+// $fontFamily = unquote("'Monoid',monospace")
+// $fontSize = 8pt
+// $popupFontFamily = unquote("'Verdana',sans-serif")
+// $popupFontSize = 9pt
+// $lineFontSize = 10pt
+// $lineH = 15px
+// $fontFamily = unquote("'Verdana',monospace")
+// $fontSize = 9pt
+// $popupFontFamily = unquote("'Verdana',sans-serif")
+// $popupFontSize = 9pt
+// $lineFontSize = 10pt
+// $lineH = 15px
+// $fontFamily = unquote("'Roboto',monospace")
+// $fontSize = 10pt
+// $popupFontFamily = unquote("'Roboto',sans-serif")
+// $popupFontSize = 10pt
+// $lineFontSize = 10pt
+// $lineH = 15px
+$fontFamily = unquote("'Solis','Roboto Condensed',monospace")
+$fontSize = 13pt
+$popupFontFamily = unquote("'Solis','Roboto Condensed',sans-serif")
+$popupFontSize = 12pt
+$lineFontSize = 12pt
+$lineH = 19px
+// $fontFamily = unquote("'Schoolbell','Roboto Condensed',monospace")
+// $fontSize = 12pt
+// $popupFontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
+// $popupFontSize = 12pt
+// $lineFontSize = 12pt
+// $lineH = 19px
+body
+	margin 0
+	font-family $fontFamily
+	font-size $fontSize
+	overflow hidden
+	user-select none
+	cursor default
+::-webkit-scrollbar
+	-webkit-appearance none
+	width 16px
+	height 16px
+	background #2f3440
+::-webkit-scrollbar-thumb
+	background #3f4450
+.line
+	height $lineH
+	font-family "DejaVuSansMono",monospace
+	font-size $lineFontSize
+.lineFind
+	> .node
+		border-radius 4px
+		background #3f4450
+		box-shadow -4px 1px 0 1px #3f4450,4px 1px 0 1px #3f4450
+.node
+	margin-left 6px
+	display inline-flex
+	align-items center
+	font-family $fontFamily
+	font-size $fontSize
+	vertical-align middle
+.dash
+.textEn
+.textVi
+	margin-left 6px
+	font-family $popupFontFamily
+	font-size $popupFontSize
+	color #648185
+.dash
+	margin-left 8px
+.textEnCopy
+	display inline-block
+	text-decoration underline
+	text-decoration-skip-ink none
+	cursor copy
+	&:not(:first-child)
+		margin-left 6px
+.textVi
+	font-size $popupFontSize - 2
+	color #a39f83
+.img
+	min-width 4px
+	min-height 4px
+	max-width 13px
+	max-height 13px
+	margin-left 8px
+	// border-radius 2px
+	background #fff
+	image-rendering -webkit-optimize-contrast
+	+ .img
+		margin-left 2px
+.life
+	color #ec2b1d
+.domain
+	color #ec2b1d
+.kingdom
+	color #ec2b1d
+.phylum
+	color #ff1267
+.class
+	color #ff8e08
+.order
+	color #2cb3e6
+.family
+	color #6ae22e
+.tribe
+	color #a370ff
+.genus
+	color #ffcc66
+.species
+	font-weight normal
+	color #f8f8f2
+.subspecies
+	font-weight normal
+	color #f8f8f2
+#scrollEl
+	position absolute
+	left 0
+	top 0
+	width 100%
+	height 100%
+	overflow-x hidden
+	overflow-y auto
+#heightEl
+	width 1px
+	display inline-block
+	pointer-events none
+#presEl
+	position absolute
+	left 0
+	top 0
+	width 100%
+	height 100%
+	padding-left 64px
+	margin 0
+	white-space pre
+#infosEl
+	position absolute
+	right 16px
+	bottom 0
+	padding 16px
+	border-radius 8px 4px 4px 4px
+	display grid
+	grid-template-columns repeat(2,auto)
+	grid-gap 4px 16px
+	background #fff
+#findEl
+	position absolute
+	top 0
+	right 16px
+	width 300px
+	padding 6px
+	border-radius 4px 4px 4px 8px
+	display flex
+	align-items center
+	background #fff
+#findInputEl
+	width 0
+	height 24px
+	padding 0 8px
+	border 0
+	flex-grow 1
+	font inherit
+	outline 0
+.findButton
+	width 28px
+	margin-left 4px
+	border-radius 4px
+	display flex
+	justify-content center
+	align-items center
+	align-self stretch
+	font-family "DejaVuSansMono",monospace
+	font-size 14px
+	&:hover
+		background #07d3
+.findButtonOn
+	color #07d
+#findClose
+	font-weight 700
+	color #e43
+	&:hover
+		background #e433
+#findTextEl
+	margin 0 8px 0
+	font-size $fontSize
+	color #888
+#popupEl
+	max-width min-content
+	font-family $popupFontFamily
+	font-size $popupFontSize
+	text-align center
+	overflow hidden
+	box-shadow 0 1px 8px 2px #3336
+	pointer-events none
+#popupBody
+	padding 8px 4px 4px
+	border-radius 8px
+	display flex
+	flex-direction column
+	background #eee
+	animation popup 50ms forwards
+@keyframes popup
+	from
+		transform scale(.96)
+	to
+		transform scale(1)
+.popupTwoImg
+	// .popupGender
+	// 	&:first-child
+	// 		.popupPicture
+	// 			border-top-right-radius 0
+	// 			border-bottom-right-radius 0
+	// 	&:last-child
+	// 		.popupPicture
+	// 			border-top-left-radius 0
+	// 			border-bottom-left-radius 0
+	.popupImg
+		max-width 280px
+		max-height 240px
+#popupName
+	padding 0 8px 2px
+	display block
+	font-weight bold
+	white-space nowrap
+#popupText
+	white-space nowrap
+	color #333
+#popupGenders
+	margin-top 6px
+	display flex
+	justify-content center
+	column-gap 4px
+.popupGender
+	width 100%
+	display flex
+	flex-direction column
+	align-self stretch
+.popupPicture
+	position relative
+	border-radius 8px
+	display flex
+	justify-content center
+	align-items center
+	flex-grow 1
+	overflow hidden
+.popupBgImg
+	position absolute
+	left 0
+	top 0
+	width 100%
+	height 100%
+	display block
+	object-fit cover
+	filter blur(24px)
+.popupImg
+	max-width 320px
+	max-height 240px
+	display block
+	filter contrast(1.1) saturate(1.1)
+	image-rendering -webkit-optimize-contrast
+	z-index 0
+.popupCaptn
+	margin-top 2px
+	padding 0 8px
+	font-size $popupFontSize
+	color #333
+.popupGenderCaptn
+	margin-top 2px
+	padding 0 8px
+	font-size $popupFontSize
+	color #333
+#popupSummary
+	margin-top 4px
+	padding 0 8px
+	line-height 1.3
+	> p
+		margin 0
+		text-align justify
