@@ -1,0 +1,40 @@
+*, *:before, *:after
+	box-sizing border-box
+:not(:focus-visible)
+	outline 0
+::-webkit-scrollbar
+	-webkit-appearance none
+	width 16px
+	height 16px
+	background #2f3440
+::-webkit-scrollbar-corner
+	background #0000
+::-webkit-scrollbar-thumb
+	background #3f4450
+body
+	margin 0
+	font 13pt "Roboto Condensed",sans-serif
+	tab-size 5px
+	overflow hidden
+	background #1f2430
+	color #f8f8f2
+textarea
+	white-space nowrap
+	font inherit
+	background #0000
+	color inherit
+	resize none
+input, textarea
+	&:focus
+		outline 0
+#appEl
+	position absolute
+	inset 0
+.diff
+	tab-size 8
+.added
+	color #6ae22e
+.removed
+	color #ec2b1d
+.text
+	color #648185

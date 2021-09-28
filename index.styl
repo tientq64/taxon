@@ -25,7 +25,7 @@
 // $popupFontSize = 10pt
 // $lineFontSize = 10pt
 // $lineH = 15px
-$fontFamily = unquote("'Solis','Roboto Condensed',monospace")
+$fontFamily = unquote("'Solis','Roboto Condensed',sans-serif")
 $fontSize = 13pt
 $popupFontFamily = unquote("'Solis','Roboto Condensed',sans-serif")
 $popupFontSize = 12pt
@@ -49,6 +49,8 @@ body
 	width 16px
 	height 16px
 	background #2f3440
+::-webkit-scrollbar-corner
+	background #0000
 ::-webkit-scrollbar-thumb
 	background #3f4450
 .line
@@ -57,16 +59,18 @@ body
 	font-size $lineFontSize
 .lineFind
 	> .node
-		border-radius 4px
 		background #3f4450
-		box-shadow -4px 1px 0 1px #3f4450,4px 1px 0 1px #3f4450
 .node
-	margin-left 6px
+	padding-left 6px
+	padding-right 6px
+	border-radius 4px
 	display inline-flex
 	align-items center
 	font-family $fontFamily
 	font-size $fontSize
 	vertical-align middle
+	// &:hover
+	// 	box-shadow 0 0 0 1px #648185 inset
 .dash
 .textEn
 .textVi
@@ -84,7 +88,7 @@ body
 	&:not(:first-child)
 		margin-left 6px
 .textVi
-	font-size $popupFontSize - 2
+	font-size $popupFontSize - 1
 	color #a39f83
 .img
 	min-width 4px
@@ -94,6 +98,7 @@ body
 	margin-left 8px
 	// border-radius 2px
 	background #fff
+	box-shadow 0 0 0 1px #fff
 	image-rendering -webkit-optimize-contrast
 	+ .img
 		margin-left 2px
@@ -195,11 +200,12 @@ body
 	color #888
 #popupEl
 	max-width min-content
+	border-radius 8px
 	font-family $popupFontFamily
 	font-size $popupFontSize
 	text-align center
 	overflow hidden
-	box-shadow 0 1px 8px 2px #3336
+	box-shadow 1px 2px 4px 1px #1118
 	pointer-events none
 #popupBody
 	padding 8px 4px 4px
@@ -213,7 +219,7 @@ body
 		transform scale(.96)
 	to
 		transform scale(1)
-.popupTwoImg
+.popupGendersTwoImg
 	// .popupGender
 	// 	&:first-child
 	// 		.popupPicture
@@ -226,9 +232,13 @@ body
 	.popupImg
 		max-width 280px
 		max-height 240px
+.popupGendersNoCap
+	+ #popupSummary
+		margin-top 8px
 #popupName
 	padding 0 8px 2px
 	display block
+	font-size $fontSize + 1
 	font-weight bold
 	white-space nowrap
 #popupText
@@ -236,6 +246,7 @@ body
 	color #333
 #popupGenders
 	margin-top 6px
+	// padding 0 4px
 	display flex
 	justify-content center
 	column-gap 4px
@@ -252,6 +263,12 @@ body
 	align-items center
 	flex-grow 1
 	overflow hidden
+	&:after
+		content ""
+		position absolute
+		inset 0
+		border-radius 8px
+		box-shadow 0 0 0 1px #abc inset,0 0 0 5px #fff inset
 .popupBgImg
 	position absolute
 	left 0
@@ -260,14 +277,19 @@ body
 	height 100%
 	display block
 	object-fit cover
-	filter blur(24px)
+	filter blur(24px) saturate(2)
 .popupImg
 	max-width 320px
 	max-height 240px
 	display block
+	background #fff
 	filter contrast(1.1) saturate(1.1)
 	image-rendering -webkit-optimize-contrast
 	z-index 0
+.popupImg--cover
+	width 100%
+	height 100%
+	object-fit cover
 .popupCaptn
 	margin-top 2px
 	padding 0 8px

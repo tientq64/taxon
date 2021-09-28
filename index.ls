@@ -2,7 +2,9 @@ localStorage
 	..taxonFindExact ?= \1
 	..taxonFindCase ?= \1
 	..taxonInfoLv ?= 1
-	..rightClickAction ?= \n
+	..taxonRightClickAction ?= \n
+	..taxonPopupLang ?= \vi
+
 lineH = 19
 code = void
 isKeyDown = yes
@@ -42,8 +44,8 @@ parse = !->
 	data .= split \\n
 	tree = [0 \Organism no \/Sinh_vật [] "Sinh vật"]
 	refs = [tree]
-	headRegex = /^(\t*)(.+?)(\*)?(?: (.+))?$/
-	tailRegex = /^([-/:@%~^+?]|https?:\/\/)/
+	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*))?$/
+	tailRegex = /^([-/:@%~^+$?]|https?:\/\/)/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
 	inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
 	bugguideRegex = /^([A-Z\d]+)([r]?)$/
@@ -231,6 +233,8 @@ parse = !->
 								src = "https://d1iraxgbwuhpbw.cloudfront.net/#path/#src.jpg"
 							| \+
 								src = "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/#{src}1/320"
+							| \$
+								src = "https://www.reptarium.cz/content/photo_#src.jpg"
 							else
 								src .= replace /^ttps?:/ ""
 							{src, captn}
@@ -340,6 +344,7 @@ App =
 			[\species 34 36]
 			[\subspecies 36 39]
 		@rightClickAction = localStorage.taxonRightClickAction
+		@popupLang = localStorage.taxonPopupLang
 
 	oncreate: !->
 		heightEl.style.height = lines.length * lineH + \px
@@ -383,6 +388,7 @@ App =
 							h) fishbase
 							e) ebird
 							s) seriouslyfish
+							k) flickr
 							n) inaturalist (mặc định)
 						""" @rightClickAction
 						if action
@@ -415,6 +421,9 @@ App =
 							scrollEl.scrollTop = 0
 							scrollEl.style.scrollBehavior = \smooth
 							scrollEl.scrollTop = scrollTop
+				| \KeyV
+					@popupLang = @popupLang is \vi and \en or \vi
+					localStorage.taxonPopupLang = @popupLang
 				| \KeyE
 					try
 						await navigator.clipboard.writeText ""
@@ -436,6 +445,18 @@ App =
 			@len = Math.ceil(innerHeight / lineH) + 1
 			@onscroll!
 			m.redraw!
+
+	class: (...items) ->
+		res = []
+		for item in items
+			if Array.isArray item
+				res.push @class.apply ...item
+			else if item instanceof Object
+				for k, val of item
+					res.push k if val
+			else if item?
+				res.push item
+		res.join " "
 
 	getRankName: (lv) ->
 		@chrsRanks.find (.2 > lv) .0
@@ -488,11 +509,6 @@ App =
 			@findLines = []
 			m.redraw!
 
-	classLine: (line) ->
-		className = \line
-		className += " lineFind" if @finding and line is @findLines[@findIndex]
-		className
-
 	mousedownImg: (img, event) !->
 		{target} = event
 		{src} = img
@@ -505,7 +521,7 @@ App =
 			| src.includes \static.inaturalist.org
 				src .= replace \/medium. \/large.
 			| src.includes \live.staticflickr.com
-				src .= replace \_n. \.
+				src .= replace \_n. \_b.
 			# | src.includes \biolib.cz
 			# 	src .= replace \/GAL/ \/GAL/BIG/
 			| src.includes \cdn.download.ams.birds.cornell.edu
@@ -541,6 +557,7 @@ App =
 				| code is \KeyE => \e
 				| code is \KeyS => \s
 				| code is \KeyN => \n
+				| code is \KeyK => \k
 				else @rightClickAction
 			text = name.split " " .0
 			try
@@ -567,6 +584,8 @@ App =
 			| \s
 				name = name.toLowerCase!replace /\ /g \-
 				window.open "https://www.seriouslyfish.com/species/#name"
+			| \k
+				window.open "https://www.flickr.com/search/?text=#name"
 			else
 				window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
 
@@ -584,6 +603,7 @@ App =
 			{imgs} = line
 			width = 320
 			imgCaptnPlch = imgs?some (?captn) and \-
+			isTwoImage = imgs and imgs.0 and imgs.1
 			popup =
 				view: ~>
 					m \#popupBody,
@@ -597,7 +617,9 @@ App =
 							m \#popupText line.textVi
 						if imgs
 							m \#popupGenders,
-								class: "popupTwoImg" if imgs.0 and imgs.1
+								class: @class do
+									"popupGendersTwoImg": isTwoImage
+									"popupGendersNoCap": not imgCaptnPlch and not isTwoImage
 								imgs.map (img, i) ~>
 									if img
 										m \.popupGender,
@@ -606,9 +628,14 @@ App =
 													src: img.src
 												m \img.popupImg,
 													src: img.src
-													onload: !~>
+													onload: (event) !~>
+														unless isTwoImage
+															{target} = event
+															ratio = target.width / target.height
+															if 1.233 < ratio < 1.333
+																target.classList.add \popupImg--cover
 														@popper?forceUpdate!
-											if img.captn || imgCaptnPlch
+											if img.captn or imgCaptnPlch
 												m \.popupCaptn that
 											if imgs.length is 2
 												m \.popupGenderCaptn i && \Cái || \Đực
@@ -655,8 +682,9 @@ App =
 	fetchWiki: (line, cb) !->
 		try
 			q = @getWikiPageName line
+			lang = cb and \en or @popupLang
 			data = await m.request do
-				url: "https://en.wikipedia.org/api/rest_v1/page/summary/#q"
+				url: "https://#lang.wikipedia.org/api/rest_v1/page/summary/#q"
 				background: yes
 				config: (xhr) !~>
 					@xhr = xhr unless cb
@@ -717,13 +745,15 @@ App =
 				onscroll: @onscroll
 				m \#presEl,
 					@lines.map (line) ~>
-						m \div,
+						m \.line,
 							key: line.index
-							class: @classLine line
+							class: @class do
+								"lineFind": @finding and line is @findLines[@findIndex]
 							@chrsRanks.map (rank) ~>
-								m \span,
-									class: rank.0
-									chars[line.chrs]substring rank.1 * 2, rank.2 * 2
+								if line.lv >= rank.1
+									m \span,
+										class: rank.0
+										chars[line.chrs]substring rank.1 * 2 rank.2 * 2
 							m \.node,
 								m \span,
 									class: @getRankName line.lv

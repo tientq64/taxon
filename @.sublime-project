@@ -5,12 +5,14 @@
 		"folder_exclude_patterns": []
 	}],
 	"settings": {
+		"wrap_width": 105,
+		"rulers": [108],
 		// "font_face": "SF Mono",
 		// "font_size": 11,
 		// "font_face": "JetBrains Mono NL",
 		// "font_size": 11,
-		"font_face": "PragmataPro Mono",
-		"font_size": 12,
+		// "font_face": "PragmataPro Mono",
+		// "font_size": 12,
 		// "font_face": "Mononoki",
 		// "font_size": 11,
 		// "font_face": "Monoid",
