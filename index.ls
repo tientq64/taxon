@@ -264,7 +264,7 @@ parse = !->
 				chrs2 = chars[chrs2]
 			else
 				chrs2 = chars[chrs2] = charsId++
-			if lv > 34
+			if lv >= 35
 				if lv is 37
 					fullName = "#parentName var. #name"
 				else
@@ -285,6 +285,8 @@ parse = !->
 				chrs: chrs2
 			line.textEn = textEn if textEn
 			line.textVi = textVi if textVi
+			if maxLv < 35 and childs and childs.0.0 > maxLv
+				line.textVi = childs.length
 			if imgs
 				line.imgs = imgs
 				infos.img.count += imgs.length
@@ -434,6 +436,7 @@ App =
 						@closeFind!
 				code := void
 				isKeyDown := no
+				m.redraw!
 		window.onblur = (event) !~>
 			code := void
 			isKeyDown := no
@@ -585,7 +588,7 @@ App =
 				name = name.toLowerCase!replace /\ /g \-
 				window.open "https://www.seriouslyfish.com/species/#name"
 			| \k
-				window.open "https://www.flickr.com/search/?text=#name"
+				window.open "https://www.flickr.com/search/?tags=#name"
 			else
 				window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
 
@@ -805,6 +808,8 @@ App =
 							m.fragment do
 								m \.info info.label
 								m \.info info.count
+					m \.info "Ngôn ngữ popup"
+					m \.info @popupLang
 			if @finding
 				m \#findEl,
 					m \input#findInputEl,

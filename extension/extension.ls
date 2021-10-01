@@ -1407,7 +1407,7 @@ App =
 					q = q.toLowerCase!replace /\ /g \-
 					location.href = "https://www.seriouslyfish.com/species/#q"
 				| \G+K
-					location.href = "https://www.flickr.com/search/?text=#q"
+					location.href = "https://www.flickr.com/search/?tags=#q"
 			| \I+U
 				if blob = await @readCopiedImgBlob!
 					base64 = await @readAsBase64 blob
