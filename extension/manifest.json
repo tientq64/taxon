@@ -11,6 +11,9 @@
 		"exclude_matches": [
 			"*://localhost/*",
 			"*://*.wikipedia.org/w/api.php?*",
+			"*://*.wikipedia.org/w/rest.php/*",
+			"*://*.wikipedia.org/api/rest_v1/*",
+			"*://developer.mozilla.org/*",
 			"*://taxon.vercel.app/*",
 			"*://taxon.tiencoffee.vercel.app/*",
 			"*://imgur.com/signin/*",
@@ -20,6 +23,7 @@
 			"*://livescript2.vercel.app/",
 			"*://*.messenger.com/*",
 			"*://*.facebook.com/*",
+			"*://chat.zalo.me/*",
 			"*://codepen.io/*",
 			"*://*.youtube.com/*",
 			"*://github.com/*",

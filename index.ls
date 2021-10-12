@@ -332,7 +332,7 @@ App =
 		@findExact = !!localStorage.taxonFindExact
 		@findCase = !!localStorage.taxonFindCase
 		@popper = null
-		@xhr = null
+		@abortCtrler = void
 		@chrsRanks =
 			[\life 0 1]
 			[\domain 1 2]
@@ -594,7 +594,9 @@ App =
 
 	mouseleaveName: !->
 		if @popper
-			@xhr?abort!
+			if @abortCtrler
+				@abortCtrler.abort!
+				@abortCtrler = void
 			@popper.destroy!
 			@popper = null
 			m.mount popupEl
@@ -660,13 +662,15 @@ App =
 						fn: !~>
 							if count++ < 120
 								rect = popupEl.getBoundingClientRect!
-								if rect.height > innerHeight - 8
-									width += 8
+								if rect.height > innerHeight - 4
+									width++
 									m.redraw.sync!
 									@popper.forceUpdate!
 			{summary} = await @fetchWiki line
+			if summary
+				summary -= /<br \/>/g
 			m.redraw.sync!
-			@popper.forceUpdate!
+			@popper?forceUpdate!
 
 	getFullNameNoSubgenus: (line) ->
 		(line.fullName or line.name)replace /\ \(.+?\)/ ""
@@ -677,6 +681,7 @@ App =
 			chr = disam.0
 			disam .= substring 1
 		name = @getFullNameNoSubgenus line
+		name .= replace /\ /g \_
 		switch chr
 		| \/ => disam or \_
 		| \\ => "#{name}_(#disam)"
@@ -686,11 +691,11 @@ App =
 		try
 			q = @getWikiPageName line
 			lang = cb and \en or @popupLang
-			data = await m.request do
-				url: "https://#lang.wikipedia.org/api/rest_v1/page/summary/#q"
-				background: yes
-				config: (xhr) !~>
-					@xhr = xhr unless cb
+			opts = {}
+			unless cb
+				@abortCtrler = new AbortController
+				opts.signal = @abortCtrler.signal
+			data = await (await fetch "https://#lang.wikipedia.org/api/rest_v1/page/summary/#q" opts)json!
 			{extract_html} = data
 			if data.type is \standard
 				title = data.title.replace /\ \(.+?\)/ ""

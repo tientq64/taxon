@@ -1,5 +1,5 @@
 ;(async function() {
-	const {href, host, pathname} = location
+	const {href, host, pathname, search} = location
 	window.t = {
 		wikipedia: /wikipedia\.org/.test(host),
 		wikicommons: /commons\.wikimedia\.org/.test(host),
@@ -16,7 +16,9 @@
 		seriouslyfish: /seriouslyfish\.com/.test(host),
 		flickr: /flickr\.com/.test(host)
 	}
-	t.wikiPage = t.wikipedia || t.wikicommons || t.wikispecies
+	t.wikiEdit = t.wikipedia && /\bveaction=edit\b/.test(search)
+	t.wikiWiki = t.wikipedia && /^\/(w\/index\.php$|wiki\/.+)/.test(pathname) && !t.wikiEdit
+	t.wikiPage = t.wikiWiki || t.wikicommons || t.wikispecies
 	t.wiki = t.wikiPage || t.wikiImg || t.wikiLogin
 	t.imgurEdit = t.imgur && pathname == "/edit"
 	t.imgurView = t.imgur && /^\/[A-Za-z\d]{7}($|\?)/.exec(pathname)
@@ -28,6 +30,8 @@
 	])
 	styl = stylus.render(styl, {compress: true})
 	code = livescript.compile(code)
+	delete stylus
+	delete livescript
 	function load() {
 		for (let k in t) {
 			if (t[k]) {

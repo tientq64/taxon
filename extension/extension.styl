@@ -6,7 +6,7 @@ $prim2 = #07d2
 // $fontFamily = unquote("'Roboto',sans-serif")
 // $fontSize = 10pt
 $fontFamily = unquote("'IBM Plex Sans',sans-serif")
-$fontSize = 12pt
+$fontSize = 11pt
 // $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
 // $fontSize = 12pt
 body, h1, h2, h3, h4, h5, h6, p, a, span
@@ -33,7 +33,7 @@ body
 ._sideLeft
 ._sideRight
 	width 20%
-	background #fff
+	background #f8f9fa
 ._button
 	padding 4px 8px
 	border 0
@@ -92,6 +92,7 @@ body
 		color #fff
 ._mark
 	position fixed
+	border-radius 2px
 	pointer-events none
 	z-index 120010
 ._copy
@@ -128,9 +129,9 @@ body
 		box-sizing border-box
 		cursor default !important
 	body
-		background #fff
+		background #f8f9fa
 	.mw-page-container
-		background #fff
+		background #f8f9fa
 	.mw-body-content
 		font-size $fontSize
 	.mw-mmv-lightbox-open> *
@@ -156,13 +157,19 @@ body
 	.mwe-popups-fade-out-up
 	.mwe-popups-fade-out-down
 		animation _fadeOut95 .1s forwards
-	.infobox.biota
+	.infobox
 		padding 0
 		border-spacing 0 8px
 		th
-			padding 4px 8px
+			padding 4px 8px !important
 		td
 			padding 0 8px
+		&.taxobox
+			width min-content !important
+			font-size 1em !important
+			th
+				padding 6px 8px !important
+				font-size 1em !important
 	img[src$="/7/74/Red_Pencil_Icon.png"]
 	.thumbinner .magnify
 		display none
@@ -179,8 +186,9 @@ body
 		> *
 			pointer-events none
 	._summTitle
-		margin 0 0 .25em
+		margin 0 0 .5em
 		padding 0
+		font-weight 400
 	._summImg
 		max-width 100%
 		max-height 240px

@@ -410,6 +410,7 @@ App =
 		@comboRanks = []
 		@resetCombo!
 		@els = {}
+		@shownUI = no
 		@imgurEditRatio = 0
 		@imgurEditRatioOrg = 0
 		@imgurEditRatio1Img = (320 / 240)toFixed 3
@@ -421,14 +422,10 @@ App =
 		window.addEventListener \keydown @onkeydown, yes
 		window.addEventListener \keyup @onkeyup, yes
 		window.addEventListener \visibilitychange @onvisibilitychange, yes
-		switch
-		| t.imgurAuth
+		if t.imgurAuth
 			if el = document.querySelector ".authorize-banner-title>.green"
 				if el.innerText is \tiencoffee
 					document.getElementById \allow .click!
-			@hiddenUI = yes
-		| t.wikiLogin
-			@hiddenUI = yes
 		else
 			chrome.storage.local.get do
 				<[cfg token tokenTime album]>
@@ -440,35 +437,39 @@ App =
 							until await @getImgurAlbum! =>
 			switch
 			| t.wiki
-				@summ = null
-				@lang = location.hostname.split \. .0
-				@els
-					..viLang = document.querySelector ".interlanguage-link-target[lang=vi]"
-					..enLang = document.querySelector ".interlanguage-link-target[lang=en]"
-					..esLang = document.querySelector ".interlanguage-link-target[lang=es]"
-					..frLang = document.querySelector ".interlanguage-link-target[lang=fr]"
-					..commons = document.querySelector ".wb-otherproject-commons> a"
-					..species = document.querySelector ".wb-otherproject-species> a"
-					..infoboxImg = document.querySelector ".infobox.biota a.image> img, .infobox.taxobox a.image> img"
-					..infoboxLinkImg = ..infoboxImg?parentElement
-				if el = document.querySelector '
-				#Notes,#References,#External_links,#Reference\\/External_Links,#Sources,
-				#Chú_thích,#Tham_khảo,#Liên_kết_ngoài'
-					el .= parentElement
-					do
-						nextEl = el.nextElementSibling
-						el.remove!
-					while el = nextEl
-				if @els.commons
-					@prerender that.href
-				if @els.viLang
-					@summ = yes
-					q = that.href.split \/ .[* - 1]
-					@summ = await (await fetch "https://vi.wikipedia.org/api/rest_v1/page/summary/#q")json!
-					m.redraw!
+				switch
+				| t.wikiPage
+					@shownUI = yes
+					@summ = null
+					@lang = location.hostname.split \. .0
+					@els
+						..viLang = document.querySelector ".interlanguage-link-target[lang=vi]"
+						..enLang = document.querySelector ".interlanguage-link-target[lang=en]"
+						..esLang = document.querySelector ".interlanguage-link-target[lang=es]"
+						..frLang = document.querySelector ".interlanguage-link-target[lang=fr]"
+						..commons = document.querySelector ".wb-otherproject-commons> a"
+						..species = document.querySelector ".wb-otherproject-species> a"
+						..infoboxImg = document.querySelector ".infobox.biota a.image> img, .infobox.taxobox a.image> img"
+						..infoboxLinkImg = ..infoboxImg?parentElement
+					if el = document.querySelector '
+					#Notes,#References,#External_links,#Reference\\/External_Links,#Sources,
+					#Chú_thích,#Tham_khảo,#Liên_kết_ngoài'
+						el .= parentElement
+						do
+							nextEl = el.nextElementSibling
+							el.remove!
+						while el = nextEl
+					if @els.commons
+						@prerender that.href
+					if @els.viLang
+						@summ = yes
+						q = that.href.split \/ .[* - 1]
+						@summ = await (await fetch "https://vi.wikipedia.org/api/rest_v1/page/summary/#q")json!
+						m.redraw!
 			| t.imgur
 				switch
 				| t.imgurEdit
+					@shownUI = yes
 					widthEl = document.getElementById \width
 					heightEl = document.getElementById \height
 					sizeEl = document.getElementById \crop-dimensions
@@ -649,9 +650,10 @@ App =
 
 	mark: (els) !->
 		els = [els] unless \length of els
-		for el in els
+		for let el in els
 			rects = el.getClientRects!
 			for {x, y, width, height} in rects
+				el.classList.add \_markTarget
 				markEl = document.createElement \div
 				markEl.className = \_mark
 				document.body.appendChild markEl
@@ -661,9 +663,11 @@ App =
 						width: [width + \px, width + 6 + \px]
 						height: [height + \px, height + 6 + \px]
 						background: [\#07d2 \#07d0]
-						boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d2']
+						boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d0']
 					* duration: 150
-				anim.onfinish = markEl~remove
+				anim.onfinish = !~>
+					el.classList.remove \_markTarget
+					markEl.remove!
 
 	emptySel: !->
 		@selection.removeAllRanges!
@@ -1109,16 +1113,18 @@ App =
 				if (isLangVi and not hasSummEl) or (not isLangVi and hasSummEl)
 					switch args
 					| \LMB
-						@data = " # | #@data"
-					| \RMB
-						@data = " # #@data"
-					| \Shift+LMB
 						@data = " | #@data"
+					| \RMB
+						@data = " # | #@data"
+					| \Shift+LMB
+						@data = " # #@data"
 				else
 					@data = " # #@data"
 				@copy @data
 				@emptySel!
 		else if target
+			if target.closest \span#Tạo_mới
+				return
 			switch
 			| combo is \Backquote+RMB
 				@canContextMenu = yes
@@ -1445,7 +1451,13 @@ App =
 			| \W+M
 				location.href = document.querySelector '#ca-move a' .href
 			| \W+L
-				document.querySelector \#pt-login>a .click!
+				switch
+				| t.wiki
+					document.querySelector \#pt-login>a .click!
+				| t.flickr
+					location.href = \https://www.flickr.com/signin
+			| \W+D
+				document.querySelector \.wbc-editpage .click!
 			| \A
 				cfgs =
 					c: \copyExtractDeepAndOpenLinkExtract
@@ -1489,7 +1501,7 @@ App =
 		m.redraw!
 
 	view: ->
-		unless @hiddenUI
+		if @shownUI
 			m.fragment do
 				if t.wikiPage
 					m \._sideLeft,
@@ -1536,8 +1548,8 @@ App =
 										m \._mt5._textCenter "Đang tải..."
 									else
 										m \._scroll._summ,
-											m \h1._summTitle @summ.title
-											m \._summBox._mt5._p3._border,
+											m \h3._summTitle @summ.title
+											m \._summBox._p3._border,
 												m \img._summImg._block src: @summ.thumbnail?source
 												m \._summExtract._mt3._mb-0._textJustify m.trust @summ.extract_html
 								else
