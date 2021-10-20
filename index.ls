@@ -45,7 +45,7 @@ parse = !->
 	tree = [0 \Organism no \/Sinh_vật [] "Sinh vật"]
 	refs = [tree]
 	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*))?$/
-	tailRegex = /^([-/:@%~^+$?]|https?:\/\/)/
+	tailRegex = /^([-/:@%~^+$<>?]|https?:\/\/)/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
 	inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
 	bugguideRegex = /^([A-Z\d]+)([r]?)$/
@@ -235,6 +235,10 @@ parse = !->
 								src = "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/#{src}1/320"
 							| \$
 								src = "https://www.reptarium.cz/content/photo_#src.jpg"
+							| \<
+								src = "https://www.fishwisepro.com/pics/JPG/#src.jpg"
+							| \>
+								src = "https://biogeodb.stri.si.edu/sftep/resources/img/images/species/#src.jpg"
 							else
 								src .= replace /^ttps?:/ ""
 							{src, captn}
@@ -332,6 +336,7 @@ App =
 		@findExact = !!localStorage.taxonFindExact
 		@findCase = !!localStorage.taxonFindCase
 		@popper = null
+		@summaryEl = null
 		@abortCtrler = void
 		@chrsRanks =
 			[\life 0 1]
@@ -523,6 +528,8 @@ App =
 				src .= replace /\/320px-/ "/#{width}px-"
 			| src.includes \static.inaturalist.org
 				src .= replace \/medium. \/large.
+			| src.includes \inaturalist-open-data.s3.amazonaws.com
+				src .= replace \/medium. \/large.
 			| src.includes \live.staticflickr.com
 				src .= replace \_n. \_b.
 			# | src.includes \biolib.cz
@@ -530,8 +537,11 @@ App =
 			| src.includes \cdn.download.ams.birds.cornell.edu
 				src .= replace /\d+$/ \1800
 			| src.includes \i.imgur.com
-				src -= /(?<=:\/\/)i\.|m\.png$/g
-				src += \?_taxonDelete=1 if code is \Delete
+				if code is \Delete
+					src -= /(?<=:\/\/)i\.|m\.\w+$/g
+					src += \?_taxonDelete=1
+				else
+					src .= replace /m(?=\.\w+$)/ \r
 			window.open src, \_blank
 
 	mousedownName: (line, event) !->
@@ -599,23 +609,25 @@ App =
 				@abortCtrler = void
 			@popper.destroy!
 			@popper = null
+			@summaryEl = null
 			m.mount popupEl
 
 	mouseenterName: (line, event) !->
 		unless line.name in [\? " "]
-			count = 0
 			summary = void
 			{imgs} = line
 			width = 320
 			imgCaptnPlch = imgs?some (?captn) and \-
 			isTwoImage = imgs and imgs.0 and imgs.1
+			name = @getFullNameNoSubgenus line
 			popup =
+				oncreate: (vnode) !~>
+					@summaryEl = vnode.dom.querySelector \#popupSummary
 				view: ~>
 					m \#popupBody,
 						style:
 							minWidth: width + \px
-						m \#popupName,
-							line.fullName or line.name
+						m \#popupName name
 						if line.textEn
 							m \#popupText line.textEn
 						if line.textVi
@@ -639,13 +651,12 @@ App =
 															ratio = target.width / target.height
 															if 1.233 < ratio < 1.333
 																target.classList.add \popupImg--cover
-														@popper?forceUpdate!
+														@popper?update!
 											if img.captn or imgCaptnPlch
 												m \.popupCaptn that
 											if imgs.length is 2
 												m \.popupGenderCaptn i && \Cái || \Đực
-						if summary
-							m \#popupSummary m.trust summary
+						m \#popupSummary
 			m.mount popupEl, popup
 			@popper = Popper.createPopper event.target, popupEl,
 				placement: \left
@@ -656,21 +667,18 @@ App =
 					* name: \preventOverflow
 						options:
 							padding: 2
-					* name: \customUpdate
-						enabled: yes
-						phase: \afterWrite
-						fn: !~>
-							if count++ < 120
-								rect = popupEl.getBoundingClientRect!
-								if rect.height > innerHeight - 4
-									width++
-									m.redraw.sync!
-									@popper.forceUpdate!
 			{summary} = await @fetchWiki line
-			if summary
-				summary -= /<br \/>/g
-			m.redraw.sync!
-			@popper?forceUpdate!
+			if @summaryEl
+				if summary
+					summary -= /<br \/>/g
+				@summaryEl.innerHTML = summary
+				do updateHeight = !~>
+					if popupEl.offsetHeight > innerHeight - 4
+						summary := summary.split " " .slice 0 -1 .join " " .concat \...
+						@summaryEl.innerHTML = summary
+						updateHeight!
+					else
+						@popper.update!
 
 	getFullNameNoSubgenus: (line) ->
 		(line.fullName or line.name)replace /\ \(.+?\)/ ""
@@ -724,7 +732,7 @@ App =
 				summary = /<p>(.+?)<\/p>/su.exec extract_html .0 .replace /\n+/g " "
 			else throw
 		catch
-			summary = "Không có dữ liệu"
+			summary = "<i>Không có dữ liệu<i>"
 		res = {summary, titles}
 		if cb => cb line, res else return res
 
@@ -732,7 +740,8 @@ App =
 		evt.redraw = no if evt
 		top = scrollEl.scrollTop
 		mod = top % lineH
-		presEl.style.transform = "translateY(#{top - mod}px)"
+		transY = top - mod
+		presEl.style.transform = "translateY(#{transY}px)"
 		localStorage.taxonTop = top
 		start = Math.floor top / lineH
 		unless start is @start and @lines.length is @len

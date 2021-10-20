@@ -400,9 +400,12 @@ App =
 			..extinct = /\b(tuyệt chủng|extinct|fossil)\b|†/i
 			..incSedis = /\b(incertae sedis|inc\. sedis|uncertain)\b/i
 		@data = null
+		@lineData = ["" "" "" ""]
 		@notifies = []
 		@modals = []
 		@selection = getSelection!
+		@selecting = no
+		@sel = ""
 		@token = null
 		@album = null
 		@canMiddleClick = yes
@@ -415,6 +418,7 @@ App =
 		@imgurEditRatioOrg = 0
 		@imgurEditRatio1Img = (320 / 240)toFixed 3
 		@imgurEditRatio2Img = (280 / 240)toFixed 3
+		window.addEventListener \selectionchange @onselectionchange, yes
 		window.addEventListener \mousedown @onmousedown, yes
 		window.addEventListener \mouseup @onmouseup, yes
 		window.addEventListener \auxclick @onauxclick, yes
@@ -580,8 +584,8 @@ App =
 
 	resetCombo: !->
 		@combo = ""
-		@lastCombo = void
 		@modfCombo = ""
+		@lastCode = void
 		@target = null
 
 	makeModfCombo: (event) !->
@@ -591,17 +595,21 @@ App =
 		@modfCombo += \Alt+ if event.altKey
 		@modfCombo += \Meta+ if event.metaKey
 
+	onselectionchange: (event) !->
+		@sel = @selection + ""
+		@selecting = yes if @sel
+
 	onmousedown: (event) !->
-		{which, target} = event
+		{which} = event
 		event.preventDefault! if event.shiftKey
-		@lastCombo = which
+		@lastCode = which
 		which = [, \LMB \MMB \RMB][which]
 		@makeModfCombo event
 		@combo += (@combo and \+ or '') + which
-		@target = target
 
 	onmouseup: (event) !->
-		if @lastCombo is event.which
+		{which} = event
+		if @lastCode is which
 			@oncombo event
 
 	onauxclick: (event) !->
@@ -618,7 +626,7 @@ App =
 	onkeydown: (event) !->
 		unless event.repeat
 			{code, key} = event
-			@lastCombo = code
+			@lastCode = code
 			if event.altKey and code in [\KeyE \KeyF]
 				event.preventDefault!
 			if key in <[Control Shift Alt Meta]>
@@ -634,40 +642,47 @@ App =
 				@resetCombo!
 
 	onkeyup: (event) !->
-		if @lastCombo is event.code
+		if @lastCode is event.code
 			@oncombo event
 
 	onvisibilitychange: (event) !->
 		@resetCombo!
 
 	oncombo: (event) !->
-		el = document.activeElement
-		if @combo and el.localName not in <[input textarea select]> and not el.isContentEditable
-			@combo = @modfCombo + @combo
-			sel = (@selection + "")trim!
-			@doCombo @combo, @target, sel, event, []
+		if @selecting
+			@selecting = no
+		else
+			if not @sel and event.type is \mouseup
+				@target = event.target
+			el = document.activeElement
+			if @combo and el.localName not in <[input textarea select]> and not el.isContentEditable
+				@combo = @modfCombo + @combo
+				sel = @sel.trim!
+				@doCombo @combo, @target, sel, event, []
 		@resetCombo!
 
 	mark: (els) !->
-		els = [els] unless \length of els
-		for let el in els
-			rects = el.getClientRects!
-			for {x, y, width, height} in rects
-				el.classList.add \_markTarget
-				markEl = document.createElement \div
-				markEl.className = \_mark
-				document.body.appendChild markEl
-				anim = markEl.animate do
-					* left: [x + \px, x - 3 + \px]
-						top: [y + \px, y - 3 + \px]
-						width: [width + \px, width + 6 + \px]
-						height: [height + \px, height + 6 + \px]
-						background: [\#07d2 \#07d0]
-						boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d0']
-					* duration: 150
-				anim.onfinish = !~>
-					el.classList.remove \_markTarget
-					markEl.remove!
+		if els
+			els = [els] unless \length of els
+			for let el in els
+				if el
+					rects = el.getClientRects!
+					for {x, y, width, height} in rects
+						el.classList.add \_markTarget
+						markEl = document.createElement \div
+						markEl.className = \_mark
+						document.body.appendChild markEl
+						anim = markEl.animate do
+							* left: [x + \px, x - 3 + \px]
+								top: [y + \px, y - 3 + \px]
+								width: [width + \px, width + 6 + \px]
+								height: [height + \px, height + 6 + \px]
+								background: [\#07d2 \#07d0]
+								boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d0']
+							* duration: 150
+						anim.onfinish = !~>
+							el.classList.remove \_markTarget
+							markEl.remove!
 
 	emptySel: !->
 		@selection.removeAllRanges!
@@ -774,10 +789,10 @@ App =
 	modalGetAlbums: ->
 		new Promise (resolve) !~>
 			if @token
-				res = await m.request \https://api.imgur.com/3/account/tiencoffee/albums,
+				res = await fetch \https://api.imgur.com/3/account/tiencoffee/albums,
 					headers:
 						"Authorization": "Bearer #@token"
-					background: yes
+				res = await res.json!
 				if res.success
 					albums = res.data
 					album = await @modal "Chọn album Imgur",, (modal) ~>
@@ -818,12 +833,12 @@ App =
 							formData = new FormData
 								..title = event.target.title.value
 								..privacy = \hidden
-							res = await m.request \https://api.imgur.com/3/album,
+							res = await fetch \https://api.imgur.com/3/album,
 								method: \post
 								headers:
 									"Authorization": "Bearer #@token"
 								body: formData
-								background: yes
+							res = await res.json!
 							if res.success
 								albumId = res.data.id
 								@notify "Đã tạo album Imgur: #albumId"
@@ -1009,6 +1024,7 @@ App =
 				subgenera[that.1] = yes
 			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is text
 				continue
+			console.log text
 			tab = void
 			rank = opts.ranks[index]
 			rank ?= @findRank \prefixes (.startsRegex.test targetText)
@@ -1104,23 +1120,23 @@ App =
 		else if combo is \0
 			@comboRanks = []
 		if sel
-			switch
-			| sel and comboIncludes \RMB \Slash
-				@data = sel.replace @regexes.startsPrefixes, ""
-				@data = @upperFirst @data
-				hasSummEl = target?closest \._summ
-				isLangVi = @lang is \vi
-				if (isLangVi and not hasSummEl) or (not isLangVi and hasSummEl)
-					switch args
-					| \LMB
-						@data = " | #@data"
-					| \RMB
-						@data = " # | #@data"
-					| \Shift+LMB
-						@data = " # #@data"
-				else
-					@data = " # #@data"
+			data = sel.replace @regexes.startsPrefixes, ""
+			data = @upperFirst data
+			matched = yes
+			switch combo
+			| \LMB
+				@lineData.0 = " # #data"
+			| \RMB
+				@lineData.1 = " | #data"
+			| \Shift+LMB
+				@lineData.0 = " #"
+				@lineData.1 = " | #data"
+			else
+				matched = no
+			if matched
+				@data = @lineData.join ""
 				@copy @data
+				@mark target
 				@emptySel!
 		else if target
 			if target.closest \span#Tạo_mới
@@ -1149,8 +1165,8 @@ App =
 						"M+RMB": " # % ; mandible"
 						"L+RMB": " # % ; illustration"
 						"S+RMB": " # % ; specimen"
-						"Q+RMB": " # % | ?"
-						"W+RMB": " # ? | %"
+						"Q+RMB": " # %"
+						"W+RMB": " | %"
 						"B+RMB": " # % ; breeding"
 						"N+RMB": " # % ; non-breeding"
 						"Shift+B+RMB": " | % ; breeding"
@@ -1161,7 +1177,6 @@ App =
 						{src} = target
 						unless src
 							src = target.style.backgroundImage - /^url\("|"\)$/g
-							console.log src
 						data = ""
 						if src.includes \//upload.wikimedia.org/
 							data = match src
@@ -1207,10 +1222,31 @@ App =
 						else if matched = src is /reptarium\.cz\/content\/photo_(.+)\.jpg$/
 							name = matched.1
 							data = "$#name"
+						else if matched = src is /www\.fishwisepro\.com\/pics\/JPG\/(?:TN\/TN)?(\w+)\.jpg$/
+							name = matched.1
+							data = "<#name"
+						else if matched = src is /biogeodb\.stri\.si\.edu\/sftep\/resources\/img\/images\/species\/(\w+)\.jpg$/
+							name = matched.1
+							data = ">#name"
 						else if src.includes \//i.imgur.com/
 							name = /https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
 							data = "-#name"
-						@data = caption.replace \% data
+						data = caption.replace \% data
+						switch
+						| combo is \RMB
+							@lineData.2 = data
+						| combo is \Q+RMB
+							@lineData.2 = data
+							@lineData.3 = " | ?"
+						| combo is \W+RMB
+							@lineData.2 = " # ?"
+							@lineData.3 = data
+						| comboIncludes \Shift \Alt
+							@lineData.3 = data
+						else
+							@lineData.2 = data
+							@lineData.3 = ""
+						@data = @lineData.join ""
 						@copy @data
 						@mark target
 					else
@@ -1252,9 +1288,7 @@ App =
 					@copy @data
 					@mark el
 			| target is target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
-				if combo in [\RMB \LMB \Shift+LMB]
-					@mark target
-					doCombo \Slash,, target.innerText, combo
+				doCombo combo,, target.innerText
 			| target.localName in [\li \dd]
 				ul = target.parentElement
 				switch combo
@@ -1324,9 +1358,7 @@ App =
 				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
 					@openLinksExtract col, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
 			| target.matches '#firstHeading, ._summTitle, h1, b'
-				if combo in [\RMB \LMB \Shift+LMB]
-					@mark target
-					doCombo \Slash,, target.innerText, combo
+				doCombo combo,, target.innerText
 		else
 			switch combo
 			| \C
@@ -1348,6 +1380,12 @@ App =
 				else
 					(@els.species or @els.enLang)?click!
 			| \E
+				try
+					@lineData = ["" "" "" ""]
+					navigator.clipboard.writeText ""
+				catch
+					alert e.message
+			| \R
 				if @data.includes \*
 					@data -= /\*/g
 				else
@@ -1382,9 +1420,12 @@ App =
 						.replace /-/g " "
 				| t.flickr
 					q = document.querySelector \#search-field .value
-				else
-					if args.0
+				| t.wikiPage
+					switch
+					| t.wikicommons
 						q = document.querySelector \#firstHeading .innerText .replace \Category: ""
+					| t.wikispecies
+						q = document.querySelector \#firstHeading .innerText
 					else
 						q = document.querySelector \.binomial ?.innerText
 				switch combo
