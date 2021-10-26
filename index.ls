@@ -238,7 +238,8 @@ parse = !->
 							| \<
 								src = "https://www.fishwisepro.com/pics/JPG/#src.jpg"
 							| \>
-								src = "https://biogeodb.stri.si.edu/sftep/resources/img/images/species/#src.jpg"
+								[node, src] = src.split \/
+								src = "https://biogeodb.stri.si.edu/#node/resources/img/images/species/#src.jpg"
 							else
 								src .= replace /^ttps?:/ ""
 							{src, captn}
@@ -625,6 +626,8 @@ App =
 					@summaryEl = vnode.dom.querySelector \#popupSummary
 				view: ~>
 					m \#popupBody,
+						class: @class do
+							"popupIsTrinomial": line.lv > 35
 						style:
 							minWidth: width + \px
 						m \#popupName name
@@ -670,7 +673,9 @@ App =
 			{summary} = await @fetchWiki line
 			if @summaryEl
 				if summary
-					summary -= /<br \/>/g
+					summary = summary
+						.replace /<br \/>/g ""
+						.replace /(?<!\.)\.\.(?!\.)/g \.
 				@summaryEl.innerHTML = summary
 				do updateHeight = !~>
 					if popupEl.offsetHeight > innerHeight - 4

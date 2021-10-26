@@ -587,6 +587,8 @@ App =
 		@modfCombo = ""
 		@lastCode = void
 		@target = null
+		@node = null
+		@nodeOffset = null
 
 	makeModfCombo: (event) !->
 		@modfCombo = ""
@@ -654,6 +656,8 @@ App =
 		else
 			if not @sel and event.type is \mouseup
 				@target = event.target
+				@node = @selection.anchorNode
+				@nodeOffset = @selection.anchorOffset
 			el = document.activeElement
 			if @combo and el.localName not in <[input textarea select]> and not el.isContentEditable
 				@combo = @modfCombo + @combo
@@ -663,12 +667,16 @@ App =
 
 	mark: (els) !->
 		if els
-			els = [els] unless \length of els
+			if els instanceof Node
+				els = [els]
 			for let el in els
 				if el
+					if el.nodeName is \#text
+						range = document.createRange!
+						range.selectNode el
+						el = range
 					rects = el.getClientRects!
 					for {x, y, width, height} in rects
-						el.classList.add \_markTarget
 						markEl = document.createElement \div
 						markEl.className = \_mark
 						document.body.appendChild markEl
@@ -681,7 +689,6 @@ App =
 								boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d0']
 							* duration: 150
 						anim.onfinish = !~>
-							el.classList.remove \_markTarget
 							markEl.remove!
 
 	emptySel: !->
@@ -1024,7 +1031,6 @@ App =
 				subgenera[that.1] = yes
 			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is text
 				continue
-			console.log text
 			tab = void
 			rank = opts.ranks[index]
 			rank ?= @findRank \prefixes (.startsRegex.test targetText)
@@ -1225,9 +1231,10 @@ App =
 						else if matched = src is /www\.fishwisepro\.com\/pics\/JPG\/(?:TN\/TN)?(\w+)\.jpg$/
 							name = matched.1
 							data = "<#name"
-						else if matched = src is /biogeodb\.stri\.si\.edu\/sftep\/resources\/img\/images\/species\/(\w+)\.jpg$/
-							name = matched.1
-							data = ">#name"
+						else if matched = src is /biogeodb\.stri\.si\.edu\/(\w+)\/resources\/img\/images\/species\/(\w+)\.jpg$/
+							node = matched.1
+							name = matched.2
+							data = ">#node/#name"
 						else if src.includes \//i.imgur.com/
 							name = /https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
 							data = "-#name"
@@ -1289,6 +1296,42 @@ App =
 					@mark el
 			| target is target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
 				doCombo combo,, target.innerText
+			| target.closest \.CategoryTreeItem
+				wrapper = target.closest \#mw-subcategories
+				switch combo
+				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
+					links = wrapper.querySelectorAll \.CategoryTreeItem
+					@openLinksExtract links, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
+			| t.wikispecies and target.localName is \p
+				if combo in [\RMB \LMB]
+					text = target.innerText.trim!split /\n+/ .[* - 1]trim!
+					rank = @findRank \prefixes (.startsRegex.test text)
+					text = text
+						.replace /^.+?:\s*/ ""
+						.replace /\s+[-\u2013]\s+/g \\n
+					@data = @extract text,
+						ranks: [rank]
+					@copy @data
+					@mark target
+			| target.matches '#firstHeading, ._summTitle, h1, b'
+				doCombo combo,, target.innerText
+			| @node and 0 < @nodeOffset < @node.length - 1
+				text = @node.wholeText.trim!
+				if ma = /\((.+?)\)/exec text
+					text = ma.1
+				if text.includes \,
+					text = text
+						.split \,
+						.filter (.trim!)
+						.0
+						.trim!
+				text = text
+					.replace /[–—]/gu ""
+					.trim!
+				text = @upperFirst text
+				@data = " # #text"
+				@copy @data
+				@mark @node
 			| target.localName in [\li \dd]
 				ul = target.parentElement
 				switch combo
@@ -1305,12 +1348,6 @@ App =
 					subUls = ul.querySelectorAll \ul
 					for subUl in subUls
 						subUl.remove!
-			| target.closest \.CategoryTreeItem
-				wrapper = target.closest \#mw-subcategories
-				switch combo
-				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
-					links = wrapper.querySelectorAll \.CategoryTreeItem
-					@openLinksExtract links, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
 			| el = target.closest "
 			.infobox.biota p, .infobox.biota td:only-child,
 			.infobox.taxobox p, .infobox.taxobox td:only-child"
@@ -1334,17 +1371,6 @@ App =
 						ranks: [rank]
 					@copy @data
 					@mark el
-			| t.wikispecies and target.localName is \p
-				if combo in [\RMB \LMB]
-					text = target.innerText.trim!split /\n+/ .[* - 1]trim!
-					rank = @findRank \prefixes (.startsRegex.test text)
-					text = text
-						.replace /^.+?:\s*/ ""
-						.replace /\s+[-\u2013]\s+/g \\n
-					@data = @extract text,
-						ranks: [rank]
-					@copy @data
-					@mark target
 			| t.wiki and td = target.closest \td
 				table = td.closest \table
 				col = @tableCol td
@@ -1357,8 +1383,6 @@ App =
 						@openLinksExtract col
 				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
 					@openLinksExtract col, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
-			| target.matches '#firstHeading, ._summTitle, h1, b'
-				doCombo combo,, target.innerText
 		else
 			switch combo
 			| \C

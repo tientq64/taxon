@@ -11,12 +11,12 @@ App =
 
 	oninputValA: (event) !->
 		@valA = event.target.value
-		localStorage.diffValA = @valA
+		# localStorage.diffValA = @valA
 		@parse!
 
 	oninputValB: (event) !->
 		@valB = event.target.value
-		localStorage.diffValB = @valB
+		# localStorage.diffValB = @valB
 		@parse!
 
 	onFocusTextarea: (event) !->
