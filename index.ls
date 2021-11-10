@@ -1,11 +1,11 @@
 localStorage
-	..taxonFindExact ?= \1
+	..taxonFindExact ?= ""
 	..taxonFindCase ?= \1
-	..taxonInfoLv ?= 1
-	..taxonRightClickAction ?= \n
+	..taxonInfoLv ?= \0
+	..taxonRightClickAction ?= \k
 	..taxonPopupLang ?= \vi
 
-lineH = 19
+lineH = 18
 code = void
 isKeyDown = yes
 lines = []
@@ -356,104 +356,14 @@ App =
 
 	oncreate: !->
 		heightEl.style.height = lines.length * lineH + \px
-		window.onkeydown = (event) !~>
-			unless event.repeat or event.ctrlKey or event.altKey
-				code := event.code
-				isKeyDown := yes
-		window.onkeyup = (event) !~>
-			if isKeyDown
-				hasntFocus = document.activeElement is document.body
-				switch code
-				| \KeyF
-					if hasntFocus
-						@find!
-						event.preventDefault!
-					if event.ctrlKey
-						event.preventDefault!
-				| \KeyX
-					if @finding
-						if event.altKey
-							@toggleFindExact!
-							event.preventDefault!
-				| \KeyC
-					if @finding
-						if event.altKey
-							@toggleFindCase!
-							event.preventDefault!
-				| \KeyI
-					if hasntFocus
-						val = event.shiftKey and 2 or 1
-						infoLv := if infoLv and infoLv is val => 0 else val
-						localStorage.taxonInfoLv = infoLv
-						m.redraw!
-				| \KeyA
-					if hasntFocus
-						action = prompt """
-							Nhập hành động khi bấm chuột phải:
-							g) google
-							b) bugguide
-							l) biolib
-							h) fishbase
-							e) ebird
-							s) seriouslyfish
-							k) flickr
-							n) inaturalist (mặc định)
-						""" @rightClickAction
-						if action
-							@rightClickAction = action
-							localStorage.taxonRightClickAction = action
-				| \KeyR
-					if hasntFocus
-						lv = +prompt """
-							Rank tối đa được hiển thị:
-							1) vực                  2) giới               3) phân giới         4) thứ giới
-							5) liên ngành       6) ngành          7) phân ngành     8) thứ ngành
-							9) tiểu ngành      10) liên lớp       11) lớp                 12) phân lớp
-							13) thứ lớp          14) tiểu lớp      15) đoàn              16) liên đội
-							17) đội                18) tổng bộ      19) liên bộ            20) bộ
-							21) phân bộ         22) thứ bộ       23) tiểu bộ           24) liên họ
-							25) họ                  26) phân họ     27) liên tông        28) tông
-							29) phân tông     30) chi              31) phân chi         32) mục
-							33) loạt                34) liên loài      35) loài                 36) phân loài
-							37) thứ                 38) dạng
-						"""
-						if lv
-							maxLv := lv
-							@lines = []
-							{scrollTop} = scrollEl
-							await parse!
-							heightEl.style.height = lines.length * lineH + \px
-							@onscroll!
-							m.redraw.sync!
-							scrollEl.style.scrollBehavior = ""
-							scrollEl.scrollTop = 0
-							scrollEl.style.scrollBehavior = \smooth
-							scrollEl.scrollTop = scrollTop
-				| \KeyV
-					@popupLang = @popupLang is \vi and \en or \vi
-					localStorage.taxonPopupLang = @popupLang
-				| \KeyE
-					try
-						await navigator.clipboard.writeText ""
-					catch
-						alert e.message
-				| \Escape
-					if @finding
-						@closeFind!
-				code := void
-				isKeyDown := no
-				m.redraw!
-		window.onblur = (event) !~>
-			code := void
-			isKeyDown := no
-		window.onmousedown = !~>
-			isKeyDown := no
+		addEventListener \keydown @onkeydown
+		addEventListener \keyup @onkeyup
+		addEventListener \mousedown @onmousedown
+		addEventListener \blur @onblur
 		scrollEl.scrollTop = +localStorage.taxonTop or 0
 		scrollEl.style.scrollBehavior = \smooth
-		do window.onresize = !~>
-			@len = Math.ceil(innerHeight / lineH) + 1
-			@onscroll!
-			m.redraw!
+		addEventListener \resize @onresize
+		@onresize!
 
 	class: (...items) ->
 		res = []
@@ -592,9 +502,15 @@ App =
 				else
 					window.open "http://fishbase.us/Nomenclature/ValidNameList.php?syng=#genus&crit2=CONTAINS&crit1=EQUAL"
 			| \e
-				data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#name")json!
-				item = data.find (.name.includes name) or data.0
-				window.open "https://ebird.org/species/#{item.code}" if item
+				handle = (name) ~>
+					data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#name")json!
+					item = data.find (.name.includes name) or data.0
+					if item
+						window.open "https://ebird.org/species/#{item.code}"
+						yes
+				unless await handle name
+					if line.textEn
+						await handle line.textEn
 			| \s
 				name = name.toLowerCase!replace /\ /g \-
 				window.open "https://www.seriouslyfish.com/species/#name"
@@ -760,6 +676,113 @@ App =
 						m.redraw!
 			evt.redraw = yes if evt
 		@mouseleaveName!
+
+	onkeydown: (event) !->
+		unless event.repeat
+			unless event.location in [1 2]
+				noFocus = document.activeElement is document.body
+				isKeyDown := yes
+				code := event.code
+				if noFocus
+					switch code
+					| \KeyF
+						if event.ctrlKey
+							event.preventDefault!
+
+	onkeyup: (event) !->
+		if isKeyDown
+			{ctrlKey: ctrl, shiftKey: shift, altKey: alt} = event
+			noFocus = document.activeElement is document.body
+			switch code
+			| \KeyF
+				if noFocus
+					@find!
+			| \KeyX
+				if @finding
+					if alt
+						@toggleFindExact!
+			| \KeyC
+				if @finding
+					if alt
+						@toggleFindCase!
+			| \KeyI
+				if noFocus
+					val = event.shiftKey and 2 or 1
+					infoLv := if infoLv and infoLv is val => 0 else val
+					localStorage.taxonInfoLv = infoLv
+					m.redraw!
+			| \KeyA
+				unless ctrl
+					if noFocus
+						action = prompt """
+							Nhập hành động khi bấm chuột phải:
+							g) google
+							b) bugguide
+							l) biolib
+							h) fishbase
+							e) ebird
+							s) seriouslyfish
+							k) flickr
+							n) inaturalist (mặc định)
+						""" @rightClickAction
+						if action
+							@rightClickAction = action
+							localStorage.taxonRightClickAction = action
+			| \KeyR
+				unless ctrl
+					if noFocus
+						lv = +prompt """
+							Rank tối đa được hiển thị:
+							1) vực                  2) giới               3) phân giới         4) thứ giới
+							5) liên ngành       6) ngành          7) phân ngành     8) thứ ngành
+							9) tiểu ngành      10) liên lớp       11) lớp                 12) phân lớp
+							13) thứ lớp          14) tiểu lớp      15) đoàn              16) liên đội
+							17) đội                18) tổng bộ      19) liên bộ            20) bộ
+							21) phân bộ         22) thứ bộ       23) tiểu bộ           24) liên họ
+							25) họ                  26) phân họ     27) liên tông        28) tông
+							29) phân tông     30) chi              31) phân chi         32) mục
+							33) loạt                34) liên loài      35) loài                 36) phân loài
+							37) thứ                 38) dạng
+						"""
+						if lv
+							maxLv := lv
+							@lines = []
+							{scrollTop} = scrollEl
+							await parse!
+							heightEl.style.height = lines.length * lineH + \px
+							@onscroll!
+							m.redraw.sync!
+							scrollEl.style.scrollBehavior = ""
+							scrollEl.scrollTop = 0
+							scrollEl.style.scrollBehavior = \smooth
+							scrollEl.scrollTop = scrollTop
+			| \KeyV
+				unless ctrl
+					@popupLang = @popupLang is \vi and \en or \vi
+					localStorage.taxonPopupLang = @popupLang
+			| \KeyE
+				try
+					await navigator.clipboard.writeText ""
+				catch
+					alert e.message
+			| \Escape
+				if @finding
+					@closeFind!
+			code := void
+			isKeyDown := no
+			m.redraw!
+
+	onmousedown: (event) !->
+		isKeyDown := no
+
+	onblur: (event) !->
+		code := void
+		isKeyDown := no
+
+	onresize: !->
+		@len = Math.ceil(innerHeight / lineH) + 1
+		@onscroll!
+		m.redraw!
 
 	view: ->
 		m \div,

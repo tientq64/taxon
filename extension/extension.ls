@@ -463,6 +463,7 @@ App =
 							nextEl = el.nextElementSibling
 							el.remove!
 						while el = nextEl
+					@hasSubspecies = /sub-?species/i.test document.body.innerText
 					if @els.commons
 						@prerender that.href
 					if @els.viLang
@@ -599,7 +600,8 @@ App =
 
 	onselectionchange: (event) !->
 		@sel = @selection + ""
-		@selecting = yes if @sel
+		if @sel and @combo is \LMB
+			@selecting = yes
 
 	onmousedown: (event) !->
 		{which} = event
@@ -685,8 +687,8 @@ App =
 								top: [y + \px, y - 3 + \px]
 								width: [width + \px, width + 6 + \px]
 								height: [height + \px, height + 6 + \px]
-								background: [\#07d2 \#07d0]
-								boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d0']
+								background: [\#d702 \#d700]
+								boxShadow: ['0 0 0 2px #d70' '0 0 0 2px #d700']
 							* duration: 150
 						anim.onfinish = !~>
 							markEl.remove!
@@ -1125,444 +1127,454 @@ App =
 			@comboRanks.push rank
 		else if combo is \0
 			@comboRanks = []
+		didSel = no
 		if sel
 			data = sel.replace @regexes.startsPrefixes, ""
 			data = @upperFirst data
-			matched = yes
 			switch combo
 			| \LMB
 				@lineData.0 = " # #data"
+				didSel = yes
 			| \RMB
 				@lineData.1 = " | #data"
+				didSel = yes
 			| \Shift+LMB
 				@lineData.0 = " #"
 				@lineData.1 = " | #data"
-			else
-				matched = no
-			if matched
+				didSel = yes
+			if didSel
 				@data = @lineData.join ""
 				@copy @data
 				@mark target
 				@emptySel!
-		else if target
-			if target.closest \span#Tạo_mới
-				return
-			switch
-			| combo is \Backquote+RMB
-				@canContextMenu = yes
-			| (target.localName is \img) or
-				(t.inaturalist and target.matches "a.photo-container, a.photo") or
-				(t.flickr and target.matches ".photo")
-				unless t.imgurEdit
-					captions =
-						"RMB": " # %"
-						"Shift+RMB": " | %"
-						"Alt+RMB": " ; % ; "
-						"F+RMB": " # % ; fossil"
-						"R+RMB": " # % ; restoration"
-						"C+RMB": " # % ; reconstruction"
-						"E+RMB": " # % ; exhibit"
-						"D+RMB": " # % ; drawing"
-						"H+RMB": " # % ; holotype"
-						"P+RMB": " # % ; paratype"
-						"U+RMB": " # % ; skull"
-						"T+RMB": " # % ; skeleton"
-						"J+RMB": " # % ; jaw"
-						"M+RMB": " # % ; mandible"
-						"L+RMB": " # % ; illustration"
-						"S+RMB": " # % ; specimen"
-						"Q+RMB": " # %"
-						"W+RMB": " | %"
-						"B+RMB": " # % ; breeding"
-						"N+RMB": " # % ; non-breeding"
-						"Shift+B+RMB": " | % ; breeding"
-						"Shift+N+RMB": " | % ; non-breeding"
-						"Alt+B+RMB": " ; % ; breeding"
-						"Alt+N+RMB": " ; % ; non-breeding"
-					if caption = captions[combo]
-						{src} = target
-						unless src
-							src = target.style.backgroundImage - /^url\("|"\)$/g
-						data = ""
-						if src.includes \//upload.wikimedia.org/
-							data = match src
-								| /\/\d+px-.+/
-									src
-										.replace /\https:\/\/upload\.wikimedia\.org\/wikipedia\/(commons|en)\/thumb\/./ ""
-										.replace /\/\d+px-.+$/ ""
-								| /-\d+px-.+/
-									src.replace /-\d+px-/ \-220px-
+		unless didSel
+			if target
+				if target.closest \span#Tạo_mới
+					return
+				switch
+				| combo is \Backquote+RMB
+					@canContextMenu = yes
+				| (target.localName is \img) or
+					(t.inaturalist and target.matches "a.photo-container, a.photo") or
+					(t.flickr and target.matches ".photo")
+					unless t.imgurEdit
+						captions =
+							"RMB": " # %"
+							"Shift+RMB": " | %"
+							"Alt+RMB": " ; % ; "
+							"F+RMB": " # % ; fossil"
+							"R+RMB": " # % ; restoration"
+							"C+RMB": " # % ; reconstruction"
+							"E+RMB": " # % ; exhibit"
+							"D+RMB": " # % ; drawing"
+							"H+RMB": " # % ; holotype"
+							"P+RMB": " # % ; paratype"
+							"U+RMB": " # % ; skull"
+							"T+RMB": " # % ; skeleton"
+							"J+RMB": " # % ; jaw"
+							"M+RMB": " # % ; mandible"
+							"L+RMB": " # % ; illustration"
+							"S+RMB": " # % ; specimen"
+							"Q+RMB": " # %"
+							"W+RMB": " | %"
+							"B+RMB": " # % ; breeding"
+							"N+RMB": " # % ; non-breeding"
+							"Shift+B+RMB": " | % ; breeding"
+							"Shift+N+RMB": " | % ; non-breeding"
+							"Alt+B+RMB": " ; % ; breeding"
+							"Alt+N+RMB": " ; % ; non-breeding"
+						if caption = captions[combo]
+							{src} = target
+							unless src
+								src = target.style.backgroundImage - /^url\("|"\)$/g
+							data = ""
+							if src.includes \//upload.wikimedia.org/
+								data = match src
+									| /\/\d+px-.+/
+										src
+											.replace /\https:\/\/upload\.wikimedia\.org\/wikipedia\/(commons|en)\/thumb\/./ ""
+											.replace /\/\d+px-.+$/ ""
+									| /-\d+px-.+/
+										src.replace /-\d+px-/ \-220px-
+									else
+										src.replace /https:\/\/upload\.wikimedia\.org\/wikipedia\/(commons|en)\/./ ""
+								if src.includes \/wikipedia/en/
+									data = \/ + data
+							else if matched = src is /\/\/(static\.inaturalist\.org|inaturalist-open-data\.s3\.amazonaws\.com)\//
+								isAmazonAws = matched.1 is \inaturalist-open-data.s3.amazonaws.com and \: or ""
+								[, name, ext] = /\/photos\/(\d+)\/[a-z]+\.([a-zA-Z]*)/.exec src
+								type = {jpg: "" jpeg: \e png: \p JPG: \J JPEG: \E PNG: \P "": \u}[ext]
+								data = ":#isAmazonAws#name#type"
+							else if src.includes \//live.staticflickr.com/
+								name = /^(?:https:)?\/\/live\.staticflickr\.com\/(\d+\/\d+_[\da-f]+)_[a-z]\.jpg+/.exec src .1
+								data = "@#name"
+							else if src.includes \//www.biolib.cz/
+								name = /(\d+)\.jpg$/.exec src .1
+								data = "%#name"
+							else if src.includes \//bugguide.net/
+								name = /([A-Z\d]+)\.jpg$/.exec src .1
+								if src.includes \/raw/
+									name += \r
+								data = "~#name"
+							else if src is /fishbase\.[a-z]+\//
+								isUpload = src is /uploadphoto/i and \^ or ""
+								regex =
+									if src.includes \workimagethumb
+										/%2fuploadphoto%2fuploads%2f(.+)\.[a-z]+&w=\d+$/i
+									else /(?:tn_)?([^/]+)\.[a-z]+$/i
+								name = regex.exec src .1 .toLowerCase!
+								data = "^#isUpload#name"
+							else if src.includes \//cdn.download.ams.birds.cornell.edu/
+								if name = /\/asset\/(\d+)1(\/|$)/exec src ?.1
+									data = "+#name"
 								else
-									src.replace /https:\/\/upload\.wikimedia\.org\/wikipedia\/(commons|en)\/./ ""
-							if src.includes \/wikipedia/en/
-								data = \/ + data
-						else if matched = src is /\/\/(static\.inaturalist\.org|inaturalist-open-data\.s3\.amazonaws\.com)\//
-							isAmazonAws = matched.1 is \inaturalist-open-data.s3.amazonaws.com and \: or ""
-							[, name, ext] = /\/photos\/(\d+)\/[a-z]+\.([a-zA-Z]*)/.exec src
-							type = {jpg: "" jpeg: \e png: \p JPG: \J JPEG: \E PNG: \P "": \u}[ext]
-							data = ":#isAmazonAws#name#type"
-						else if src.includes \//live.staticflickr.com/
-							name = /^(?:https:)?\/\/live\.staticflickr\.com\/(\d+\/\d+_[\da-f]+)_[a-z]\.jpg+/.exec src .1
-							data = "@#name"
-						else if src.includes \//www.biolib.cz/
-							name = /(\d+)\.jpg$/.exec src .1
-							data = "%#name"
-						else if src.includes \//bugguide.net/
-							name = /([A-Z\d]+)\.jpg$/.exec src .1
-							if src.includes \/raw/
-								name += \r
-							data = "~#name"
-						else if src is /fishbase\.[a-z]+\//
-							isUpload = src is /uploadphoto/i and \^ or ""
-							regex =
-								if src.includes \workimagethumb
-									/%2fuploadphoto%2fuploads%2f(.+)\.[a-z]+&w=\d+$/i
-								else /(?:tn_)?([^/]+)\.[a-z]+$/i
-							name = regex.exec src .1 .toLowerCase!
-							data = "^#isUpload#name"
-						else if src.includes \//cdn.download.ams.birds.cornell.edu/
-							if name = /\/asset\/(\d+)1(\/|$)/exec src ?.1
-								data = "+#name"
+									@notify "Không thể lấy dữ liệu hình ảnh"
+							else if matched = src is /reptarium\.cz\/content\/photo_(.+)\.jpg$/
+								name = matched.1
+								data = "$#name"
+							else if matched = src is /www\.fishwisepro\.com\/pics\/JPG\/(?:TN\/TN)?(\w+)\.jpg$/
+								name = matched.1
+								data = "<#name"
+							else if matched = src is /biogeodb\.stri\.si\.edu\/(\w+)\/resources\/img\/images\/species\/(\w+)\.jpg$/
+								node = matched.1
+								name = matched.2
+								data = ">#node/#name"
+							else if src.includes \//i.imgur.com/
+								name = /https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
+								data = "-#name"
+							data = caption.replace \% data
+							switch
+							| combo is \RMB
+								@lineData.2 = data
+							| combo is \Q+RMB
+								@lineData.2 = data
+								@lineData.3 = " | ?"
+							| combo is \W+RMB
+								@lineData.2 = " # ?"
+								@lineData.3 = data
+							| comboIncludes \Shift \Alt
+								@lineData.3 = data
 							else
-								@notify "Không thể lấy dữ liệu hình ảnh"
-						else if matched = src is /reptarium\.cz\/content\/photo_(.+)\.jpg$/
-							name = matched.1
-							data = "$#name"
-						else if matched = src is /www\.fishwisepro\.com\/pics\/JPG\/(?:TN\/TN)?(\w+)\.jpg$/
-							name = matched.1
-							data = "<#name"
-						else if matched = src is /biogeodb\.stri\.si\.edu\/(\w+)\/resources\/img\/images\/species\/(\w+)\.jpg$/
-							node = matched.1
-							name = matched.2
-							data = ">#node/#name"
-						else if src.includes \//i.imgur.com/
-							name = /https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
-							data = "-#name"
-						data = caption.replace \% data
-						switch
-						| combo is \RMB
-							@lineData.2 = data
-						| combo is \Q+RMB
-							@lineData.2 = data
-							@lineData.3 = " | ?"
-						| combo is \W+RMB
-							@lineData.2 = " # ?"
-							@lineData.3 = data
-						| comboIncludes \Shift \Alt
-							@lineData.3 = data
+								@lineData.2 = data
+								@lineData.3 = ""
+							@data = @lineData.join ""
+							@copy @data
+							@mark target
 						else
-							@lineData.2 = data
-							@lineData.3 = ""
-						@data = @lineData.join ""
-						@copy @data
-						@mark target
-					else
-						switch combo
-						| \I+RMB \I+MMB \Shift+I+RMB \Shift+I+MMB
-							unless t.wikiPage and target.closest '.thumbimage,.infobox.biota'
-								@canMiddleClick = no
-								image = target.src
-								isOpenNewTab = comboIncludes \MMB or (t.inaturalist and target.classList.contains \photo)
-								@mark target
-								await @uploadImgur do
-									image: image
-									type: \URL
-									isOpenNewTab: isOpenNewTab
-									isFemale: comboIncludes \Shift
-			| target.matches "a:not(.new)[href]" and combo is \RMB
-				if combo is \RMB
-					window.open target.href
-			| td = target.closest ".infobox.biota td:nth-child(2), .infobox.taxobox td:nth-child(2)"
-				if combo in [\RMB \LMB]
-					rankName = td.previousElementSibling.innerText
-						.replace \: ""
-						.trim!
-					rank = @findRank \prefixes (.regex.test rankName)
-					if rank
-						@data = @extract td,
-							ranks: [rank]
-						@copy @data
-						@mark td
-			| el = target.closest ".infobox.biota .binomial, .infobox.taxobox .binomial"
-				if combo in [\RMB \LMB]
-					@data = @extract el,
-						ranks: [@ranks.species]
-					@copy @data
-					@mark el
-			| el = target.closest "dl> dt:only-child"
-				if combo in [\RMB \LMB]
-					@data = @extract el
-					@copy @data
-					@mark el
-			| target is target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
-				doCombo combo,, target.innerText
-			| target.closest \.CategoryTreeItem
-				wrapper = target.closest \#mw-subcategories
-				switch combo
-				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
-					links = wrapper.querySelectorAll \.CategoryTreeItem
-					@openLinksExtract links, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
-			| t.wikispecies and target.localName is \p
-				if combo in [\RMB \LMB]
-					text = target.innerText.trim!split /\n+/ .[* - 1]trim!
-					rank = @findRank \prefixes (.startsRegex.test text)
-					text = text
-						.replace /^.+?:\s*/ ""
-						.replace /\s+[-\u2013]\s+/g \\n
-					@data = @extract text,
-						ranks: [rank]
-					@copy @data
-					@mark target
-			| target.matches '#firstHeading, ._summTitle, h1, b'
-				doCombo combo,, target.innerText
-			| @node and 0 < @nodeOffset < @node.length - 1
-				text = @node.wholeText.trim!
-				if ma = /\((.+?)\)/exec text
-					text = ma.1
-				if text.includes \,
-					text = text
-						.split \,
-						.filter (.trim!)
-						.0
-						.trim!
-				text = text
-					.replace /[–—]/gu ""
-					.trim!
-				text = @upperFirst text
-				@data = " # #text"
-				@copy @data
-				@mark @node
-			| target.localName in [\li \dd]
-				ul = target.parentElement
-				switch combo
-				| \RMB \LMB
-					@data = @extract ul.children,
-						deep: yes
-					await @copy @data
-					@mark ul
-					if @cfg.copyExtractDeepAndOpenLinkExtract
-						@openLinksExtract ul.children
-				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
-					@openLinksExtract ul.children, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
-				| \Backspace+RMB \Backspace+LMB
-					subUls = ul.querySelectorAll \ul
-					for subUl in subUls
-						subUl.remove!
-			| el = target.closest "
-			.infobox.biota p, .infobox.biota td:only-child,
-			.infobox.taxobox p, .infobox.taxobox td:only-child"
-				if combo in [\RMB \LMB]
-					if tr = target.closest \tr ?.previousElementSibling
-						rankName = tr.innerText
-							.replace \Type ""
+							switch combo
+							| \I+RMB \I+MMB \Shift+I+RMB \Shift+I+MMB
+								unless t.wikiPage and target.closest '.thumbimage,.infobox.biota'
+									@canMiddleClick = no
+									image = target.src
+									isOpenNewTab = comboIncludes \MMB or (t.inaturalist and target.classList.contains \photo)
+									@mark target
+									await @uploadImgur do
+										image: image
+										type: \URL
+										isOpenNewTab: isOpenNewTab
+										isFemale: comboIncludes \Shift
+				| target.matches "a:not(.new)[href]" and combo is \RMB
+					if combo is \RMB
+						window.open target.href
+				| td = target.closest ".infobox.biota td:nth-child(2), .infobox.taxobox td:nth-child(2)"
+					if combo in [\RMB \LMB]
+						rankName = td.previousElementSibling.innerText
+							.replace \: ""
 							.trim!
 						rank = @findRank \prefixes (.regex.test rankName)
-					switch el.localName
-					| \p
-						text = el.innerText
-							.replace /\u2013.*/ ""
-							.replace /\(but see text\)/ ""
-					else
-						text = el.innerText
-							.trim!
-							.split \\n 1 .0
-							.trim!
-					@data = @extract text,
-						ranks: [rank]
+						if rank
+							@data = @extract td,
+								ranks: [rank]
+							@copy @data
+							@mark td
+				| el = target.closest ".infobox.biota .binomial, .infobox.taxobox .binomial"
+					if combo in [\RMB \LMB]
+						@data = @extract el,
+							ranks: [@ranks.species]
+						@copy @data
+						@mark el
+				| el = target.closest "dl> dt:only-child"
+					if combo in [\RMB \LMB]
+						@data = @extract el
+						@copy @data
+						@mark el
+				| target is target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
+					doCombo combo,, target.innerText
+				| target.closest \.CategoryTreeItem
+					wrapper = target.closest \#mw-subcategories
+					switch combo
+					| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
+						links = wrapper.querySelectorAll \.CategoryTreeItem
+						@openLinksExtract links, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
+				| t.wikispecies and target.localName is \p
+					if combo in [\RMB \LMB]
+						text = target.innerText.trim!split /\n+/ .[* - 1]trim!
+						rank = @findRank \prefixes (.startsRegex.test text)
+						text = text
+							.replace /^.+?:\s*/ ""
+							.replace /\s+[-\u2013]\s+/g \\n
+						@data = @extract text,
+							ranks: [rank]
+						@copy @data
+						@mark target
+				| target.matches '#firstHeading, ._summTitle, h1, b'
+					doCombo combo,, target.innerText
+				| target.matches 'i'
+					@data = @extract target
 					@copy @data
-					@mark el
-			| t.wiki and td = target.closest \td
-				table = td.closest \table
-				col = @tableCol td
+					@mark target
+				| @node and 0 < @nodeOffset < @node.length - 1
+					text = @node.wholeText.trim!
+					if ma = /\((.+?)\)/exec text
+						text = ma.1
+					if text.includes \,
+						text = text
+							.split \,
+							.filter (.trim!)
+							.0
+							.trim!
+					text = text
+						.replace /[–—]/gu ""
+						.trim!
+					text = @upperFirst text
+					@data = " # #text"
+					@copy @data
+					@mark @node
+				| target.localName in [\li \dd]
+					ul = target.parentElement
+					switch combo
+					| \RMB \LMB
+						@data = @extract ul.children,
+							deep: yes
+						await @copy @data
+						@mark ul
+						if @cfg.copyExtractDeepAndOpenLinkExtract
+							@openLinksExtract ul.children
+					| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
+						@openLinksExtract ul.children, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
+					| \Backspace+RMB \Backspace+LMB
+						subUls = ul.querySelectorAll \ul
+						for subUl in subUls
+							subUl.remove!
+				| el = target.closest "
+				.infobox.biota p, .infobox.biota td:only-child,
+				.infobox.taxobox p, .infobox.taxobox td:only-child"
+					if combo in [\RMB \LMB]
+						if tr = target.closest \tr ?.previousElementSibling
+							rankName = tr.innerText
+								.replace \Type ""
+								.trim!
+							rank = @findRank \prefixes (.regex.test rankName)
+						switch el.localName
+						| \p
+							text = el.innerText
+								.replace /\u2013.*/ ""
+								.replace /\(but see text\)/ ""
+						else
+							text = el.innerText
+								.trim!
+								.split \\n 1 .0
+								.trim!
+						@data = @extract text,
+							ranks: [rank]
+						@copy @data
+						@mark el
+				| t.wiki and td = target.closest \td
+					table = td.closest \table
+					col = @tableCol td
+					switch combo
+					| \RMB \LMB
+						data = @extract col
+						await @copy data
+						@mark col
+						if @cfg.copyExtractDeepAndOpenLinkExtract
+							@openLinksExtract col
+					| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
+						@openLinksExtract col, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
+			else
 				switch combo
-				| \RMB \LMB
-					data = @extract col
-					await @copy data
-					@mark col
-					if @cfg.copyExtractDeepAndOpenLinkExtract
-						@openLinksExtract col
-				| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
-					@openLinksExtract col, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
-		else
-			switch combo
-			| \C
-				(@els.commons or @els.enLang)?click!
-			| \D
-				if t.inaturalist
-					document.querySelector \.next_page ?.click!
-				else
-					(@els.enLang or @els.viLang)?click!
-			| \D+V
-				(@els.viLang or @els.enLang)?click!
-			| \D+E
-				(@els.esLang or @els.enLang)?click!
-			| \D+F
-				(@els.frLang or @els.enLang)?click!
-			| \S
-				if t.imgurEdit
-					document.getElementById \save .click!
-				else
-					(@els.species or @els.enLang)?click!
-			| \E
-				try
-					@lineData = ["" "" "" ""]
-					navigator.clipboard.writeText ""
-				catch
-					alert e.message
-			| \R
-				if @data.includes \*
-					@data -= /\*/g
-				else
-					@data .= replace /(?!^)(?=\n|$)/g \*
-				@copy @data
-			| \V
-				if t.inaturalist
-					if el = document.querySelector "[name=taxon_name]"
-						text = await navigator.clipboard.readText!
-						el.select!
-						el.value = text
-			| \O \Shift+O
-				text = await navigator.clipboard.readText!
-				url = "https://en.wikipedia.org/wiki/#text"
-				if combo is \O
-					location.href = url
-				else
-					window.open url
-			| \G \G+N \G+E \G+H \G+S \G+K
-				switch
-				| t.google
-					q = document.querySelector \#REsRA .value
-				| t.fishbase
-					q = document.querySelector ".ptitle a" .textContent
-				| t.ebird
-					q = document.querySelector \.Heading-sub--sci .textContent
-				| t.inaturalist
-					q = document.querySelector \#q .value
-				| t.seriouslyfish
-					q = /[^/]+$/exec location.pathname .0
-						.replace /^./ (.toUpperCase!)
-						.replace /-/g " "
-				| t.flickr
-					q = document.querySelector \#search-field .value
-				| t.wikiPage
+				| \C
+					(@els.commons or @els.enLang)?click!
+				| \D
+					if t.inaturalist
+						document.querySelector \.next_page ?.click!
+					else
+						(@els.enLang or @els.viLang)?click!
+				| \D+V
+					(@els.viLang or @els.enLang)?click!
+				| \D+E
+					(@els.esLang or @els.enLang)?click!
+				| \D+F
+					(@els.frLang or @els.enLang)?click!
+				| \S
+					if t.imgurEdit
+						document.getElementById \save .click!
+					else
+						(@els.species or @els.enLang)?click!
+				| \E
+					try
+						@lineData = ["" "" "" ""]
+						navigator.clipboard.writeText ""
+					catch
+						alert e.message
+				| \R
+					if @data.includes \*
+						@data -= /\*/g
+					else
+						@data .= replace /(?!^)(?=\n|$)/g \*
+					@copy @data
+				| \V
+					if t.inaturalist
+						if el = document.querySelector "[name=taxon_name]"
+							text = await navigator.clipboard.readText!
+							el.select!
+							el.value = text
+				| \O \Shift+O
+					text = await navigator.clipboard.readText!
+					url = "https://en.wikipedia.org/wiki/#text"
+					if combo is \O
+						location.href = url
+					else
+						window.open url
+				| \F
+					find \subspecies no no yes
+				| \Shift+F
+					find \subspecies no yes yes
+				| \G \G+N \G+E \G+H \G+S \G+K
 					switch
-					| t.wikicommons
-						q = document.querySelector \#firstHeading .innerText .replace \Category: ""
-					| t.wikispecies
-						q = document.querySelector \#firstHeading .innerText
-					else
-						q = document.querySelector \.binomial ?.innerText
-				switch combo
-				| \G
-					{keyGPlus} = @cfg
-					if keyGPlus
-						doCombo "G+#keyGPlus"
-					else
-						location.href = "https://google.com/search?tbm=isch&q=#q"
-				| \G+N
-					location.href = "https://inaturalist.org/taxa/search?view=list&q=#q"
-				| \G+E
-					data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#q")json!
-					item = data.find (.name.includes name) or data.0
-					if item
-						location.href = "https://ebird.org/species/#{item.code}"
-					else
-						if args.0
-							@notify "Không tìm thấy trên ebird.org"
+					| t.google
+						q = document.querySelector \#REsRA .value
+					| t.fishbase
+						q = document.querySelector ".ptitle a" .textContent
+					| t.ebird
+						q = document.querySelector \.Heading-sub--sci .textContent
+					| t.inaturalist
+						q = document.querySelector \#q .value
+					| t.seriouslyfish
+						q = /[^/]+$/exec location.pathname .0
+							.replace /^./ (.toUpperCase!)
+							.replace /-/g " "
+					| t.flickr
+						q = document.querySelector \#search-field .value
+					| t.wikiPage
+						switch
+						| t.wikicommons
+							q = document.querySelector \#firstHeading .innerText .replace \Category: ""
+						| t.wikispecies
+							q = document.querySelector \#firstHeading .innerText
 						else
-							doCombo \G+E,,, [yes]
-				| \G+H
-					[genus, species] = q.split " "
-					location.href = "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species"
-				| \G+S
-					q = q.toLowerCase!replace /\ /g \-
-					location.href = "https://www.seriouslyfish.com/species/#q"
-				| \G+K
-					location.href = "https://www.flickr.com/search/?tags=#q"
-			| \I+U
-				if blob = await @readCopiedImgBlob!
-					base64 = await @readAsBase64 blob
-					await @uploadImgur do
-						image: base64
-						type: \base64
-			| \I+A
-				@getImgurAlbum!
-			| \I+T
-				@getImgurToken!
-			| \I+L
-				{data} = await (await fetch "https://api.imgur.com/3/credits",
-					headers:
-						"Authorization": "Bearer #@token"
-				)json!
-				now = Math.floor Date.now! / 1000
-				@modal "Giới hạn Imgur", 340, (modal) ~>
-					m \._row._wrap,
-						m \._col9._mb2 "Giới hạn người dùng"
-						m \._col3._mb2 data.UserLimit
-						m \._col9._mb2 "Giới hạn người dùng còn lại"
-						m \._col3._mb2 data.UserRemaining
-						m \._col9._mb2 "Thời gian reset giới hạn người dùng"
-						m \._col3._mb2 Math.floor((data.UserReset - now) / 60) + " phút"
-						m \._col9._mb2 "Giới hạn ứng dụng"
-						m \._col3._mb2 data.ClientLimit
-						m \._col9._mb2 "Giới hạn ứng dụng còn lại"
-						m \._col3._mb2 data.ClientRemaining
-			| \W+P
-				location.href = \https://en.wikipedia.org/wiki/Special:Preferences
-			| \W+E
-				location.href = document.querySelector '#ca-ve-edit a,#ca-edit a' .href
-			| \W+H
-				location.href = document.querySelector '#ca-history a' .href
-			| \W+M
-				location.href = document.querySelector '#ca-move a' .href
-			| \W+L
-				switch
-				| t.wiki
-					document.querySelector \#pt-login>a .click!
-				| t.flickr
-					location.href = \https://www.flickr.com/signin
-			| \W+D
-				document.querySelector \.wbc-editpage .click!
-			| \A
-				cfgs =
-					c: \copyExtractDeepAndOpenLinkExtract
-					g: \keyGPlus
-				text = "Đặt cấu hình (key + val, val sẽ được convert sang số nếu có thể, vd: c1):"
-				for k, val of cfgs
-					text += "\n(#k): #val: #{@cfg[val]}"
-				if text = prompt text
-					key = text.0
-					prop = cfgs[key]
-					if prop
-						if val = text.substring 1
-							val = +val if isFinite val
+							q = document.querySelector \.binomial ?.innerText
+					switch combo
+					| \G
+						{keyGPlus} = @cfg
+						if keyGPlus
+							doCombo "G+#keyGPlus"
 						else
-							val = void
-						@setCfg prop, val, !~>
-							@notify "#{cfgs[key]}: #val"
-					else
-						@notify "Key '#key' không hợp lệ"
-			| \Delete
-				if t.imgurEdit
-					usp = new URLSearchParams location.search
-					id = usp.get \_taxonId
-					location.href = "https://imgur.com/#id?_taxonDelete=1"
-			| \ArrowLeft
-				if el = document.querySelector \.nav-button
-					el.click!
-			| \ArrowRight
-				if el = document.querySelector \.nav-button.next
-					el.click!
-			| \Escape
-				if t.flickr
-					if el = document.querySelector \.entry-type.do-not-evict
+							location.href = "https://google.com/search?tbm=isch&q=#q"
+					| \G+N
+						location.href = "https://inaturalist.org/taxa/search?view=list&q=#q"
+					| \G+E
+						data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#q")json!
+						item = data.find (.name.includes name) or data.0
+						if item
+							location.href = "https://ebird.org/species/#{item.code}"
+						else
+							if args.0
+								@notify "Không tìm thấy trên ebird.org"
+							else
+								doCombo \G+E,,, [yes]
+					| \G+H
+						[genus, species] = q.split " "
+						location.href = "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species"
+					| \G+S
+						q = q.toLowerCase!replace /\ /g \-
+						location.href = "https://www.seriouslyfish.com/species/#q"
+					| \G+K
+						location.href = "https://www.flickr.com/search/?tags=#q"
+				| \I+U
+					if blob = await @readCopiedImgBlob!
+						base64 = await @readAsBase64 blob
+						await @uploadImgur do
+							image: base64
+							type: \base64
+				| \I+A
+					@getImgurAlbum!
+				| \I+T
+					@getImgurToken!
+				| \I+L
+					{data} = await (await fetch "https://api.imgur.com/3/credits",
+						headers:
+							"Authorization": "Bearer #@token"
+					)json!
+					now = Math.floor Date.now! / 1000
+					@modal "Giới hạn Imgur", 340, (modal) ~>
+						m \._row._wrap,
+							m \._col9._mb2 "Giới hạn người dùng"
+							m \._col3._mb2 data.UserLimit
+							m \._col9._mb2 "Giới hạn người dùng còn lại"
+							m \._col3._mb2 data.UserRemaining
+							m \._col9._mb2 "Thời gian reset giới hạn người dùng"
+							m \._col3._mb2 Math.floor((data.UserReset - now) / 60) + " phút"
+							m \._col9._mb2 "Giới hạn ứng dụng"
+							m \._col3._mb2 data.ClientLimit
+							m \._col9._mb2 "Giới hạn ứng dụng còn lại"
+							m \._col3._mb2 data.ClientRemaining
+				| \W+P
+					location.href = \https://en.wikipedia.org/wiki/Special:Preferences
+				| \W+E
+					location.href = document.querySelector '#ca-ve-edit a,#ca-edit a' .href
+				| \W+H
+					location.href = document.querySelector '#ca-history a' .href
+				| \W+M
+					location.href = document.querySelector '#ca-move a' .href
+				| \W+L
+					switch
+					| t.wiki
+						document.querySelector \#pt-login>a .click!
+					| t.flickr
+						location.href = \https://www.flickr.com/signin
+				| \W+D
+					document.querySelector \.wbc-editpage .click!
+				| \A
+					cfgs =
+						c: \copyExtractDeepAndOpenLinkExtract
+						g: \keyGPlus
+					text = "Đặt cấu hình (key + val, val sẽ được convert sang số nếu có thể, vd: c1):"
+					for k, val of cfgs
+						text += "\n(#k): #val: #{@cfg[val]}"
+					if text = prompt text
+						key = text.0
+						prop = cfgs[key]
+						if prop
+							if val = text.substring 1
+								val = +val if isFinite val
+							else
+								val = void
+							@setCfg prop, val, !~>
+								@notify "#{cfgs[key]}: #val"
+						else
+							@notify "Key '#key' không hợp lệ"
+				| \Delete
+					if t.imgurEdit
+						usp = new URLSearchParams location.search
+						id = usp.get \_taxonId
+						location.href = "https://imgur.com/#id?_taxonDelete=1"
+				| \ArrowLeft
+					if el = document.querySelector \.nav-button
 						el.click!
-			| \Z
-				history.back!
-			| \X
-				history.forward!
-			| \W
-				@closeTab!
+				| \ArrowRight
+					if el = document.querySelector \.nav-button.next
+						el.click!
+				| \Escape
+					if t.flickr
+						if el = document.querySelector \.entry-type.do-not-evict
+							el.click!
+				| \Z
+					history.back!
+				| \X
+					history.forward!
+				| \W
+					@closeTab!
 		m.redraw!
 
 	view: ->
@@ -1620,12 +1632,12 @@ App =
 								else
 									m \._mt5._textCenter._textRed "Không có tiếng Việt"
 								m \._row._center._top._mt3,
+									if @hasSubspecies
+										m \._col6._row._center._middle,
+											"Subspecies"
 									if el = @els.commons
 										m \a._col6._row._center._middle._textGreen,
 											href: el.href
-											m \img._mr2,
-												src: \https://commons.wikimedia.org/static/favicon/commons.ico
-												height: 24
 											"Commons"
 						| t.imgurEdit
 							m \._p3,
