@@ -2,7 +2,7 @@ localStorage
 	..taxonFindExact ?= ""
 	..taxonFindCase ?= \1
 	..taxonInfoLv ?= \0
-	..taxonRightClickAction ?= \k
+	..taxonRightClickAction ?= \g
 	..taxonPopupLang ?= \vi
 
 lineH = 18
@@ -10,6 +10,7 @@ code = void
 isKeyDown = yes
 lines = []
 chars = {}
+isDev = location.hostname is \localhost
 maxLv = 99
 infoMaxLv = 2
 infoLv = +localStorage.taxonInfoLv
@@ -391,6 +392,8 @@ App =
 				val .= toLowerCase!
 			@findLines = lines.filter (line) ~>
 				{name, textVi = ""} = line
+				if Number.isFinite textVi
+					textVi = ""
 				unless @findCase
 					name .= toLowerCase!
 					textVi .= toLowerCase!
@@ -459,65 +462,80 @@ App =
 		unless line.name in ["" \?]
 			switch event.which
 			| 1
-				lang = event.altKey and \vi or \en
-				q = @getWikiPageName line
-				window.open "https://#lang.wikipedia.org/wiki/#q" \_blank
+				if isDev
+					lang = event.altKey and \vi or \en
+					q = @getWikiPageName line
+					window.open "https://#lang.wikipedia.org/wiki/#q" \_blank
+				else
+					q = @getWikiPageName line
+					window.open "https://vi.wikipedia.org/wiki/#q" \_blank
 			| 2
 				event.preventDefault!
-				try
-					navigator.clipboard.writeText line.name
-				catch
-					alert e.message
+				if isDev
+					try
+						navigator.clipboard.writeText line.name
+					catch
+						alert e.message
+				else
+					name = @getFullNameNoSubgenus line
+					try
+						navigator.clipboard.writeText name
+					catch
+						alert e.message
 
 	contextmenuName: (line, event) !->
 		event.preventDefault!
-		unless line.name in ["" \?]
-			name = @getFullNameNoSubgenus line
-			action =
-				| event.altKey => \g
-				| code is \KeyB => \b
-				| code is \KeyL => \l
-				| code is \KeyH => \h
-				| code is \KeyE => \e
-				| code is \KeyS => \s
-				| code is \KeyN => \n
-				| code is \KeyK => \k
-				else @rightClickAction
-			text = name.split " " .0
-			try
-				navigator.clipboard.writeText text
-			catch
-				alert e.message
-			switch action
-			| \g
-				window.open "https://google.com/search?tbm=isch&q=#name" \_blank
-			| \b
-				window.open "https://bugguide.net/index.php?q=search&keys=#name"
-			| \l
-				window.open "https://www.biolib.cz/en/formsearch/?string=#name&searchgallery=1&action=execute"
-			| \h
-				[genus, species] = name.split " "
-				if species
-					window.open "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species" \_blank
+		if isDev
+			unless line.name in ["" \?]
+				name = @getFullNameNoSubgenus line
+				action =
+					| event.altKey => \g
+					| code is \KeyB => \b
+					| code is \KeyL => \l
+					| code is \KeyH => \h
+					| code is \KeyE => \e
+					| code is \KeyS => \s
+					| code is \KeyN => \n
+					| code is \KeyK => \k
+					else @rightClickAction
+				text = name.split " " .0
+				try
+					navigator.clipboard.writeText text
+				catch
+					alert e.message
+				switch action
+				| \g
+					window.open "https://google.com/search?tbm=isch&q=#name" \_blank
+				| \b
+					window.open "https://bugguide.net/index.php?q=search&keys=#name"
+				| \l
+					window.open "https://www.biolib.cz/en/formsearch/?string=#name&searchgallery=1&action=execute"
+				| \h
+					[genus, species] = name.split " "
+					if species
+						window.open "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species" \_blank
+					else
+						window.open "http://fishbase.us/Nomenclature/ValidNameList.php?syng=#genus&crit2=CONTAINS&crit1=EQUAL"
+				| \e
+					handle = (name) ~>
+						data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#name")json!
+						item = data.find (.name.includes name) or data.0
+						if item
+							window.open "https://ebird.org/species/#{item.code}"
+							yes
+					unless await handle name
+						if line.textEn
+							await handle line.textEn
+				| \s
+					name = name.toLowerCase!replace /\ /g \-
+					window.open "https://www.seriouslyfish.com/species/#name"
+				| \k
+					window.open "https://www.flickr.com/search/?tags=#name"
 				else
-					window.open "http://fishbase.us/Nomenclature/ValidNameList.php?syng=#genus&crit2=CONTAINS&crit1=EQUAL"
-			| \e
-				handle = (name) ~>
-					data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#name")json!
-					item = data.find (.name.includes name) or data.0
-					if item
-						window.open "https://ebird.org/species/#{item.code}"
-						yes
-				unless await handle name
-					if line.textEn
-						await handle line.textEn
-			| \s
-				name = name.toLowerCase!replace /\ /g \-
-				window.open "https://www.seriouslyfish.com/species/#name"
-			| \k
-				window.open "https://www.flickr.com/search/?tags=#name"
-			else
-				window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
+					window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
+		else
+			q = @getWikiPageName line
+			window.open "https://en.wikipedia.org/wiki/#q" \_blank
 
 	mouseleaveName: !->
 		if @popper
@@ -534,7 +552,6 @@ App =
 			summary = void
 			{imgs} = line
 			width = 320
-			imgCaptnPlch = imgs?some (?captn) and \-
 			isTwoImage = imgs and imgs.0 and imgs.1
 			name = @getFullNameNoSubgenus line
 			popup =
@@ -549,13 +566,13 @@ App =
 						m \#popupName name
 						if line.textEn
 							m \#popupText line.textEn
-						if line.textVi
+						if line.textVi and isNaN line.textVi
 							m \#popupText line.textVi
 						if imgs
 							m \#popupGenders,
 								class: @class do
 									"popupGendersTwoImg": isTwoImage
-									"popupGendersNoCap": not imgCaptnPlch and not isTwoImage
+									"popupGendersNoCap": not isTwoImage
 								imgs.map (img, i) ~>
 									if img
 										m \.popupGender,
@@ -570,11 +587,14 @@ App =
 															ratio = target.width / target.height
 															if 1.233 < ratio < 1.333
 																target.classList.add \popupImg--cover
-														@popper?update!
-											if img.captn or imgCaptnPlch
-												m \.popupCaptn that
-											if imgs.length is 2
-												m \.popupGenderCaptn i && \Cái || \Đực
+														if @popper
+															updateHeight!
+											if imgs.length is 2 or imgs.some (?captn)
+												m \.popupGenderCaptn,
+													if imgs.length is 2
+														i and \Cái or \Đực
+													if img.captn
+														" (#{img.captn})"
 						m \#popupSummary
 			m.mount popupEl, popup
 			@popper = Popper.createPopper event.target, popupEl,
@@ -587,19 +607,20 @@ App =
 						options:
 							padding: 2
 			{summary} = await @fetchWiki line
+			updateHeight = !~>
+				if popupEl.offsetHeight > innerHeight - 4
+					summary := summary.split " " .slice 0 -1 .join " " .concat \...
+					@summaryEl.innerHTML = summary
+					updateHeight!
+				else
+					@popper.update!
 			if @summaryEl
 				if summary
 					summary = summary
 						.replace /<br \/>/g ""
 						.replace /(?<!\.)\.\.(?!\.)/g \.
 				@summaryEl.innerHTML = summary
-				do updateHeight = !~>
-					if popupEl.offsetHeight > innerHeight - 4
-						summary := summary.split " " .slice 0 -1 .join " " .concat \...
-						@summaryEl.innerHTML = summary
-						updateHeight!
-					else
-						@popper.update!
+				updateHeight!
 
 	getFullNameNoSubgenus: (line) ->
 		(line.fullName or line.name)replace /\ \(.+?\)/ ""
@@ -668,12 +689,13 @@ App =
 		unless start is @start and @lines.length is @len
 			@start = start
 			@lines = lines.slice start, start + @len
-			for line in @lines
-				if line.lv > 34 and line.textEn is void
-					line.textEn = "..."
-					@fetchWiki line, (line, {titles}) !~>
-						line.textEn = titles or no
-						m.redraw!
+			if isDev
+				for line in @lines
+					if line.lv > 34 and line.textEn is void
+						line.textEn = "..."
+						@fetchWiki line, (line, {titles}) !~>
+							line.textEn = titles or no
+							m.redraw!
 			evt.redraw = yes if evt
 		@mouseleaveName!
 
@@ -712,59 +734,62 @@ App =
 					localStorage.taxonInfoLv = infoLv
 					m.redraw!
 			| \KeyA
-				unless ctrl
-					if noFocus
-						action = prompt """
-							Nhập hành động khi bấm chuột phải:
-							g) google
-							b) bugguide
-							l) biolib
-							h) fishbase
-							e) ebird
-							s) seriouslyfish
-							k) flickr
-							n) inaturalist (mặc định)
-						""" @rightClickAction
-						if action
-							@rightClickAction = action
-							localStorage.taxonRightClickAction = action
+				if isDev
+					unless ctrl
+						if noFocus
+							action = prompt """
+								Nhập hành động khi bấm chuột phải:
+								g) google
+								b) bugguide
+								l) biolib
+								h) fishbase
+								e) ebird
+								s) seriouslyfish
+								k) flickr
+								n) inaturalist (mặc định)
+							""" @rightClickAction
+							if action
+								@rightClickAction = action
+								localStorage.taxonRightClickAction = action
 			| \KeyR
-				unless ctrl
-					if noFocus
-						lv = +prompt """
-							Rank tối đa được hiển thị:
-							1) vực                  2) giới               3) phân giới         4) thứ giới
-							5) liên ngành       6) ngành          7) phân ngành     8) thứ ngành
-							9) tiểu ngành      10) liên lớp       11) lớp                 12) phân lớp
-							13) thứ lớp          14) tiểu lớp      15) đoàn              16) liên đội
-							17) đội                18) tổng bộ      19) liên bộ            20) bộ
-							21) phân bộ         22) thứ bộ       23) tiểu bộ           24) liên họ
-							25) họ                  26) phân họ     27) liên tông        28) tông
-							29) phân tông     30) chi              31) phân chi         32) mục
-							33) loạt                34) liên loài      35) loài                 36) phân loài
-							37) thứ                 38) dạng
-						"""
-						if lv
-							maxLv := lv
-							@lines = []
-							{scrollTop} = scrollEl
-							await parse!
-							heightEl.style.height = lines.length * lineH + \px
-							@onscroll!
-							m.redraw.sync!
-							scrollEl.style.scrollBehavior = ""
-							scrollEl.scrollTop = 0
-							scrollEl.style.scrollBehavior = \smooth
-							scrollEl.scrollTop = scrollTop
+				if isDev
+					unless ctrl
+						if noFocus
+							lv = +prompt """
+								Rank tối đa được hiển thị:
+								1) vực                  2) giới               3) phân giới         4) thứ giới
+								5) liên ngành       6) ngành          7) phân ngành     8) thứ ngành
+								9) tiểu ngành      10) liên lớp       11) lớp                 12) phân lớp
+								13) thứ lớp          14) tiểu lớp      15) đoàn              16) liên đội
+								17) đội                18) tổng bộ      19) liên bộ            20) bộ
+								21) phân bộ         22) thứ bộ       23) tiểu bộ           24) liên họ
+								25) họ                  26) phân họ     27) liên tông        28) tông
+								29) phân tông     30) chi              31) phân chi         32) mục
+								33) loạt                34) liên loài      35) loài                 36) phân loài
+								37) thứ                 38) dạng
+							"""
+							if lv
+								maxLv := lv
+								@lines = []
+								{scrollTop} = scrollEl
+								await parse!
+								heightEl.style.height = lines.length * lineH + \px
+								@onscroll!
+								m.redraw.sync!
+								scrollEl.style.scrollBehavior = ""
+								scrollEl.scrollTop = 0
+								scrollEl.style.scrollBehavior = \smooth
+								scrollEl.scrollTop = scrollTop
 			| \KeyV
 				unless ctrl
 					@popupLang = @popupLang is \vi and \en or \vi
 					localStorage.taxonPopupLang = @popupLang
 			| \KeyE
-				try
-					await navigator.clipboard.writeText ""
-				catch
-					alert e.message
+				if isDev
+					try
+						await navigator.clipboard.writeText ""
+					catch
+						alert e.message
 			| \Escape
 				if @finding
 					@closeFind!
