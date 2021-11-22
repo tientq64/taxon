@@ -1,8 +1,0 @@
-{
-	"name": "taxon",
-	"version": "1.0.0",
-	"dependencies": {
-		"node-fetch": "",
-		"base64url": ""
-	}
-}

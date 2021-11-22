@@ -5,7 +5,7 @@ localStorage
 	..taxonRightClickAction ?= \g
 	..taxonPopupLang ?= \vi
 
-lineH = 18
+lineH = 15
 code = void
 isKeyDown = yes
 lines = []
@@ -530,7 +530,7 @@ App =
 					name = name.toLowerCase!replace /\ /g \-
 					window.open "https://www.seriouslyfish.com/species/#name"
 				| \k
-					window.open "https://www.flickr.com/search/?tags=#name"
+					window.open "https://www.flickr.com/search/?text=#name"
 				else
 					window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
 		else
@@ -554,25 +554,33 @@ App =
 			width = 320
 			isTwoImage = imgs and imgs.0 and imgs.1
 			name = @getFullNameNoSubgenus line
+			summary = ""
+			updateHeight = !~>
+				if popupEl.offsetHeight > innerHeight - 4
+					summary := summary.split " " .slice 0 -1 .join " " .concat \...
+					@summaryEl.innerHTML = summary
+					if summary.length > 16
+						updateHeight!
+				else
+					@popper.update!
 			popup =
 				oncreate: (vnode) !~>
-					@summaryEl = vnode.dom.querySelector \#popupSummary
-				view: ~>
-					m \#popupBody,
+					@summaryEl = vnode.dom.querySelector \.popupSummary
+				view: (vnode) ~>
+					m \.popupBody,
 						class: @class do
 							"popupIsTrinomial": line.lv > 35
 						style:
 							minWidth: width + \px
-						m \#popupName name
+						m \.popupName name
 						if line.textEn
-							m \#popupText line.textEn
+							m \.popupTextEn line.textEn
 						if line.textVi and isNaN line.textVi
-							m \#popupText line.textVi
+							m \.popupTextVi line.textVi
 						if imgs
-							m \#popupGenders,
+							m \.popupGenders,
 								class: @class do
 									"popupGendersTwoImg": isTwoImage
-									"popupGendersNoCap": not isTwoImage
 								imgs.map (img, i) ~>
 									if img
 										m \.popupGender,
@@ -589,13 +597,16 @@ App =
 																target.classList.add \popupImg--cover
 														if @popper
 															updateHeight!
+													onerror: !~>
+														if @popper
+															@popper.update!
 											if imgs.length is 2 or imgs.some (?captn)
 												m \.popupGenderCaptn,
 													if imgs.length is 2
 														i and \Cái or \Đực
 													if img.captn
 														" (#{img.captn})"
-						m \#popupSummary
+						m \.popupSummary
 			m.mount popupEl, popup
 			@popper = Popper.createPopper event.target, popupEl,
 				placement: \left
@@ -607,18 +618,13 @@ App =
 						options:
 							padding: 2
 			{summary} = await @fetchWiki line
-			updateHeight = !~>
-				if popupEl.offsetHeight > innerHeight - 4
-					summary := summary.split " " .slice 0 -1 .join " " .concat \...
-					@summaryEl.innerHTML = summary
-					updateHeight!
-				else
-					@popper.update!
 			if @summaryEl
 				if summary
 					summary = summary
 						.replace /<br \/>/g ""
 						.replace /(?<!\.)\.\.(?!\.)/g \.
+				else
+					summary = "Không có dữ liệu"
 				@summaryEl.innerHTML = summary
 				updateHeight!
 
@@ -674,7 +680,7 @@ App =
 				summary = /<p>(.+?)<\/p>/su.exec extract_html .0 .replace /\n+/g " "
 			else throw
 		catch
-			summary = "<i>Không có dữ liệu<i>"
+			summary = ""
 		res = {summary, titles}
 		if cb => cb line, res else return res
 
@@ -825,7 +831,7 @@ App =
 										class: rank.0
 										chars[line.chrs]substring rank.1 * 2 rank.2 * 2
 							m \.node,
-								m \span,
+								m \span.name,
 									class: @getRankName line.lv
 									onmouseenter: !~>
 										@mouseenterName line, it

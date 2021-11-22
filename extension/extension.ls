@@ -1143,6 +1143,9 @@ App =
 				@lineData.1 = " | #data"
 				didSel = yes
 			if didSel
+				if @cfg.lineDataSeparateNameAndImg
+					@lineData.2 = ""
+					@lineData.3 = ""
 				@data = @lineData.join ""
 				@copy @data
 				@mark target
@@ -1263,6 +1266,9 @@ App =
 							else
 								@lineData.2 = data
 								@lineData.3 = ""
+							if @cfg.lineDataSeparateNameAndImg
+								@lineData.0 = ""
+								@lineData.1 = ""
 							@data = @lineData.join ""
 							@copy @data
 							@mark target
@@ -1496,7 +1502,7 @@ App =
 						q = q.toLowerCase!replace /\ /g \-
 						location.href = "https://www.seriouslyfish.com/species/#q"
 					| \G+K
-						location.href = "https://www.flickr.com/search/?tags=#q"
+						location.href = "https://www.flickr.com/search/?text=#q"
 				| \I+U
 					if blob = await @readCopiedImgBlob!
 						base64 = await @readAsBase64 blob
@@ -1545,9 +1551,10 @@ App =
 					cfgs =
 						c: \copyExtractDeepAndOpenLinkExtract
 						g: \keyGPlus
+						s: \lineDataSeparateNameAndImg
 					text = "Đặt cấu hình (key + val, val sẽ được convert sang số nếu có thể, vd: c1):"
 					for k, val of cfgs
-						text += "\n(#k): #val: #{@cfg[val]}"
+						text += "\n#k): #val: #{@cfg[val]}"
 					if text = prompt text
 						key = text.0
 						prop = cfgs[key]
