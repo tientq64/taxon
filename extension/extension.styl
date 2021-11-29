@@ -34,22 +34,6 @@ body
 ._sideRight
 	width 20%
 	background #fff
-._button
-	padding 4px 8px
-	border 0
-	font inherit
-	background $prim
-	color #fff
-	outline 0
-._input
-	padding 4px 8px
-	border 0
-	font inherit
-	background #f0f1f2
-	outline 0
-	&:focus
-		box-shadow 0 0 0 2px $prim
-		z-index 1
 ._notifies
 	display flex
 	flex-direction column
@@ -69,27 +53,54 @@ body
 	position absolute
 	top 6%
 	width fit-content
-	max-height 80%
+	max-height 86%
+	border-radius 8px
 	background #fff
-	box-shadow 0 2px 4px #888c,0 8px 16px 4px #8883
+	box-shadow 0 2px 4px #000c,0 8px 16px 4px #0003
+	overflow hidden
 	transition margin-top .1s
 	animation _fadeIn95 .1s forwards
 	pointer-events auto
-._modalClose
-	width 24px
-	height 24px
-	border 0
-	display flex
-	justify-content center
-	align-items center
-	background #0000
-	outline 0
-	&:hover
-		background #f43
-		color #fff
-	&:active
-		background #c43
-		color #fff
+	user-select none
+	z-index 1
+	button
+	input
+	select
+	textarea
+		padding 4px 8px
+		border solid 1px #aaa
+		border-radius 4px
+	button
+		background #eee
+		box-shadow 0 0 0 1px inset #fff
+		&:hover
+			background #ddd
+			box-shadow 0 0 0 1px inset #eee
+		&:active
+			background #ccc
+			box-shadow none
+	._modalClose
+		width 24px
+		height 24px
+		display flex
+		justify-content center
+		align-items center
+		&:hover
+			border-color #c43
+			background #f43
+			color #fff
+			box-shadow 0 0 0 1px inset #f76
+		&:active
+			border-color #943
+			background #c43
+			color #fff
+			box-shadow none
+	input
+	textarea
+		outline 0
+		&:focus
+			border-color #07d
+			box-shadow 0 0 0 1px #07d
 ._mark
 	position fixed
 	border-radius 2px
@@ -101,6 +112,38 @@ body
 	width 1px
 	height 1px
 	opacity 0
+#imgGithubCanvasEl
+	filter contrast(1.1) saturate(1.1)
+	image-rendering -webkit-optimize-contrast
+#imgGithubSelEl
+	position absolute
+	border dashed 1px #fff
+	outline dashed 1px #000
+.imgGithubSelEdges
+	position relative
+	width 100%
+	height 100%
+	pointer-events none
+.imgGithubSelEdge
+	position absolute
+	width 16px
+	height 16px
+	transform translate(-50%,-50%)
+	pointer-events auto
+	&:nth-child(1)
+	&:nth-child(4)
+		width 100%
+		cursor n-resize !important
+	&:nth-child(2)
+	&:nth-child(3)
+		height 100%
+		cursor w-resize !important
+	&:nth-child(5)
+	&:nth-child(8)
+		cursor nw-resize !important
+	&:nth-child(6)
+	&:nth-child(7)
+		cursor ne-resize !important
 ._fadeOut95
 	animation _fadeOut95 .1s forwards
 @keyframes _fadeIn5
@@ -331,6 +374,10 @@ body
 	flex-grow 1
 ._col0
 	flex-shrink 0
+input
+	&._col
+	&._col0
+		width 0
 for i in range(1, 12)
 	val = floor(i / 12 * 100%, 2)
 	._row > ._col{i}
@@ -355,14 +402,14 @@ for i in range(1, 12)
 	flex-wrap nowrap
 for dir in row column
 	._{dir}
-		prop = dir is row ? "justify-content" : "align-items"
+		prop = dir is column ? "align-items" : "justify-content"
 		&._start
 			{prop} flex-start
 		&._center
 			{prop} center
 		&._end
 			{prop} flex-end
-		prop = dir is row ? "align-items" : "justify-content"
+		prop = dir is column ? "justify-content" : "align-items"
 		&._top
 			{prop} flex-start
 		&._middle
@@ -461,20 +508,44 @@ small
 	pointer-events auto
 ._noevent
 	pointer-events none
+._cover
+	object-fit cover
+._contain
+	object-fit contain
+._scaleDown
+	object-fit scale-down
 ._round8
 	border-radius 8px
 ._round6
 	border-radius 6px
+._round4
+	border-radius 4px
 ._border
-	border solid 1px #a2a9b1
+	border solid 1px #aaa
+._dashed
+	border dashed 1px #aaa
+._dotted
+	border dotted 1px #aaa
 ._border0
 	border 0
+._outline
+	box-shadow 0 0 0 1px #aaa
+._bgBlack
+	background #000
 ._bgWhite
 	background #fff
-._textGreen
-	color #2a3
+._bgRed
+	background #f43
+._bgYellow
+	background #eb4
+._bgGreen
+	background #2a3
+._textGray
+	color #888
 ._textRed
 	color #f43
+._textGreen
+	color #2a3
 ._active
 ._hover:hover
 		background $prim

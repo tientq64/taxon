@@ -624,7 +624,7 @@ App =
 	oncontextmenu: (event) !->
 		if @canContextMenu
 			@canContextMenu = no
-		else
+		else if not event.target.closest \._rightClickZone
 			event.preventDefault!
 
 	onkeydown: (event) !->
@@ -687,8 +687,8 @@ App =
 								top: [y + \px, y - 3 + \px]
 								width: [width + \px, width + 6 + \px]
 								height: [height + \px, height + 6 + \px]
-								background: [\#d702 \#d700]
-								boxShadow: ['0 0 0 2px #d70' '0 0 0 2px #d700']
+								background: [\#07d2 \#07d0]
+								boxShadow: ['0 0 0 2px #07d' '0 0 0 2px #07d0']
 							* duration: 150
 						anim.onfinish = !~>
 							markEl.remove!
@@ -761,7 +761,19 @@ App =
 			[type] = item.types.filter (.startsWith \image/)
 			item.getType type if type
 
-	uploadImgur: ({image, type = \URL, isOpenNewTab, isFemale}) ->
+	numToRadix62: (num) ->
+		chrs = \0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+		base = chrs.length
+		res = ""
+		sign = num < 0 and \- or ""
+		num = Math.floor Math.abs num
+		do
+			i = Math.floor num % base
+			res = chrs[i] + res
+		while num = Math.floor num / base
+		sign + res
+
+	uploadImgur: ({image, type = \URL, isOpenNewTab, isFemale}) !->
 		if @token and @album
 			{album} = @
 			notify = @notify "Đang upload ảnh Imgur" -1
@@ -807,21 +819,21 @@ App =
 					album = await @modal "Chọn album Imgur",, (modal) ~>
 						m \._row6._gap2,
 							albums.map (album) ~>
-								m \._col._p2._column._center._round8._cursorPointer._hover,
+								m \._col._p2._column._center._round6._cursorPointer._hover,
 									class: @class do
 										"_active": @album is album.id
 									style: @style do
 										width: 80
 									onclick: !~>
 										modal.close album.id
-									m \img._round6,
+									m \img._round4,
 										src: "https://i.imgur.com/#{album.cover}s.png"
 										width: 48
 										height: 48
 									m \small album.images_count
 									m \small album.privacy
 									m \small album.title
-							m \._col._p2._column._center._round8._hover,
+							m \._col._p2._column._center._round6._hover,
 								onclick: !~>
 									@modalCreateAlbum!
 								m \h1._border0 \+
@@ -885,6 +897,355 @@ App =
 					@notify "Đã đặt album Imgur: #@album"
 					resolve album
 			else resolve!
+
+	modalImgGithub: ({image, isFemale}) !->
+		loaded = no
+		img = new Image
+		imgW = 0
+		imgH = 0
+		maxWidth = 320
+		maxHeight = 240
+		ratioMax = maxWidth / maxHeight
+		width = 0
+		height = 0
+		ratio = 0
+		g = void
+		sel = void
+		res = void
+		modal = void
+		copied = no
+		compressed = no
+		saved = no
+		base64 = void
+		size = void
+		edges = [[0 -1] [-1 0] [1 0] [0 1] [-1 -1] [1 -1] [-1 1] [1 1]]
+		resize = (w, h) !~>
+			imgW := w
+			imgH := h
+			ratio := imgW / imgH
+			if ratio >= ratioMax
+				width := maxWidth
+				height := Math.round width / ratio
+			else
+				height := maxHeight
+				width := Math.round height * ratio
+			loaded := yes
+			m.redraw.sync!
+			g := imgGithubCanvasEl.getContext \2d
+		updateSelCropPos = (onlyXY) !~>
+			sel.cx = Math.round sel.l / width * imgW
+			sel.cy = Math.round sel.t / height * imgH
+			unless onlyXY
+				sel.cw = Math.round sel.w / width * imgW
+				sel.ch = Math.round sel.h / height * imgH
+				sel.ratio = sel.cw / sel.ch
+		crop = !~>
+			if sel and sel.phase < 2
+				imgdata = g.getImageData sel.cx, sel.cy, sel.cw, sel.ch
+				resize sel.cw, sel.ch
+				g.putImageData imgdata, 0 0
+				sel := void
+				m.redraw!
+		compress = !~>
+			new Promise (resolve) !~>
+				unless compressed
+					compressed := yes
+					m.redraw!
+					unless window.pica
+						code = await (await fetch \https://cdn.jsdelivr.net/npm/pica@8.0.0/dist/pica.min.js)text!
+						window.eval code
+					pic = new window.pica
+					canvas = document.createElement \canvas
+					canvas.width = width
+					canvas.height = height
+					await pic.resize imgGithubCanvasEl, canvas
+					# await pic.resize imgGithubCanvasEl, canvas,
+					# 	unsharpAmount: 80
+					# 	unsharpRadius: 0.6
+					# 	unsharpThreshold: 2
+					resize width, height
+					g.drawImage canvas, 0 0
+					dataUrl = canvas.toDataURL \image/webp 0.9
+					img.src = dataUrl
+					img.onload = !~>
+						g.drawImage img, 0 0
+						base64 := dataUrl.split \, .1
+						size := atob base64 .length
+						m.redraw!
+		save = !~>
+			unless saved
+				saved := yes
+				crop!
+				name = @numToRadix62 Date.now! / 100 - 16378201202
+				unless window.Octokit
+					{Octokit} = await import \https://cdn.skypack.dev/@octokit/rest?min
+					window.Octokit = Octokit
+				octo = new Octokit do
+					auth: OCTOKEN
+				res := await octo.repos.createOrUpdateFileContents do
+					owner: \tiencoffee
+					repo: \taimg
+					path: "#name.webp"
+					message: image
+					content: base64
+				if res.status is 201
+					@copy " #{isFemale and \| or \#} =#name"
+				else
+					saved := no
+				m.redraw!
+		@modal "Tải hình ảnh lên Github",, (modal$) ~>
+			modal := modal$
+			if loaded
+				m \._row._top._gap4,
+					m \._col._relative,
+						m \canvas._block._outline#imgGithubCanvasEl,
+							style: @style do
+								width: width
+								height: height
+							width: imgW
+							height: imgH
+							onpointerdown: (event) !~>
+								event.redraw = no
+								imgGithubCanvasEl.setPointerCapture event.pointerId
+								sel :=
+									x: event.offsetX
+									y: event.offsetY
+									phase: 2
+								m.redraw!
+							onpointermove: (event) !~>
+								event.redraw = no
+								if sel and sel.phase
+									{offsetX, offsetY} = event
+									{x, y} = sel
+									sel.phase = 1
+									if offsetX < 0
+										l = 0
+										w = x
+									else if offsetX > width
+										l = x
+										w = width - x
+									else
+										l = if offsetX < x => offsetX else x
+										w = Math.abs offsetX - x
+									r = l + w
+									if offsetY < 0
+										t = 0
+										h = y
+									else if offsetY > height
+										t = y
+										h = height - y
+									else
+										t = if offsetY < y => offsetY else y
+										h = Math.abs offsetY - y
+									b = t + h
+									updateSelCropPos!
+									sel <<< {l, t, w, h, r, b}
+									m.redraw!
+							onlostpointercapture: (event) !~>
+								event.redraw = no
+								if sel
+									if sel.phase is 1
+										sel.phase = 0
+									else
+										sel := void
+									m.redraw!
+						if sel and sel.phase < 2
+							m \#imgGithubSelEl,
+								style: @style do
+									left: sel.l
+									top: sel.t
+									width: sel.w
+									height: sel.h
+								onpointerdown: (event) !~>
+									event.redraw = no
+									if event.target is imgGithubSelEl
+										if sel
+											imgGithubSelEl.setPointerCapture event.pointerId
+											sel <<<
+												x: event.x - imgGithubCanvasEl.offsetLeft
+												y: event.y - imgGithubCanvasEl.offsetTop
+												l0: sel.l
+												t0: sel.t
+												move: yes
+											m.redraw!
+								onpointermove: (event) !~>
+									event.redraw = no
+									if sel and sel.move
+										mx = event.x - imgGithubCanvasEl.offsetLeft
+										my = event.y - imgGithubCanvasEl.offsetTop
+										{w, h} = sel
+										l = sel.l0 + mx - sel.x
+										t = sel.t0 + my - sel.y
+										r = l + w
+										b = t + h
+										if l < 0
+											l = 0
+										else if r > width
+											l = width - w
+										if t < 0
+											t = 0
+										else if b > height
+											t = height - h
+										r = l + w
+										b = t + h
+										updateSelCropPos yes
+										sel <<< {l, t, r, b}
+										m.redraw!
+								onlostpointercapture: (event) !~>
+									event.redraw = no
+									if sel and sel.move
+										sel.move = no
+										m.redraw!
+								m \.imgGithubSelEdges,
+									edges.map (edge) ~>
+										m \.imgGithubSelEdge,
+											style: @style do
+												left: edge.0 * 50 + 50 + \%
+												top: edge.1 * 50 + 50 + \%
+											onpointerdown: (event) !~>
+												event.redraw = no
+												if sel
+													event.target.setPointerCapture event.pointerId
+													sel <<<
+														x: event.x - imgGithubCanvasEl.offsetLeft
+														y: event.y - imgGithubCanvasEl.offsetTop
+														l0: sel.l
+														t0: sel.t
+														w0: sel.w
+														h0: sel.h
+														r0: sel.r
+														b0: sel.b
+														resize: yes
+													m.redraw!
+											onpointermove: (event) !~>
+												event.redraw = no
+												if sel and sel.resize
+													mx = event.x - imgGithubCanvasEl.offsetLeft
+													my = event.y - imgGithubCanvasEl.offsetTop
+													dx = mx - sel.x
+													dy = my - sel.y
+													{l, t, w, h, r, b} = sel
+													if edge.0
+														w = sel.w0 + dx * edge.0
+													if edge.0 is -1
+														l = sel.l0 + dx
+														if l < 0
+															l = 0
+															w = sel.r0
+														else if l > sel.r0
+															l = sel.r0
+															w = 0
+													else if edge.0 is 1
+														r = l + w
+														if r > width
+															w = width - sel.l0
+														else if r < sel.l0
+															w = 0
+														r = l + w
+													if edge.1
+														h = sel.h0 + dy * edge.1
+													if edge.1 is -1
+														t = sel.t0 + dy
+														if t < 0
+															t = 0
+															h = sel.b0
+														else if t > sel.b0
+															t = sel.b0
+															h = 0
+													else if edge.1 is 1
+														b = t + h
+														if b > height
+															h = height - sel.t0
+														else if b < sel.t0
+															h = 0
+														b = t + h
+													updateSelCropPos!
+													sel <<< {l, t, w, h, r, b}
+													m.redraw!
+											onlostpointercapture: (event) !~>
+												event.redraw = no
+												if sel and sel.resize
+													sel.resize = no
+													m.redraw!
+					m \._column._gap3,
+						style:
+							minWidth: \160px
+						m \div,
+							class: @class do
+								ratio < ratioMax and \_textRed or \_textGreen
+							"Tỷ lệ: " + ratio.toFixed 3
+						m \._row._middle._gap3,
+							"w:"
+							m \input._col,
+								value: imgW
+							"h:"
+							m \input._col,
+								value: imgH
+						if sel and sel.phase < 2
+							m.fragment do
+								m \div,
+									class: @class do
+										sel.ratio < ratioMax and \_textRed or \_textGreen
+									"Tỷ lệ: " + sel.ratio.toFixed 3
+								m \._row._middle._gap3,
+									"w:"
+									m \input._col,
+										value: sel.cw
+									"h:"
+									m \input._col,
+										value: sel.ch
+								m \._row._middle._gap3,
+									"x:"
+									m \input._col,
+										value: sel.cx
+									"y:"
+									m \input._col,
+										value: sel.cy
+								m \button,
+									onclick: (event) !~>
+										crop!
+									"Cắt ảnh"
+								m \div,
+						if size
+							m \div,
+								"Kích thước: #{(size / 1024)toFixed 2} KB"
+						unless base64
+							m \button,
+								disabled: compressed or saved
+								onclick: (event) !~>
+									compress!
+								"Nén ảnh"
+						if res
+							if res.status is 201
+								m \._textGreen "Đã tải lên"
+							else
+								m \._textRed "Đã xảy ra lỗi"
+						m \button,
+							disabled: saved
+							onclick: (event) !~>
+								save!
+							"Lưu"
+			else
+				m \._column._center,
+					m \img._contain._bgBlack._rightClickZone,
+						style: @style do
+							maxWidth: maxWidth
+							maxHeight: maxHeight
+						src: image
+						oncontextmenu: !~>
+							copied := yes
+					m \._my4._textSmall._textGray "Sao chép ảnh trên, sau đó bấm tiếp tục"
+					m \button,
+						disabled: not copied
+						onclick: !~>
+							blob = await @readCopiedImgBlob!
+							url = await @readAsBase64 blob
+							url = "data:#{blob.type};base64,#url"
+							img.src = url
+							img.onload = !~>
+								resize img.naturalWidth, img.naturalHeight
+								g.drawImage img, 0 0 imgW, imgH
+						"Tiếp tục"
 
 	notify: (html, ms) ->
 		notify =
@@ -1123,6 +1484,8 @@ App =
 			@doCombo combo2, target2, sel2, event, args2
 		comboIncludes = (...keys) ~>
 			//(^|\+)(#{keys.join \|})(\+|$)//test combo
+		if @modals.length
+			return
 		if rank = @findRank (.combo is combo)
 			@comboRanks.push rank
 		else if combo is \0
@@ -1163,15 +1526,15 @@ App =
 					unless t.imgurEdit
 						captions =
 							"RMB": " # %"
+							"A+RMB": " # % ; light morph"
 							"B+RMB": " # % ; breeding"
 							"C+RMB": " # % ; reconstruction"
 							"D+RMB": " # % ; drawing"
 							"E+RMB": " # % ; exhibit"
 							"F+RMB": " # % ; fossil"
-							"G+RMB": " # % ; light morph"
 							"H+RMB": " # % ; holotype"
 							"J+RMB": " # % ; jaw"
-							"K+RMB": " # % ; dark morph"
+							"K+RMB": " # % ; skeleton"
 							"L+RMB": " # % ; illustration"
 							"M+RMB": " # % ; mandible"
 							"N+RMB": " # % ; non-breeding"
@@ -1179,9 +1542,9 @@ App =
 							"Q+RMB": " # %"
 							"R+RMB": " # % ; restoration"
 							"S+RMB": " # % ; specimen"
-							"T+RMB": " # % ; skeleton"
 							"U+RMB": " # % ; skull"
 							"W+RMB": " | %"
+							"X+RMB": " # % ; dark morph"
 							"Shift+RMB": " | %"
 							"Alt+RMB": " ; % ; "
 							"Shift+B+RMB": " | % ; breeding"
@@ -1274,17 +1637,23 @@ App =
 							@mark target
 						else
 							switch combo
-							| \I+RMB \I+MMB \Shift+I+RMB \Shift+I+MMB
+							| \I+RMB \I+MMB \Shift+I+RMB \Shift+I+MMB \T+RMB \T+Shift+RMB
 								unless t.wikiPage and target.closest '.thumbimage,.infobox.biota'
 									@canMiddleClick = no
 									image = target.src
 									isOpenNewTab = comboIncludes \MMB or (t.inaturalist and target.classList.contains \photo)
+									isFemale = comboIncludes \Shift
 									@mark target
-									await @uploadImgur do
-										image: image
-										type: \URL
-										isOpenNewTab: isOpenNewTab
-										isFemale: comboIncludes \Shift
+									if comboIncludes \I
+										await @uploadImgur do
+											image: image
+											type: \URL
+											isOpenNewTab: isOpenNewTab
+											isFemale: isFemale
+									else
+										await @modalImgGithub do
+											image: image
+											isFemale: isFemale
 				| target.matches "a:not(.new)[href]" and combo is \RMB
 					if combo is \RMB
 						window.open target.href
@@ -1342,7 +1711,8 @@ App =
 					if text.includes \,
 						text = text
 							.split \,
-							.filter (.trim!)
+							.filter (s) ~>
+								s and not /[)]/test s
 							.0
 							.trim!
 					text = text
@@ -1581,7 +1951,7 @@ App =
 				| \Escape
 					if t.flickr
 						if el = document.querySelector \.entry-type.do-not-evict
-							el.click!
+							history.back!
 				| \Z
 					history.back!
 				| \X
@@ -1591,77 +1961,76 @@ App =
 		m.redraw!
 
 	view: ->
-		if @shownUI
-			m.fragment do
-				if t.wikiPage
-					m \._sideLeft,
+		m.fragment do
+			if @shownUI and t.wikiPage
+				m \._sideLeft,
+					m \._column._px5._py4,
+						m \._col._scroll,
+							m \#_toc._mt6
+						m \._col0._mt3,
+							@comboRanks.map (rank) ~>
+								m \div,
+									style: @style do
+										marginLeft: rank.lv * 4
+									rank.tab + rank.name
+			m \._sideCenter._col,
+				m \._notifies,
+					@notifies.map (notify) ~>
+						m \._notify m.trust notify.html
+				m \._modals._row._center,
+					@modals.map (modal, i) ~>
+						m \._modal._column,
+							key: modal
+							style: @style do
+								width: modal.width
+								marginTop: i * 32
+							onbeforeremove: (vnode) ~>
+								new Promise (resolve) !~>
+									vnode.dom.classList.add \_fadeOut95
+									setTimeout resolve, 1000
+							m \._row._middle._gap4._pl4._pr3._pt3,
+								m \._col._textTruncate._textBold,
+									modal.title
+								m \button._modalClose,
+									onclick: !~>
+										modal.close!
+									"\u2a09"
+							m \._col._scroll._px4._pt3._pb4,
+								modal.view modal
+			if @shownUI and (t.wikiPage or t.imgurEdit)
+				m \._sideRight,
+					switch
+					| t.wikiPage
 						m \._column._px5._py4,
-							m \._col._scroll,
-								m \#_toc._mt6
-							m \._col0._mt3,
-								@comboRanks.map (rank) ~>
-									m \div,
-										style: @style do
-											marginLeft: rank.lv * 4
-										rank.tab + rank.name
-				m \._sideCenter._col,
-					m \._notifies,
-						@notifies.map (notify) ~>
-							m \._notify m.trust notify.html
-					m \._modals._row._center,
-						@modals.map (modal, i) ~>
-							m \._modal._column,
-								key: modal
-								style: @style do
-									width: modal.width
-									marginTop: i * 32
-								onbeforeremove: (vnode) ~>
-									new Promise (resolve) !~>
-										vnode.dom.classList.add \_fadeOut95
-										setTimeout resolve, 1000
-								m \._row._middle._pl4._pr3._pt3,
-									m \._col._textTruncate._textBold,
-										modal.title
-									m \button._modalClose,
-										onclick: !~>
-											modal.close!
-										"\u2a09"
-								m \._col._scroll._px4._py3,
-									modal.view modal
-				if t.wikiPage or t.imgurEdit
-					m \._sideRight,
-						switch
-						| t.wikiPage
-							m \._column._px5._py4,
-								if @summ
-									if @summ is yes
-										m \._mt5._textCenter "Đang tải..."
-									else
-										m \._scroll._summ,
-											m \h3._summTitle @summ.title
-											m \._summBox._p3._border,
-												m \img._summImg._block src: @summ.thumbnail?source
-												m \._summExtract._mt3._mb-0._textJustify m.trust @summ.extract_html
+							if @summ
+								if @summ is yes
+									m \._mt5._textCenter "Đang tải..."
 								else
-									m \._mt5._textCenter._textRed "Không có tiếng Việt"
-								m \._row._center._top._mt3,
-									if @hasSubspecies
-										m \._col6._row._center._middle,
-											"Subspecies"
-									if el = @els.commons
-										m \a._col6._row._center._middle._textGreen,
-											href: el.href
-											"Commons"
-						| t.imgurEdit
-							m \._p3,
-								m \p "Tỷ lệ h.tại: #@imgurEditRatio"
-								m \p "Tỷ lệ gốc: #@imgurEditRatioOrg"
-								m \p,
-									class: @imgurEditRatio < @imgurEditRatio1Img and \_textRed or \_textGreen
-									"Tỷ lệ 1 ảnh: #@imgurEditRatio1Img"
-								m \p,
-									class: @imgurEditRatio < @imgurEditRatio2Img and \_textRed or \_textGreen
-									"Tỷ lệ 2 ảnh: #@imgurEditRatio2Img"
+									m \._scroll._summ,
+										m \h3._summTitle @summ.title
+										m \._summBox._p3._border,
+											m \img._summImg._block src: @summ.thumbnail?source
+											m \._summExtract._mt3._mb-0._textJustify m.trust @summ.extract_html
+							else
+								m \._mt5._textCenter._textRed "Không có tiếng Việt"
+							m \._row._center._top._mt3,
+								if @hasSubspecies
+									m \._col6._row._center._middle,
+										"Subspecies"
+								if el = @els.commons
+									m \a._col6._row._center._middle._textGreen,
+										href: el.href
+										"Commons"
+					| t.imgurEdit
+						m \._p3,
+							m \p "Tỷ lệ h.tại: #@imgurEditRatio"
+							m \p "Tỷ lệ gốc: #@imgurEditRatioOrg"
+							m \p,
+								class: @imgurEditRatio < @imgurEditRatio1Img and \_textRed or \_textGreen
+								"Tỷ lệ 1 ảnh: #@imgurEditRatio1Img"
+							m \p,
+								class: @imgurEditRatio < @imgurEditRatio2Img and \_textRed or \_textGreen
+								"Tỷ lệ 2 ảnh: #@imgurEditRatio2Img"
 
 appEl = document.createElement \div
 appEl.id = \_app

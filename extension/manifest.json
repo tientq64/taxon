@@ -57,7 +57,8 @@
 	"web_accessible_resources": [
 		"extension.ls",
 		"extension.styl",
-		"background.ls"
+		"background.ls",
+		"OCTOKEN"
 	],
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 	"permissions": [

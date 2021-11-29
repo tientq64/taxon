@@ -5,16 +5,16 @@
 		"folder_exclude_patterns": []
 	}],
 	"settings": {
-		// "font_face": "Segoe UI",
-		// "font_size": 12,
-		// "tab_size": 4,
-		// "rulers": [200],
-		// "wrap_width": 59,
-		"font_face": "Verdana",
-		"font_size": 10,
+		"font_face": "Segoe UI",
+		"font_size": 12,
 		"tab_size": 4,
-		"rulers": [184],
-		"wrap_width": 74,
+		"rulers": [200],
+		"wrap_width": 59,
+		// "font_face": "Verdana",
+		// "font_size": 10,
+		// "tab_size": 3,
+		// "rulers": [184],
+		// "wrap_width": 74,
 		// "font_face": "SF Mono",
 		// "font_size": 11,
 		// "font_face": "JetBrains Mono NL",
@@ -45,6 +45,6 @@
 	},
 	"build_systems": [{
 		"name": "Build",
-		"shell_cmd": "taskkill -f -im node.exe & cd $folder && live-server -q --host=localhost --port=5500 --no-browser"
+		"shell_cmd": "taskkill -f -im node.exe & cd $folder && live-server -q --port=5500 --no-browser"
 	}]
 }

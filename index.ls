@@ -4,8 +4,11 @@ localStorage
 	..taxonInfoLv ?= \0
 	..taxonRightClickAction ?= \g
 	..taxonPopupLang ?= \vi
+	..taxonTheme ?= \segoe
 
-lineH = 15
+document.documentElement.classList.add localStorage.taxonTheme
+cstyle = getComputedStyle document.documentElement
+lineH = parseInt cstyle.getPropertyValue \--lineH
 code = void
 isKeyDown = yes
 lines = []
@@ -45,8 +48,8 @@ parse = !->
 	data .= split \\n
 	tree = [0 \Organism no \/Sinh_vật [] "Sinh vật"]
 	refs = [tree]
-	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*))?$/
-	tailRegex = /^([-/:@%~^+$<>?]|https?:\/\/)/
+	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*))?(?: \|([-a-z]+))?$/
+	tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
 	inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
 	bugguideRegex = /^([A-Z\d]+)([r]?)$/
@@ -170,10 +173,9 @@ parse = !->
 		textEn = void
 		textVi = void
 		[head, text, tail] = line.split " # "
-		[, lv, name, ex, disam] = headRegex.exec head
+		[, lv, name, ex, disam, icon] = headRegex.exec head
 		lv = lv.length + 1
 		name = " " if name is \_
-		ex = Boolean ex
 		if text
 			if tailRegex.test text
 				tail = text
@@ -241,17 +243,25 @@ parse = !->
 							| \>
 								[node, src] = src.split \/
 								src = "https://biogeodb.stri.si.edu/#node/resources/img/images/species/#src.jpg"
+							| \=
+								src = "https://cdn.jsdelivr.net/gh/tiencoffee/taimg/#src.webp"
 							else
 								src .= replace /^ttps?:/ ""
 							{src, captn}
-		node = [lv, name, ex, disam,, textEn, textVi, imgs]
+		node = [lv, name]
+		node.2 = yes if ex
+		node.3 = disam if disam
+		node.5 = textEn if textEn
+		node.6 = textVi if textVi
+		node.7 = imgs if imgs
+		node.8 = icon if icon
 		if refs.some (.0 >= lv)
 			refs .= filter (.0 < lv)
 		ref = refs[* - 1]
 		ref[]4.push node
 		refs.push node
 	addNode = (node, parent, parentLv, parentName, extinct, chrs, first, last, nextSiblExtinct) !~>
-		[lv, name, ex, disam, childs, textEn, textVi, imgs] = node
+		[lv, name, ex, disam, childs, textEn, textVi, imgs, icon] = node
 		if lv <= maxLv
 			extinct = yes if ex
 			if parentLv >= 0
@@ -299,6 +309,7 @@ parse = !->
 			line.extinct = extinct if extinct
 			line.disam = disam if disam
 			line.fullName = fullName if fullName
+			line.icon = icon if icon
 			line.parent = parent if parent
 			lines.push line
 			if childs
@@ -391,16 +402,21 @@ App =
 			unless @findCase
 				val .= toLowerCase!
 			@findLines = lines.filter (line) ~>
-				{name, textVi = ""} = line
+				{name, textEn = "", textVi = ""} = line
+				fullName = @getFullNameNoSubgenus line
 				if Number.isFinite textVi
 					textVi = ""
 				unless @findCase
 					name .= toLowerCase!
+					fullName .= toLowerCase!
+					textEn .= toLowerCase!
 					textVi .= toLowerCase!
 				if @findExact
-					name is val or textVi is val
+					val is name or val is fullName or
+					val is textEn or val is textVi
 				else
-					name.includes val or textVi.includes val
+					name.includes val or fullName.includes val or
+					textEn.includes val or textVi.includes val
 			if @findIndex >= @findLines.length
 				@findIndex = @findLines.length - 1
 		else
@@ -456,6 +472,10 @@ App =
 					src += \?_taxonDelete=1
 				else
 					src .= replace /m(?=\.\w+$)/ \r
+			| src.includes \cdn.jsdelivr.net/gh/tiencoffee/taimg
+				name = src.split \/ .[* - 1]
+				act = code is \Delete and \delete or \blob
+				src = "https://github.com/tiencoffee/taimg/#act/main/#name"
 			window.open src, \_blank
 
 	mousedownName: (line, event) !->
@@ -472,12 +492,16 @@ App =
 			| 2
 				event.preventDefault!
 				if isDev
+					if event.altKey
+						text = @getFullNameNoSubgenus line
+					else
+						text = line.name
 					try
-						navigator.clipboard.writeText line.name
+						navigator.clipboard.writeText text
 					catch
 						alert e.message
 				else
-					name = @getFullNameNoSubgenus line
+					text = @getFullNameNoSubgenus line
 					try
 						navigator.clipboard.writeText name
 					catch
@@ -498,11 +522,6 @@ App =
 					| code is \KeyN => \n
 					| code is \KeyK => \k
 					else @rightClickAction
-				text = name.split " " .0
-				try
-					navigator.clipboard.writeText text
-				catch
-					alert e.message
 				switch action
 				| \g
 					window.open "https://google.com/search?tbm=isch&q=#name" \_blank
@@ -554,6 +573,7 @@ App =
 			width = 320
 			isTwoImage = imgs and imgs.0 and imgs.1
 			name = @getFullNameNoSubgenus line
+			icon = @getIcon line
 			summary = ""
 			updateHeight = !~>
 				if popupEl.offsetHeight > innerHeight - 4
@@ -572,7 +592,11 @@ App =
 							"popupIsTrinomial": line.lv > 35
 						style:
 							minWidth: width + \px
-						m \.popupName name
+						m \.popupName,
+							if icon
+								m \img.popupIcon,
+									src: "https://img.icons8.com/plumpy/1x/#icon.png"
+							name
 						if line.textEn
 							m \.popupTextEn line.textEn
 						if line.textVi and isNaN line.textVi
@@ -613,7 +637,7 @@ App =
 				modifiers:
 					* name: \offset
 						options:
-							offset: [0 18]
+							offset: [0 21]
 					* name: \preventOverflow
 						options:
 							padding: 2
@@ -630,6 +654,13 @@ App =
 
 	getFullNameNoSubgenus: (line) ->
 		(line.fullName or line.name)replace /\ \(.+?\)/ ""
+
+	getIcon: (line) ->
+		if line
+			if line.icon
+				line.icon
+			else
+				@getIcon line.parent
 
 	getWikiPageName: (line) ->
 		{disam} = line
@@ -697,10 +728,10 @@ App =
 			@lines = lines.slice start, start + @len
 			if isDev
 				for line in @lines
-					if line.lv > 34 and line.textEn is void
-						line.textEn = "..."
+					if line.lv > 34 and line.textEn is void and line.textEnCopy is void
+						line.textEnCopy = "..."
 						@fetchWiki line, (line, {titles}) !~>
-							line.textEn = titles or no
+							line.textEnCopy = titles or no
 							m.redraw!
 			evt.redraw = yes if evt
 		@mouseleaveName!
@@ -740,9 +771,9 @@ App =
 					localStorage.taxonInfoLv = infoLv
 					m.redraw!
 			| \KeyA
-				if isDev
+				if noFocus
 					unless ctrl
-						if noFocus
+						if isDev
 							action = prompt """
 								Nhập hành động khi bấm chuột phải:
 								g) google
@@ -758,9 +789,9 @@ App =
 								@rightClickAction = action
 								localStorage.taxonRightClickAction = action
 			| \KeyR
-				if isDev
+				if noFocus
 					unless ctrl
-						if noFocus
+						if isDev
 							lv = +prompt """
 								Rank tối đa được hiển thị:
 								1) vực                  2) giới               3) phân giới         4) thứ giới
@@ -796,6 +827,11 @@ App =
 						await navigator.clipboard.writeText ""
 					catch
 						alert e.message
+			| \Digit1
+				if noFocus
+					unless ctrl
+						if isDev
+							window.open \diff
 			| \Escape
 				if @finding
 					@closeFind!
@@ -841,15 +877,17 @@ App =
 									oncontextmenu: !~>
 										@contextmenuName line, it
 									line.name
-								if line.textEn and line.textEn isnt \... or line.textVi
+								if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy isnt \...)
 									m \span.dash \\u2014
 								if line.textEn
-									if Array.isArray line.textEn
+									m \span.textEn line.textEn
+								if line.textEnCopy
+									if Array.isArray line.textEnCopy
 										m \.textEn,
-											line.textEn.map (text) ~>
+											line.textEnCopy.map (text) ~>
 												m \.textEnCopy,
 													onclick: !~>
-														line.textEn = text
+														line.textEnCopy = text
 														row = line.index
 														try
 															copyText = await navigator.clipboard.readText!
@@ -864,7 +902,7 @@ App =
 															alert e.message
 													text
 									else
-										m \span.textEn line.textEn
+										m \span.textEn line.textEnCopy
 								if line.textVi
 									m \span.textVi "(#{line.textVi})"
 								line.imgs?map (img) ~>

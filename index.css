@@ -4,7 +4,6 @@
 }
 :root {
 	--sans: "Verdana","IBM Plex Sans",sans-serif;
-	--mono: "DejaVuSansMono";
 }
 body {
 	margin: 0;

@@ -1,3 +1,29 @@
+@import "https://fonts.googleapis.com/css?family=IBM+Plex+Sans:,i,b,ib"
+@font-face
+	font-family "DejaVuSansMono"
+	src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
+html
+	--sans "Segoe UI","IBM Plex Sans",sans-serif
+	--lineH 19px
+.verdana
+	--sans "Verdana","IBM Plex Sans",sans-serif
+	--lineH 15px
+body
+	margin 0
+	font-family var(--sans)
+	font-size 15px
+	background #011627
+	overflow hidden
+	user-select none
+	cursor default
+	/.verdana &
+		font-size 13px
+.loading
+	position absolute
+	left 50%
+	top 50%
+	color #fff
+	transform translate(-50%,-50%)
 ::-webkit-scrollbar
 	-webkit-appearance none
 	width 16px
@@ -8,8 +34,11 @@
 ::-webkit-scrollbar-thumb
 	background #314657
 .line
-	height 15px
-	font-family var(--mono)
+	height var(--lineH)
+	font-family "DejaVuSansMono",monospace
+	font-size 16px
+	/.verdana &
+		font-size 13px
 .lineFind
 	> .node
 		background #213647
@@ -20,9 +49,12 @@
 	display inline-flex
 	align-items baseline
 	font-family var(--sans)
+	font-size 15px
 	vertical-align middle
 	// &:hover
 	// 	box-shadow 0 0 0 1px #648185 inset
+	/.verdana &
+		font-size 13px
 .name
 	cursor pointer
 .dash
@@ -41,10 +73,14 @@
 	&:not(:first-child)
 		margin-left 6px
 .textEn
-	font-size 12px
+	font-size 14px
+	/.verdana
+		font-size 12px
 .textVi
-	font-size 12px
+	font-size 13px
 	color #a39f83
+	/.verdana
+		font-size 12px
 .img
 	min-width 4px
 	min-height 4px
@@ -100,9 +136,11 @@
 	top 0
 	width 100%
 	height 100%
-	padding-left 176px
+	padding-left 64px
 	margin 0
 	white-space pre
+	/.verdana &
+		padding-left 176px
 #infosEl
 	position absolute
 	right 16px
@@ -139,11 +177,13 @@
 	justify-content center
 	align-items center
 	align-self stretch
-	font-family var(--mono)
-	font-size 14px
+	font-family "DejaVuSansMono",monospace
+	font-size 15px
 	cursor pointer
 	&:hover
 		background #07d3
+	/.verdana &
+		font-size 14px
 .findButtonOn
 	color #07d
 #findClose
@@ -153,15 +193,19 @@
 		background #e433
 #findTextEl
 	margin 0 8px 0
+	font-size 14px
 	color #888
 #popupEl
 	max-width min-content
+	min-width 338px
 	border-radius 8px
-	font-size 13px
+	font-size 15px
 	text-align center
 	overflow hidden
 	box-shadow 1px 2px 4px 1px #0008
 	pointer-events none
+	/.verdana &
+		font-size 13px
 .popupBody
 	padding 8px 4px
 	border-radius 8px
@@ -176,27 +220,23 @@
 		transform scale(1)
 .popupIsTrinomial
 	.popupName
-		font-size 14px
-// .popupGendersTwoImg
-// 	.popupGender
-// 		&:first-child
-// 			.popupPicture
-// 				border-top-right-radius 0
-// 				border-bottom-right-radius 0
-// 		&:last-child
-// 			.popupPicture
-// 				border-top-left-radius 0
-// 				border-bottom-left-radius 0
-// 	.popupImg
-// 		max-width 300px
-// 		max-height 240px
+		font-size 16px
+		/.verdana &
+			font-size 14px
 .popupName
+	position relative
 	margin 2px 0
 	padding 0 8px 2px
 	display block
-	font-size 15px
+	font-size 17px
 	font-weight bold
 	white-space nowrap
+	/.verdana &
+		font-size 15px
+.popupIcon
+	position absolute
+	left 8px
+	height 24px
 .popupTextEn
 	margin-bottom 2px
 	white-space nowrap
@@ -260,8 +300,10 @@
 .popupGenderCaptn
 	margin-top 2px
 	padding 0 8px
-	font-size 12px
+	font-size 13px
 	color #333
+	/.verdana &
+		font-size 12px
 .popupSummary
 	padding 0 8px
 	line-height 1.35
