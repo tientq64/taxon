@@ -9,8 +9,6 @@ localStorage
 document.documentElement.classList.add localStorage.taxonTheme
 cstyle = getComputedStyle document.documentElement
 lineH = parseInt cstyle.getPropertyValue \--lineH
-code = void
-isKeyDown = yes
 lines = []
 chars = {}
 isDev = location.hostname is \localhost
@@ -348,8 +346,11 @@ App =
 		@findIndex = 0
 		@findExact = !!localStorage.taxonFindExact
 		@findCase = !!localStorage.taxonFindCase
-		@popper = null
-		@summaryEl = null
+		@findTimo = void
+		@scrolling = no
+		@code = void
+		@isKeyDown = yes
+		@popper = void
 		@abortCtrler = void
 		@chrsRanks =
 			[\life 0 1]
@@ -373,7 +374,6 @@ App =
 		addEventListener \mousedown @onmousedown
 		addEventListener \blur @onblur
 		scrollEl.scrollTop = +localStorage.taxonTop or 0
-		scrollEl.style.scrollBehavior = \smooth
 		addEventListener \resize @onresize
 		@onresize!
 
@@ -392,44 +392,50 @@ App =
 	getRankName: (lv) ->
 		@chrsRanks.find (.2 > lv) .0
 
-	find: (val = @findVal) !->
-		@findVal? = val
+	find: (val) !->
+		if val?
+			@findVal = val
+		else
+			val = @findVal
 		unless @finding
 			@finding = yes
 			m.redraw.sync!
 		findInputEl.focus!
-		if val.trim!
-			unless @findCase
-				val .= toLowerCase!
-			@findLines = lines.filter (line) ~>
-				{name, textEn = "", textVi = ""} = line
-				fullName = @getFullNameNoSubgenus line
-				if Number.isFinite textVi
-					textVi = ""
+		if @findTimo
+			clearTimeout @findTimo
+		@findTimo = setTimeout !~>
+			@findTimo = void
+			val .= trim!
+			if val.length > 1
 				unless @findCase
-					name .= toLowerCase!
-					fullName .= toLowerCase!
-					textEn .= toLowerCase!
-					textVi .= toLowerCase!
-				if @findExact
-					val is name or val is fullName or
-					val is textEn or val is textVi
-				else
-					name.includes val or fullName.includes val or
-					textEn.includes val or textVi.includes val
-			if @findIndex >= @findLines.length
-				@findIndex = @findLines.length - 1
-		else
-			@findLines = []
-		if @findLines.length
-			@findGo!
+					val .= toLowerCase!
+				@findLines = lines.filter (line) ~>
+					{textVi = ""} = line
+					fullName = @getFullNameNoSubgenus line
+					if Number.isFinite textVi
+						textVi = ""
+					unless @findCase
+						fullName .= toLowerCase!
+						textVi .= toLowerCase!
+					if @findExact
+						val is fullName or val is textVi
+					else
+						fullName.includes val or textVi.includes val
+				if @findIndex >= @findLines.length
+					@findIndex = @findLines.length - 1
+			else
+				@findLines = []
+			if @findLines.length
+				@findGo!
+			m.redraw!
+		, 100
 		m.redraw!
 
 	findGo: (num = 0) !->
 		if @findLines.length
 			@findIndex = (@findIndex + num) %% @findLines.length
 			scrollEl.scrollTop = (@findLines[@findIndex]index - 4) * lineH
-			@onscroll!
+			@scroll!
 
 	toggleFindExact: !->
 		not= @findExact
@@ -445,6 +451,7 @@ App =
 		if @finding
 			@finding = no
 			@findLines = []
+			@fetchTextEnCopyLines!
 			m.redraw!
 
 	mousedownImg: (img, event) !->
@@ -467,14 +474,14 @@ App =
 			| src.includes \cdn.download.ams.birds.cornell.edu
 				src .= replace /\d+$/ \1800
 			| src.includes \i.imgur.com
-				if code is \Delete
+				if @code is \Delete
 					src -= /(?<=:\/\/)i\.|m\.\w+$/g
 					src += \?_taxonDelete=1
 				else
 					src .= replace /m(?=\.\w+$)/ \r
 			| src.includes \cdn.jsdelivr.net/gh/tiencoffee/taimg
 				name = src.split \/ .[* - 1]
-				act = code is \Delete and \delete or \blob
+				act = @code is \Delete and \delete or \blob
 				src = "https://github.com/tiencoffee/taimg/#act/main/#name"
 			window.open src, \_blank
 
@@ -491,21 +498,14 @@ App =
 					window.open "https://vi.wikipedia.org/wiki/#q" \_blank
 			| 2
 				event.preventDefault!
-				if isDev
-					if event.altKey
-						text = @getFullNameNoSubgenus line
-					else
-						text = line.name
-					try
-						navigator.clipboard.writeText text
-					catch
-						alert e.message
+				if event.altKey
+					text = line.name
 				else
 					text = @getFullNameNoSubgenus line
-					try
-						navigator.clipboard.writeText name
-					catch
-						alert e.message
+				try
+					navigator.clipboard.writeText text
+				catch
+					alert e.message
 
 	contextmenuName: (line, event) !->
 		event.preventDefault!
@@ -514,13 +514,13 @@ App =
 				name = @getFullNameNoSubgenus line
 				action =
 					| event.altKey => \g
-					| code is \KeyB => \b
-					| code is \KeyL => \l
-					| code is \KeyH => \h
-					| code is \KeyE => \e
-					| code is \KeyS => \s
-					| code is \KeyN => \n
-					| code is \KeyK => \k
+					| @code is \KeyB => \b
+					| @code is \KeyL => \l
+					| @code is \KeyH => \h
+					| @code is \KeyE => \e
+					| @code is \KeyS => \s
+					| @code is \KeyN => \n
+					| @code is \KeyK => \k
 					else @rightClickAction
 				switch action
 				| \g
@@ -556,19 +556,8 @@ App =
 			q = @getWikiPageName line
 			window.open "https://en.wikipedia.org/wiki/#q" \_blank
 
-	mouseleaveName: !->
-		if @popper
-			if @abortCtrler
-				@abortCtrler.abort!
-				@abortCtrler = void
-			@popper.destroy!
-			@popper = null
-			@summaryEl = null
-			m.mount popupEl
-
 	mouseenterName: (line, event) !->
 		unless line.name in [\? " "]
-			summary = void
 			{imgs} = line
 			width = 320
 			isTwoImage = imgs and imgs.0 and imgs.1
@@ -577,15 +566,30 @@ App =
 			summary = ""
 			updateHeight = !~>
 				if popupEl.offsetHeight > innerHeight - 4
-					summary := summary.split " " .slice 0 -1 .join " " .concat \...
-					@summaryEl.innerHTML = summary
-					if summary.length > 16
+					words = summary.split " "
+					if words.length > 2
+						summary := words.slice 0 -1 .join " " .concat \...
+						summaryEl.innerHTML = summary
 						updateHeight!
+					else
+						@popper.update!
 				else
 					@popper.update!
+			updateWidth = (step = 0) !~>
+				unless isTwoImage
+					maxWidth = icon and 248 or 314
+					if nameEl.offsetWidth > maxWidth
+						vals = name.split " "
+						if vals.length is 3
+							switch step
+							| 0
+								name := "#{vals.0} #{vals.1.0}. #{vals.2}"
+								nameEl.textContent = name
+								updateWidth 1
+							| 1
+								name := "#{vals.0.0}. #{vals.1} #{vals.2}"
+								nameEl.textContent = name
 			popup =
-				oncreate: (vnode) !~>
-					@summaryEl = vnode.dom.querySelector \.popupSummary
 				view: (vnode) ~>
 					m \.popupBody,
 						class: @class do
@@ -596,7 +600,7 @@ App =
 							if icon
 								m \img.popupIcon,
 									src: "https://img.icons8.com/plumpy/1x/#icon.png"
-							name
+							m \#nameEl name
 						if line.textEn
 							m \.popupTextEn line.textEn
 						if line.textVi and isNaN line.textVi
@@ -630,7 +634,7 @@ App =
 														i and \Cái or \Đực
 													if img.captn
 														" (#{img.captn})"
-						m \.popupSummary
+						m \.popupSummary#summaryEl
 			m.mount popupEl, popup
 			@popper = Popper.createPopper event.target, popupEl,
 				placement: \left
@@ -641,16 +645,26 @@ App =
 					* name: \preventOverflow
 						options:
 							padding: 2
+			updateWidth!
 			{summary} = await @fetchWiki line
-			if @summaryEl
+			if @popper
 				if summary
 					summary = summary
 						.replace /<br \/>/g ""
 						.replace /(?<!\.)\.\.(?!\.)/g \.
 				else
 					summary = "Không có dữ liệu"
-				@summaryEl.innerHTML = summary
+				summaryEl.innerHTML = summary
 				updateHeight!
+
+	mouseleaveName: !->
+		if @popper
+			if @abortCtrler
+				@abortCtrler.abort!
+				@abortCtrler = void
+			@popper.destroy!
+			@popper = void
+			m.mount popupEl
 
 	getFullNameNoSubgenus: (line) ->
 		(line.fullName or line.name)replace /\ \(.+?\)/ ""
@@ -715,8 +729,15 @@ App =
 		res = {summary, titles}
 		if cb => cb line, res else return res
 
-	onscroll: (evt) !->
-		evt.redraw = no if evt
+	fetchTextEnCopyLines: !->
+		for line in @lines
+			if line.lv > 34 and line.textEn is void and line.textEnCopy is void
+				line.textEnCopy = \...
+				@fetchWiki line, (line, {titles}) !~>
+					line.textEnCopy = titles or no
+					m.redraw!
+
+	scroll: !->
 		top = scrollEl.scrollTop
 		mod = top % lineH
 		transY = top - mod
@@ -727,32 +748,38 @@ App =
 			@start = start
 			@lines = lines.slice start, start + @len
 			if isDev
-				for line in @lines
-					if line.lv > 34 and line.textEn is void and line.textEnCopy is void
-						line.textEnCopy = "..."
-						@fetchWiki line, (line, {titles}) !~>
-							line.textEnCopy = titles or no
-							m.redraw!
-			evt.redraw = yes if evt
+				unless @finding
+					@fetchTextEnCopyLines!
+			m.redraw!
 		@mouseleaveName!
+
+	onscroll: (event) !->
+		if @scrolling
+			event.redraw = no
+		else
+			@scrolling = yes
+		@scroll!
+
+	onscrollend: (event) !->
+		@scrolling = no
 
 	onkeydown: (event) !->
 		unless event.repeat
 			unless event.location in [1 2]
 				noFocus = document.activeElement is document.body
-				isKeyDown := yes
-				code := event.code
+				@isKeyDown = yes
+				@code = event.code
 				if noFocus
-					switch code
+					switch @code
 					| \KeyF
 						if event.ctrlKey
 							event.preventDefault!
 
 	onkeyup: (event) !->
-		if isKeyDown
-			{ctrlKey: ctrl, shiftKey: shift, altKey: alt} = event
+		if @isKeyDown
 			noFocus = document.activeElement is document.body
-			switch code
+			{ctrlKey: ctrl, shiftKey: shift, altKey: alt} = event
+			switch @code
 			| \KeyF
 				if noFocus
 					@find!
@@ -788,7 +815,7 @@ App =
 							if action
 								@rightClickAction = action
 								localStorage.taxonRightClickAction = action
-			| \KeyR
+			| \KeyT
 				if noFocus
 					unless ctrl
 						if isDev
@@ -811,11 +838,11 @@ App =
 								{scrollTop} = scrollEl
 								await parse!
 								heightEl.style.height = lines.length * lineH + \px
-								@onscroll!
+								@scroll!
 								m.redraw.sync!
-								scrollEl.style.scrollBehavior = ""
-								scrollEl.scrollTop = 0
-								scrollEl.style.scrollBehavior = \smooth
+								maxScrollTop = lines.length * lineH - scrollEl.offsetHeight
+								if scrollTop > maxScrollTop
+									scrollTop = maxScrollTop
 								scrollEl.scrollTop = scrollTop
 			| \KeyV
 				unless ctrl
@@ -835,26 +862,29 @@ App =
 			| \Escape
 				if @finding
 					@closeFind!
-			code := void
-			isKeyDown := no
+			@code = void
+			@isKeyDown = no
 			m.redraw!
 
 	onmousedown: (event) !->
-		isKeyDown := no
+		@isKeyDown = no
 
 	onblur: (event) !->
-		code := void
-		isKeyDown := no
+		@code = void
+		@isKeyDown = no
 
 	onresize: !->
 		@len = Math.ceil(innerHeight / lineH) + 1
-		@onscroll!
+		@scroll!
 		m.redraw!
 
 	view: ->
 		m \div,
+			class: @class do
+				"scrolling": @scrolling
 			m \#scrollEl,
 				onscroll: @onscroll
+				onscrollend: @onscrollend
 				m \#presEl,
 					@lines.map (line) ~>
 						m \.line,

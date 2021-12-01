@@ -27,7 +27,7 @@ App =
 		valA = []
 		tails = {}
 		for val in vals
-			index = val.search /\ [\\/#].*/
+			index = val.search /\ [\\/|#].*/
 			if index >= 0
 				tail = val.substring index
 				val = val.substring 0 index
