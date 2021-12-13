@@ -2,6 +2,8 @@
 @font-face
 	font-family "DejaVuSansMono"
 	src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
+*, *:before, *:after
+	box-sizing border-box
 html
 	--sans "Segoe UI","IBM Plex Sans",sans-serif
 	--lineH 19px
@@ -197,7 +199,6 @@ body
 	color #888
 #popupEl
 	max-width min-content
-	min-width 338px
 	border-radius 8px
 	font-size 15px
 	text-align center
@@ -207,6 +208,7 @@ body
 	/.verdana &
 		font-size 13px
 .popupBody
+	width 328px
 	padding 8px 4px
 	border-radius 8px
 	display flex
@@ -223,10 +225,11 @@ body
 		font-size 16px
 		/.verdana &
 			font-size 14px
+.popupIsTwoImage
+	width 652px
 .popupName
 	position relative
-	margin 2px 0
-	padding 0 8px 2px
+	padding 2px 8px 4px
 	display flex
 	justify-content center
 	font-size 17px
@@ -239,12 +242,11 @@ body
 	left 8px
 	height 24px
 .popupTextEn
-	margin-bottom 2px
-	white-space nowrap
-	color #333
 .popupTextVi
-	margin-bottom 2px
+	padding 0 8px 2px
 	white-space nowrap
+	text-overflow ellipsis
+	overflow hidden
 	color #333
 .popupGenders
 	margin-top 6px

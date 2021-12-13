@@ -351,6 +351,7 @@ body
 	#iconic_taxa_facet
 		display none
 ._ebird
+	.SkipTo
 	.Tooltip--license
 		display none !important
 ._seriouslyfish
@@ -363,6 +364,8 @@ body
 		display none
 	.search-slender-advanced-panel-view
 		top 0
+	.no-results-message-container + .search-box-container
+		display none !important
 
 ._row
 	display flex
@@ -428,8 +431,13 @@ props = {p: padding, m: margin}
 sides = {t: top, r: right, b: bottom, l: left}
 sizes = 48px 40px 32px 24px 16px 8px 4px 2px 0
 for size, i in sizes
-	._gap{8 - i}
-		grid-gap size
+	j = 8 - i
+	._gap{j}
+		gap size
+	._gapX{j}
+		column-gap size
+	._gapY{j}
+		row-gap size
 for p, prop in props
 	for size, i in sizes
 		i = 8 - i
@@ -508,6 +516,12 @@ small
 	pointer-events auto
 ._noevent
 	pointer-events none
+._select
+	user-select text
+._selectAll
+	user-select all
+._noselect
+	user-select none
 ._cover
 	object-fit cover
 ._contain
@@ -554,3 +568,5 @@ small
 	cursor default
 ._cursorPointer
 	cursor pointer
+._cursorCopy
+	cursor copy

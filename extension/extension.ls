@@ -916,6 +916,7 @@ App =
 		copied = no
 		compressed = no
 		saved = no
+		filename = void
 		base64 = void
 		size = void
 		edges = [[0 -1] [-1 0] [1 0] [0 1] [-1 -1] [1 -1] [-1 1] [1 1]]
@@ -946,7 +947,7 @@ App =
 				g.putImageData imgdata, 0 0
 				sel := void
 				m.redraw!
-		compress = !~>
+		compress = (sharpen) !~>
 			new Promise (resolve) !~>
 				unless compressed
 					compressed := yes
@@ -958,11 +959,13 @@ App =
 					canvas = document.createElement \canvas
 					canvas.width = width
 					canvas.height = height
-					await pic.resize imgGithubCanvasEl, canvas
-					# await pic.resize imgGithubCanvasEl, canvas,
-					# 	unsharpAmount: 80
-					# 	unsharpRadius: 0.6
-					# 	unsharpThreshold: 2
+					if sharpen
+						await pic.resize imgGithubCanvasEl, canvas,
+							unsharpAmount: 80
+							unsharpRadius: 0.6
+							unsharpThreshold: 2
+					else
+						await pic.resize imgGithubCanvasEl, canvas
 					resize width, height
 					g.drawImage canvas, 0 0
 					dataUrl = canvas.toDataURL \image/webp 0.9
@@ -976,7 +979,7 @@ App =
 			unless saved
 				saved := yes
 				crop!
-				name = @numToRadix62 Date.now! / 100 - 16378201202
+				filename := @numToRadix62 Date.now! / 100 - 16378201202
 				unless window.Octokit
 					{Octokit} = await import \https://cdn.skypack.dev/@octokit/rest?min
 					window.Octokit = Octokit
@@ -985,11 +988,11 @@ App =
 				res := await octo.repos.createOrUpdateFileContents do
 					owner: \tiencoffee
 					repo: \taimg
-					path: "#name.webp"
+					path: "#filename.webp"
 					message: image
 					content: base64
 				if res.status is 201
-					@copy " #{isFemale and \| or \#} =#name"
+					@copy " #{isFemale and \| or \#} =#filename"
 				else
 					saved := no
 				m.redraw!
@@ -1210,14 +1213,27 @@ App =
 							m \div,
 								"Kích thước: #{(size / 1024)toFixed 2} KB"
 						unless base64
-							m \button,
-								disabled: compressed or saved
-								onclick: (event) !~>
-									compress!
-								"Nén ảnh"
+							m.fragment do
+								m \button,
+									disabled: compressed or saved
+									onclick: (event) !~>
+										compress no
+									"Nén mặc định"
+								m \button,
+									disabled: compressed or saved
+									onclick: (event) !~>
+										compress yes
+									"Nén sắc nét"
 						if res
 							if res.status is 201
-								m \._textGreen "Đã tải lên"
+								m \._row._middle._gapX3._textGreen,
+									"Đã tải lên: "
+									m \._select._cursorCopy,
+										onclick: (event) !~>
+											@copy " # =#filename"
+										oncontextmenu: (event) !~>
+											@copy " | =#filename"
+										"=#filename"
 							else
 								m \._textRed "Đã xảy ra lỗi"
 						m \button,
@@ -1305,18 +1321,28 @@ App =
 			uniqItems = []
 			uniqTexts = []
 			for item in items
-				itemText = item.0.text - \*
-				if itemText is \? or not uniqTexts.includes itemText
+				itemName = item.0.name - \*
+				if itemName is \? or not uniqTexts.includes itemName
 					uniqItems.push item
-					uniqTexts.push itemText
+					uniqTexts.push itemName
 			items.splice 0 Infinity, ...uniqItems
 			items.sort (a, b) ~>
 				a.0.extinct.length - b.0.extinct.length or
-				(a.0.text is \?) - (b.0.text is \?) or
-				(a.0.text is \_) - (b.0.text is \_)
+				(a.0.name is \?) - (b.0.name is \?) or
+				(a.0.name is \_) - (b.0.name is \_)
 		for target, i in targets
 			isElTarget = target instanceof Element
-			text = void
+			name = void
+			rank = opts.ranks[index]
+			subspeciesRegex = //
+				^[A-Z]([a-z]+|\.)?\s
+				(\([a-z-]{2,}\)|[a-z-]{2,}|[a-z]\.)\s
+				(?:subsp\.\s)?
+				([a-z-]{2,})
+			//
+			subspeciesNameRegex = /^[a-z]{2,}$/
+			speciesRegex = /^[A-Z]([a-z]+|\.)\s([A-Z]([a-z]+|\.)\s)?([a-z-]{2,})/
+			otherRankRegex = /^([A-Z][a-z]+)/
 			if isElTarget
 				if target.childNodes.length is 1 and target.firstElementChild?matches "ul, ol, dl"
 					@extract target.firstChild.children,
@@ -1350,104 +1376,107 @@ App =
 						# 	link.dataset.excl = 1
 						else
 							opts.link? target, link
-				textEl = null
-				unless textEl
-					if el = target.querySelector ':scope> a> .toctext'
+				nameEl = null
+				unless nameEl
+					if el = target.querySelector ':scope > a > .toctext'
 						if el.innerText.trim!0 is /[A-Z]/
-							textEl = el
-				unless textEl
-					if el = target.querySelector ':scope> a:not([data-excl])'
+							nameEl = el
+				unless nameEl
+					if el = target.querySelector ':scope > a:not([data-excl])'
 						if el.nextSibling?textContent.0 is \:
-							textEl = el
-				unless textEl
-					if el = target.querySelector ':scope> i:first-child'
+							nameEl = el
+				unless nameEl
+					if el = target.querySelector ':scope > i:first-child'
 						if el.innerText.trim!0 is /[A-Z]/
-							textEl = el
-				unless textEl
-					if el = target.querySelector ':scope> i> a:not([data-excl])'
+							nameEl = el
+				unless nameEl
+					if el = target.querySelector ':scope > i > a:not([data-excl])'
+						val = el.innerText.trim!
+						if val.0 is /[A-Z]/
+							if rank
+								if rank.lv is 34 and speciesRegex.test val or rank.lv is 35 and subspeciesRegex.test val
+									nameEl = el
+							else
+								nameEl = el
+				unless nameEl
+					if el = target.querySelector ':scope > b > a:not([data-excl])'
 						if el.innerText.trim!0 is /[A-Z]/
-							textEl = el
-				unless textEl
-					if el = target.querySelector ':scope> b> a:not([data-excl])'
-						if el.innerText.trim!0 is /[A-Z]/
-							textEl = el
-				unless textEl
-					if el = target.querySelector ':scope> i'
+							nameEl = el
+				unless nameEl
+					if el = target.querySelector ':scope > i'
 						if el.innerText.trim!
-							textEl = el
-				unless textEl
+							nameEl = el
+				unless nameEl
 					if el = target.querySelector ':scope> a:not([data-excl])'
-						textEl = el
-				if textEl
-					if textEl.localName is \i and el = textEl.nextSibling
+						nameEl = el
+				if nameEl
+					if nameEl.localName is \i and el = nameEl.nextSibling
 						if el.wholeText is /^( subsp\. | sp\. )/
-							textEl = null
-				if textEl
-					text = textEl.innerText.trim!
-			text ?= targetText
-			text = text
+							nameEl = null
+				if nameEl
+					name = nameEl.innerText.trim!
+			name ?= targetText
+			name = name
 				.replace @regexes.startsPrefixes, ""
 				.replace /["'?]|=.+$/g ""
 				.replace /^([A-Z][a-z]+) \([A-Z][a-z]+\)( [a-z]{2,})$/ \$1$2
 				.replace /[()]/g ""
-			if text is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
+			if name is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
 				subgenera[that.1] = yes
-			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is text
+			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is name
 				continue
 			tab = void
-			rank = opts.ranks[index]
 			rank ?= @findRank \prefixes (.startsRegex.test targetText)
-			rank ?= @findRank \suffixes (.startsRegex.test text)
+			rank ?= @findRank \suffixes (.startsRegex.test name)
 			tab = rank?tab ? ""
 			notMatchTab ?= tab
-			subspeciesRegex = //
-				^[A-Z]([a-z]+|\.)?\s
-				(\([a-z-]{2,}\)|[a-z-]{2,}|[a-z]\.)\s
-				(?:subsp\.\s)?
-				([a-z-]{2,})
-			//
-			subspeciesNameRegex = /^[a-z]{2,}$/
-			speciesRegex = /^[A-Z]([a-z]+|\.)\s([A-Z]([a-z]+|\.)\s)?([a-z-]{2,})/
-			otherRankRegex = /^([A-Z][a-z]+)/
 			if rank
 				switch
 				| rank.lv is 35
-					if matched = subspeciesRegex.exec text
-						text = matched.3
-					else if matched = subspeciesNameRegex.exec text
-						text = matched.0
+					if matched = subspeciesRegex.exec name
+						name = matched.3
+					else if matched = subspeciesNameRegex.exec name
+						name = matched.0
 					else
-						text = opts.notMatchText
+						name = opts.notMatchText
 				| rank.lv is 34
-					if matched = speciesRegex.exec text
-						text = matched.4
+					if matched = speciesRegex.exec name
+						name = matched.4
 					else
-						text = opts.notMatchText
-				| @regexes.incSedis.test text
-					text = \?
-				| matched = otherRankRegex.exec text
-					text = matched.1
+						name = opts.notMatchText
+				| @regexes.incSedis.test name
+					name = \?
+				| matched = otherRankRegex.exec name
+					name = matched.1
 				else
-					text = opts.notMatchText
+					name = opts.notMatchText
 			else
 				switch
-				| @regexes.incSedis.test text
-					text = \?
+				| @regexes.incSedis.test name
+					name = \?
 					tab = notMatchTab
-				| matched = subspeciesRegex.exec text
-					text = matched.3
+				| matched = subspeciesRegex.exec name
+					name = matched.3
 					tab = @ranks.subspecies.tab
-				| matched = speciesRegex.exec text
-					text = matched.4
+				| matched = speciesRegex.exec name
+					name = matched.4
 					tab = @ranks.species.tab
-				| matched = otherRankRegex.exec text
-					text = matched.1
+				| matched = otherRankRegex.exec name
+					name = matched.1
 					tab = @ranks.genus.tab
 				else
-					text = opts.notMatchText
+					name = opts.notMatchText
 					tab = notMatchTab
+			text = void
+			if tab.length in [34 35]
+				textEl = null
+				if el = target.querySelector ':scope > a:first-child'
+					textEl = el
+				if textEl
+					text = textEl.innerText
 			item =
 				* tab: tab
+					name: name
 					text: text
 					extinct: extinct
 				* []
@@ -1456,7 +1485,7 @@ App =
 					notMatchTab = tab
 					newItem =
 						* tab: tab
-							text: \_
+							name: \_
 							extinct: ""
 						* items.splice 0
 					items.0 = newItem
@@ -1473,7 +1502,11 @@ App =
 		unless parent
 			items = items
 				.flat Infinity
-				.map ~> \\n + it.tab + it.text + it.extinct
+				.map (item) ~>
+					val = \\n + item.tab + item.name + item.extinct
+					if item.text
+						val += " # " + item.text
+					val
 				.join ""
 			@comboRanks = []
 			m.redraw!
@@ -1822,7 +1855,7 @@ App =
 					find \subspecies no no yes
 				| \Shift+F
 					find \subspecies no yes yes
-				| \G \G+N \G+E \G+H \G+S \G+K
+				| \G \G+N \G+E \G+H \G+S \G+K \N \H \K
 					switch
 					| t.google
 						q = document.querySelector \#REsRA .value
@@ -1853,7 +1886,7 @@ App =
 							doCombo "G+#keyGPlus"
 						else
 							location.href = "https://google.com/search?tbm=isch&q=#q"
-					| \G+N
+					| \G+N \N
 						location.href = "https://inaturalist.org/taxa/search?view=list&q=#q"
 					| \G+E
 						data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#q")json!
@@ -1865,13 +1898,13 @@ App =
 								@notify "Không tìm thấy trên ebird.org"
 							else
 								doCombo \G+E,,, [yes]
-					| \G+H
+					| \G+H \H
 						[genus, species] = q.split " "
 						location.href = "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species"
 					| \G+S
 						q = q.toLowerCase!replace /\ /g \-
 						location.href = "https://www.seriouslyfish.com/species/#q"
-					| \G+K
+					| \G+K \K
 						location.href = "https://www.flickr.com/search/?text=#q"
 				| \I+U
 					if blob = await @readCopiedImgBlob!
@@ -1942,16 +1975,10 @@ App =
 						usp = new URLSearchParams location.search
 						id = usp.get \_taxonId
 						location.href = "https://imgur.com/#id?_taxonDelete=1"
-				| \ArrowLeft
-					if el = document.querySelector \.nav-button
-						el.click!
-				| \ArrowRight
-					if el = document.querySelector \.nav-button.next
-						el.click!
 				| \Escape
 					if t.flickr
 						if el = document.querySelector \.entry-type.do-not-evict
-							history.back!
+							el.click!
 				| \Z
 					history.back!
 				| \X

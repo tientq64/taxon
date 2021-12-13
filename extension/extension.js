@@ -22,8 +22,9 @@
 	t.wiki = t.wikiPage || t.wikiImg || t.wikiLogin
 	t.imgurEdit = t.imgur && pathname == "/edit"
 	t.imgurView = t.imgur && /^\/[A-Za-z\d]{7}($|\?)/.exec(pathname)
-	t.imgurAuth = t.imgur && href.startsWith("https://api.imgur.com/oauth2/authorize?")
+	t.imgurAuth = href.startsWith("https://api.imgur.com/oauth2/authorize?")
 	t.inaturalistSearch = t.inaturalist && pathname == "/taxa/search"
+	t.flickrPhotos = t.flickr && pathname.startsWith("/photos/")
 	let [styl, code, OCTOKEN] = await Promise.all([
 		fetch(chrome.runtime.getURL("extension.styl")).then(res => res.text()),
 		fetch(chrome.runtime.getURL("extension.ls")).then(res => res.text()),

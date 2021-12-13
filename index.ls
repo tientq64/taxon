@@ -46,7 +46,7 @@ parse = !->
 	data .= split \\n
 	tree = [0 \Organism no \/Sinh_vật [] "Sinh vật"]
 	refs = [tree]
-	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*))?(?: \|([-a-z]+))?$/
+	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?$/
 	tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
 	inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
@@ -347,7 +347,6 @@ App =
 		@findExact = !!localStorage.taxonFindExact
 		@findCase = !!localStorage.taxonFindCase
 		@findTimo = void
-		@scrolling = no
 		@code = void
 		@isKeyDown = yes
 		@popper = void
@@ -577,10 +576,11 @@ App =
 					@popper.update!
 			updateWidth = (step = 0) !~>
 				unless isTwoImage
-					maxWidth = icon and 248 or 314
+					maxWidth = icon and 234 or 304
 					if nameEl.offsetWidth > maxWidth
 						vals = name.split " "
-						if vals.length is 3
+						switch vals.length
+						| 3
 							switch step
 							| 0
 								name := "#{vals.0} #{vals.1.0}. #{vals.2}"
@@ -589,11 +589,15 @@ App =
 							| 1
 								name := "#{vals.0.0}. #{vals.1} #{vals.2}"
 								nameEl.textContent = name
+						| 2
+							name := "#{vals.0.0}. #{vals.1}"
+							nameEl.textContent = name
 			popup =
 				view: (vnode) ~>
 					m \.popupBody,
 						class: @class do
 							"popupIsTrinomial": line.lv > 35
+							"popupIsTwoImage": isTwoImage
 						style:
 							minWidth: width + \px
 						m \.popupName,
@@ -633,7 +637,10 @@ App =
 													if imgs.length is 2
 														i and \Cái or \Đực
 													if img.captn
-														" (#{img.captn})"
+														if imgs.length is 2
+															" \u2013 #{img.captn}"
+														else
+															img.captn
 						m \.popupSummary#summaryEl
 			m.mount popupEl, popup
 			@popper = Popper.createPopper event.target, popupEl,
@@ -754,14 +761,8 @@ App =
 		@mouseleaveName!
 
 	onscroll: (event) !->
-		if @scrolling
-			event.redraw = no
-		else
-			@scrolling = yes
+		event.redraw = no
 		@scroll!
-
-	onscrollend: (event) !->
-		@scrolling = no
 
 	onkeydown: (event) !->
 		unless event.repeat
@@ -879,12 +880,9 @@ App =
 		m.redraw!
 
 	view: ->
-		m \div,
-			class: @class do
-				"scrolling": @scrolling
+		m.fragment do
 			m \#scrollEl,
 				onscroll: @onscroll
-				onscrollend: @onscrollend
 				m \#presEl,
 					@lines.map (line) ~>
 						m \.line,
