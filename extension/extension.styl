@@ -1,18 +1,33 @@
 $prim = #07d
 $prim1 = #07d1
 $prim2 = #07d2
-$fontFamily = unquote("'Verdana',sans-serif")
-$fontSize = 9pt
-// $fontFamily = unquote("'Roboto',sans-serif")
-// $fontSize = 10pt
+// $fontFamily = unquote("'Roboto Condensed',sans-serif")
+// $fontSize = 12pt
+// $fontFamily = unquote("'Verdana',sans-serif")
+// $fontSize = 9pt
+$fontFamily = unquote("'Roboto',sans-serif")
+$fontSize = 15px
 // $fontFamily = unquote("'Segoe UI','IBM Plex Sans',sans-serif")
 // $fontSize = 14px
 // $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
 // $fontSize = 12pt
+::-webkit-scrollbar
+	appearance none
+	width 14px
+	height 14px
+	background #fff
+::-webkit-scrollbar-thumb
+	border solid 3px #eee
+	border-radius 14px
+	background $prim
+	&:hover
+		background darken($prim,20%)
 body, h1, h2, h3, h4, h5, h6, p, a, span
 	font-family $fontFamily !important
 body
 	font-size $fontSize
+	&::-webkit-scrollbar
+		background #eee
 #_app
 	position fixed
 	inset 0
@@ -170,11 +185,21 @@ body
 ._wiki
 	*
 		box-sizing border-box
-		cursor default !important
+		cursor default
 	body
 		background #fff
+	a[href*="_("]
+		font-weight bold
+		text-decoration underline solid
+	#vector-sticky-header
+		display none !important
 	.mw-page-container
 		background #fff
+	.mw-workspace-container
+		max-width unset !important
+		.mw-content-container
+			margin 0 20% !important
+			padding 0 16px
 	.mw-body-content
 		font-size $fontSize
 	.mw-mmv-lightbox-open> *
@@ -202,6 +227,7 @@ body
 		animation _fadeOut95 .1s forwards
 	.infobox
 		padding 0
+		border-radius 4px
 		border-spacing 0 8px
 		th
 			padding 4px 8px !important
@@ -216,7 +242,13 @@ body
 	img[src$="/7/74/Red_Pencil_Icon.png"]
 	.thumbinner .magnify
 		display none
+	.thumbinner, .thumbimage, img
+		border-radius 4px
+	.mw-mmv-wrapper
+		img
+			border-radius 0
 	#toc
+		border-radius 4px
 		display block
 		overflow auto
 		user-select none
@@ -226,6 +258,7 @@ body
 	.noresize
 		overflow hidden
 	#firstHeading
+		border-bottom-width 2px
 		> *
 			pointer-events none
 	._summTitle
@@ -239,6 +272,7 @@ body
 		> p
 			margin 0
 	ul
+		border-radius 2px
 		&:hover
 			background $prim1
 			box-shadow 0 0 0 2px $prim1
@@ -570,3 +604,6 @@ small
 	cursor pointer
 ._cursorCopy
 	cursor copy
+._noscrollbar
+	&::-webkit-scrollbar
+		display none

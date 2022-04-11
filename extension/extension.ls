@@ -794,12 +794,11 @@ App =
 					notify.update "Đã upload ảnh Imgur: #id"
 					sep = isFemale and \| or \#
 					await @copy " #sep -#id"
-					if type is \URL
-						url = "https://imgur.com/edit?deletehash=#deletehash&album_id=#album&_taxonId=#id"
-						if isOpenNewTab
-							window.open url
-						else
-							location.href = url
+					url = "https://imgur.com/edit?deletehash=#deletehash&album_id=#album&_taxonId=#id"
+					if isOpenNewTab
+						window.open url
+					else
+						location.href = url
 				else
 					notify.update "Upload ảnh Imgur thất bại"
 			else
@@ -1469,11 +1468,15 @@ App =
 					tab = notMatchTab
 			text = void
 			if tab.length in [34 35]
-				textEl = null
-				if el = target.querySelector ':scope > a:first-child'
-					textEl = el
-				if textEl
-					text = textEl.innerText
+				if target instanceof Element
+					textEl = null
+					if el = target.querySelector ':scope > a:first-child'
+						textEl = el
+					if textEl
+						if textEl is nameEl
+							textEl = null
+					if textEl
+						text = textEl.innerText
 			item =
 				* tab: tab
 					name: name
@@ -1559,12 +1562,13 @@ App =
 					unless t.imgurEdit
 						captions =
 							"RMB": " # %"
-							"A+RMB": " # % ; light morph"
+							"A+RMB": " # % ; adult"
 							"B+RMB": " # % ; breeding"
 							"C+RMB": " # % ; reconstruction"
 							"D+RMB": " # % ; drawing"
 							"E+RMB": " # % ; exhibit"
 							"F+RMB": " # % ; fossil"
+							"G+RMB": " # % ; light morph"
 							"H+RMB": " # % ; holotype"
 							"J+RMB": " # % ; jaw"
 							"K+RMB": " # % ; skeleton"
@@ -1576,6 +1580,7 @@ App =
 							"R+RMB": " # % ; restoration"
 							"S+RMB": " # % ; specimen"
 							"U+RMB": " # % ; skull"
+							"V+RMB": " # % ; larva"
 							"W+RMB": " | %"
 							"X+RMB": " # % ; dark morph"
 							"Shift+RMB": " | %"
@@ -1750,6 +1755,7 @@ App =
 							.trim!
 					text = text
 						.replace /[–—]/gu ""
+						.replace /^- | \($/ ""
 						.trim!
 					text = @upperFirst text
 					@data = " # #text"
@@ -1991,9 +1997,9 @@ App =
 		m.fragment do
 			if @shownUI and t.wikiPage
 				m \._sideLeft,
-					m \._column._px5._py4,
-						m \._col._scroll,
-							m \#_toc._mt6
+					m \._column._p4._h100._scroll._noscrollbar,
+						m \._col,
+							m \#_toc
 						m \._col0._mt3,
 							@comboRanks.map (rank) ~>
 								m \div,
@@ -2028,14 +2034,14 @@ App =
 				m \._sideRight,
 					switch
 					| t.wikiPage
-						m \._column._px5._py4,
+						m \._column._p4._h100._scroll._noscrollbar,
 							if @summ
 								if @summ is yes
 									m \._mt5._textCenter "Đang tải..."
 								else
-									m \._scroll._summ,
+									m \._summ,
 										m \h3._summTitle @summ.title
-										m \._summBox._p3._border,
+										m \._summBox._p3._border._round4,
 											m \img._summImg._block src: @summ.thumbnail?source
 											m \._summExtract._mt3._mb-0._textJustify m.trust @summ.extract_html
 							else

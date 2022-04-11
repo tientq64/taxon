@@ -1,11 +1,13 @@
-@import "https://fonts.googleapis.com/css?family=IBM+Plex+Sans:,i,b,ib"
+// @import "https://fonts.googleapis.com/css?family=IBM+Plex+Sans:,i,b,ib"
+@import "https://fonts.googleapis.com/css?family=Roboto:,i,b,ib"
 @font-face
 	font-family "DejaVuSansMono"
 	src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
 *, *:before, *:after
 	box-sizing border-box
 html
-	--sans "Segoe UI","IBM Plex Sans",sans-serif
+	// --sans "Segoe UI","IBM Plex Sans",sans-serif
+	--sans "Roboto","IBM Plex Sans",sans-serif
 	--lineH 19px
 .verdana
 	--sans "Verdana","IBM Plex Sans",sans-serif
@@ -76,12 +78,12 @@ body
 		margin-left 6px
 .textEn
 	font-size 14px
-	/.verdana
+	/.verdana &
 		font-size 12px
 .textVi
 	font-size 13px
 	color #a39f83
-	/.verdana
+	/.verdana &
 		font-size 12px
 .img
 	min-width 4px
@@ -138,9 +140,10 @@ body
 	top 0
 	width 100%
 	height 100%
-	padding-left 64px
 	margin 0
+	padding-left 64px
 	white-space pre
+	tab-size 2
 	/.verdana &
 		padding-left 176px
 #infosEl
@@ -204,6 +207,7 @@ body
 	text-align center
 	overflow hidden
 	box-shadow 1px 2px 4px 1px #0008
+	// box-shadow -4px 0 #011627,1px 2px 4px 1px #0008
 	pointer-events none
 	/.verdana &
 		font-size 13px
@@ -226,12 +230,13 @@ body
 		/.verdana &
 			font-size 14px
 .popupIsTwoImage
-	width 652px
+	width 672px
 .popupName
 	position relative
 	padding 2px 8px 4px
 	display flex
 	justify-content center
+	align-items center
 	font-size 17px
 	font-weight bold
 	white-space nowrap
@@ -261,7 +266,7 @@ body
 	align-self stretch
 .popupPicture
 	position relative
-	width 320px
+	width 330px
 	padding 5px
 	border-radius 8px
 	display flex
@@ -315,7 +320,7 @@ body
 		margin-top 6px
 	> p
 		margin 0
-		text-align justify
+		text-align justify !important
 	a
 		text-decoration none
 		color inherit

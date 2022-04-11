@@ -11,6 +11,18 @@ cstyle = getComputedStyle document.documentElement
 lineH = parseInt cstyle.getPropertyValue \--lineH
 lines = []
 chars = {}
+chrsRanks =
+	[\life 0 1]
+	[\domain 1 2]
+	[\kingdom 2 5]
+	[\phylum 5 10]
+	[\class 10 16]
+	[\order 16 24]
+	[\family 24 27]
+	[\tribe 27 30]
+	[\genus 30 34]
+	[\species 34 36]
+	[\subspecies 36 39]
 isDev = location.hostname is \localhost
 maxLv = 99
 infoMaxLv = 2
@@ -48,6 +60,7 @@ parse = !->
 	refs = [tree]
 	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?$/
 	tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
+	disamSplitRegex = /(?=[\\/])/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
 	inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
 	bugguideRegex = /^([A-Z\d]+)([r]?)$/
@@ -57,113 +70,113 @@ parse = !->
 	charsId = 0
 	index = -1
 	numFmt = new Intl.NumberFormat \en
-	translates =
-		headed: "đầu"
-		tailed: "đuôi"
-		bellied: "bụng"
-		chested: "ngực"
-		breasted: "ngực"
-		backed: "lưng"
-		faced: "mặt"
-		nosed: "mũi"
-		eared: "tai"
-		cheeked: "má"
-		chinned: "cằm"
-		necked: "cổ"
-		throated: "họng"
-		footed: "chân"
-		rumped: "phao câu"
-		billed: "mỏ"
-		crested: "mào"
-		winged: "cánh"
-		bearded: "râu"
-		scaly: "vảy"
-		sword: "kiếm"
-		needle: "kim"
-		crowned: "vương miện"
-		masked: "mặt nạ"
-		spectacled: "đeo kính"
-		king: "vua"
-		ghost: "ma"
-		black: "đen"
-		white: "trắng"
-		gray: "xám"
-		grey: "xám"
-		red: "đỏ"
-		orange: "da cam"
-		yellow: "vàng"
-		green: "lục"
-		blue: "lam"
-		purple: "tía"
-		violet: "tím"
-		pink: "hồng"
-		brown: "nâu"
-		silver: "bạc"
-		olive: "ô liu"
-		chestnut: "hạt dẻ"
-		rainbow: "cầu vồng"
-		fiery: "lửa"
-		plain: "trơn"
-		spot: "đốm"
-		spotted: "đốm"
-		speckled: "lốm đốm"
-		stripe: "sọc"
-		banded: "vằn"
-		starred: "sao"
-		wood: "gỗ"
-		marbled: "cẩm thạch"
-		velvet: "nhung"
-		broad: "rộng"
-		hook: "quăm"
-		giant: "khổng lồ"
-		large: "lớn"
-		little: "nhỏ"
-		lesser: "nhỏ"
-		long: "dài"
-		short: "ngắn"
-		pygmy: "lùn"
-		northern: "phương bắc"
-		southern: "phương nam"
-		common: "thông thường"
-		domestic: "nhà"
-		wild: "hoang"
-		mountain: "núi"
-		desert: "sa mạc"
-		bay: "vịnh"
-		cave: "hang"
-		hyena: "linh cẩu"
-		hummingbird: "chim ruồi"
-		potoo: "chim potoo"
-		flamingo: "hồng hạc"
-		duck: "vịt"
-		teal: "mòng két"
-		shrimp: "tôm"
-		crab: "cua"
-		cricket: "dế"
-		grasshopper: "châu chấu"
-		mosquito: "muỗi"
-		African: "châu Phi"
-		Pacific: "Thái Bình Dương"
-		Vietnam: "Việt Nam"
-		Vietnamese: "Việt Nam"
-		American: "Mỹ"
-		Chinese: "Trung Quốc"
-		Taiwan: "Đài Loan"
-		Philippine: "Philippine"
-		Australian: "Úc"
-		Australasian: "Úc"
-		Egyptian: "Ai Cập"
-		Madagascan: "Madagascar"
-		Mexican: "Mexico"
-		Chilean: "Chile"
-		Hainan: "Hải Nam"
-		California: "California"
-		Andean: "Andes"
-		Baikal: "Baikal"
-		Javan: "Java"
-		Laysan: "Laysan"
-		"James's": "James"
-		"Hartlaub's": "Hartlaub"
+	# translates =
+	# 	headed: "đầu"
+	# 	tailed: "đuôi"
+	# 	bellied: "bụng"
+	# 	chested: "ngực"
+	# 	breasted: "ngực"
+	# 	backed: "lưng"
+	# 	faced: "mặt"
+	# 	nosed: "mũi"
+	# 	eared: "tai"
+	# 	cheeked: "má"
+	# 	chinned: "cằm"
+	# 	necked: "cổ"
+	# 	throated: "họng"
+	# 	footed: "chân"
+	# 	rumped: "phao câu"
+	# 	billed: "mỏ"
+	# 	crested: "mào"
+	# 	winged: "cánh"
+	# 	bearded: "râu"
+	# 	scaly: "vảy"
+	# 	sword: "kiếm"
+	# 	needle: "kim"
+	# 	crowned: "vương miện"
+	# 	masked: "mặt nạ"
+	# 	spectacled: "đeo kính"
+	# 	king: "vua"
+	# 	ghost: "ma"
+	# 	black: "đen"
+	# 	white: "trắng"
+	# 	gray: "xám"
+	# 	grey: "xám"
+	# 	red: "đỏ"
+	# 	orange: "da cam"
+	# 	yellow: "vàng"
+	# 	green: "lục"
+	# 	blue: "lam"
+	# 	purple: "tía"
+	# 	violet: "tím"
+	# 	pink: "hồng"
+	# 	brown: "nâu"
+	# 	silver: "bạc"
+	# 	olive: "ô liu"
+	# 	chestnut: "hạt dẻ"
+	# 	rainbow: "cầu vồng"
+	# 	fiery: "lửa"
+	# 	plain: "trơn"
+	# 	spot: "đốm"
+	# 	spotted: "đốm"
+	# 	speckled: "lốm đốm"
+	# 	stripe: "sọc"
+	# 	banded: "vằn"
+	# 	starred: "sao"
+	# 	wood: "gỗ"
+	# 	marbled: "cẩm thạch"
+	# 	velvet: "nhung"
+	# 	broad: "rộng"
+	# 	hook: "quăm"
+	# 	giant: "khổng lồ"
+	# 	large: "lớn"
+	# 	little: "nhỏ"
+	# 	lesser: "nhỏ"
+	# 	long: "dài"
+	# 	short: "ngắn"
+	# 	pygmy: "lùn"
+	# 	northern: "phương bắc"
+	# 	southern: "phương nam"
+	# 	common: "thông thường"
+	# 	domestic: "nhà"
+	# 	wild: "hoang"
+	# 	mountain: "núi"
+	# 	desert: "sa mạc"
+	# 	bay: "vịnh"
+	# 	cave: "hang"
+	# 	hyena: "linh cẩu"
+	# 	hummingbird: "chim ruồi"
+	# 	potoo: "chim potoo"
+	# 	flamingo: "hồng hạc"
+	# 	duck: "vịt"
+	# 	teal: "mòng két"
+	# 	shrimp: "tôm"
+	# 	crab: "cua"
+	# 	cricket: "dế"
+	# 	grasshopper: "châu chấu"
+	# 	mosquito: "muỗi"
+	# 	African: "châu Phi"
+	# 	Pacific: "Thái Bình Dương"
+	# 	Vietnam: "Việt Nam"
+	# 	Vietnamese: "Việt Nam"
+	# 	American: "Mỹ"
+	# 	Chinese: "Trung Quốc"
+	# 	Taiwan: "Đài Loan"
+	# 	Philippine: "Philippine"
+	# 	Australian: "Úc"
+	# 	Australasian: "Úc"
+	# 	Egyptian: "Ai Cập"
+	# 	Madagascan: "Madagascar"
+	# 	Mexican: "Mexico"
+	# 	Chilean: "Chile"
+	# 	Hainan: "Hải Nam"
+	# 	California: "California"
+	# 	Andean: "Andes"
+	# 	Baikal: "Baikal"
+	# 	Javan: "Java"
+	# 	Laysan: "Laysan"
+	# 	"James's": "James"
+	# 	"Hartlaub's": "Hartlaub"
 	for , info of infos
 		info.count = 0
 	for line in data
@@ -174,6 +187,9 @@ parse = !->
 		[, lv, name, ex, disam, icon] = headRegex.exec head
 		lv = lv.length + 1
 		name = " " if name is \_
+		if disam
+			disam = disam.split disamSplitRegex .map (val) ~>
+				if val is \\ => void else val
 		if text
 			if tailRegex.test text
 				tail = text
@@ -270,7 +286,7 @@ parse = !->
 						.replace /┃(?=[━┓])/ \┣
 				else
 					chrs2 = (chrs + if first => "━━"repeat(lvRange) + \━┓ else "  "repeat(lvRange) + " ┃")
-						.replace /\ (?=[╸━┓])/ \┗	
+						.replace /\ (?=[╸━┓])/ \┗
 						.replace /[┃╏](?=[━┓])/ \┣
 			else
 				chrs2 = " ┃"
@@ -326,6 +342,18 @@ parse = !->
 					addNode child, line, lv, parentName, extinct, chrs, not i, i is lastIndex, childs[i + 1]?2
 	addNode tree,, -1, "" no "" yes yes
 	chars := Object.keys chars
+	for char, i in chars
+		chrs = []
+		len = char.length / 2
+		for chrsRank in chrsRanks
+			if len > chrsRank.1
+				chr = char
+					.substring chrsRank.1 * 2 chrsRank.2 * 2
+					.replace /\  /g \\t
+					.replace /\ /g \\t
+				chrs.push chr
+			else break
+		chars[i] = chrs
 	infos.taxon.count = lines.length
 	infos.speciesSubspExists.count = infos.speciesSubsp.count - infos.speciesSubspExtinct.count
 	for , info of infos
@@ -351,18 +379,6 @@ App =
 		@isKeyDown = yes
 		@popper = void
 		@abortCtrler = void
-		@chrsRanks =
-			[\life 0 1]
-			[\domain 1 2]
-			[\kingdom 2 5]
-			[\phylum 5 10]
-			[\class 10 16]
-			[\order 16 24]
-			[\family 24 27]
-			[\tribe 27 30]
-			[\genus 30 34]
-			[\species 34 36]
-			[\subspecies 36 39]
 		@rightClickAction = localStorage.taxonRightClickAction
 		@popupLang = localStorage.taxonPopupLang
 
@@ -372,8 +388,8 @@ App =
 		addEventListener \keyup @onkeyup
 		addEventListener \mousedown @onmousedown
 		addEventListener \blur @onblur
-		scrollEl.scrollTop = +localStorage.taxonTop or 0
 		addEventListener \resize @onresize
+		scrollEl.scrollTop = +localStorage.taxonTop or 0
 		@onresize!
 
 	class: (...items) ->
@@ -389,7 +405,7 @@ App =
 		res.join " "
 
 	getRankName: (lv) ->
-		@chrsRanks.find (.2 > lv) .0
+		chrsRanks.find (.2 > lv) .0
 
 	find: (val) !->
 		if val?
@@ -490,10 +506,10 @@ App =
 			| 1
 				if isDev
 					lang = event.altKey and \vi or \en
-					q = @getWikiPageName line
+					q = @getWikiPageName line, lang
 					window.open "https://#lang.wikipedia.org/wiki/#q" \_blank
 				else
-					q = @getWikiPageName line
+					q = @getWikiPageName line, \vi
 					window.open "https://vi.wikipedia.org/wiki/#q" \_blank
 			| 2
 				event.preventDefault!
@@ -552,13 +568,13 @@ App =
 				else
 					window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
 		else
-			q = @getWikiPageName line
+			q = @getWikiPageName line, \en
 			window.open "https://en.wikipedia.org/wiki/#q" \_blank
 
 	mouseenterName: (line, event) !->
 		unless line.name in [\? " "]
 			{imgs} = line
-			width = 320
+			width = 338
 			isTwoImage = imgs and imgs.0 and imgs.1
 			name = @getFullNameNoSubgenus line
 			icon = @getIcon line
@@ -576,7 +592,7 @@ App =
 					@popper.update!
 			updateWidth = (step = 0) !~>
 				unless isTwoImage
-					maxWidth = icon and 234 or 304
+					maxWidth = icon and 239 or 309
 					if nameEl.offsetWidth > maxWidth
 						vals = name.split " "
 						switch vals.length
@@ -641,7 +657,8 @@ App =
 															" \u2013 #{img.captn}"
 														else
 															img.captn
-						m \.popupSummary#summaryEl
+						m \.popupSummary#summaryEl,
+							translate: yes
 			m.mount popupEl, popup
 			@popper = Popper.createPopper event.target, popupEl,
 				placement: \left
@@ -683,22 +700,24 @@ App =
 			else
 				@getIcon line.parent
 
-	getWikiPageName: (line) ->
+	getWikiPageName: (line, lang) ->
 		{disam} = line
 		if disam
-			chr = disam.0
-			disam .= substring 1
+			index = +(lang is \vi)
+			if disamLang = disam[index]
+				chr = disamLang.0
+				disamLang .= substring 1
 		name = @getFullNameNoSubgenus line
 		name .= replace /\ /g \_
 		switch chr
-		| \/ => disam or \_
-		| \\ => "#{name}_(#disam)"
+		| \/ => disamLang or \_
+		| \\ => "#{name}_(#disamLang)"
 		else name
 
 	fetchWiki: (line, cb) !->
 		try
-			q = @getWikiPageName line
 			lang = cb and \en or @popupLang
+			q = @getWikiPageName line, lang
 			opts = {}
 			unless cb
 				@abortCtrler = new AbortController
@@ -889,11 +908,10 @@ App =
 							key: line.index
 							class: @class do
 								"lineFind": @finding and line is @findLines[@findIndex]
-							@chrsRanks.map (rank) ~>
-								if line.lv >= rank.1
-									m \span,
-										class: rank.0
-										chars[line.chrs]substring rank.1 * 2 rank.2 * 2
+							chars[line.chrs]map (char, i) ~>
+								m \span,
+									class: chrsRanks[i]0
+									char
 							m \.node,
 								m \span.name,
 									class: @getRankName line.lv
