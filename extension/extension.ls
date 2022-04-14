@@ -1850,13 +1850,14 @@ App =
 							text = await navigator.clipboard.readText!
 							el.select!
 							el.value = text
-				| \O \Shift+O
+				| \O \Shift+O \P \Shift+P
+					lang = comboIncludes \P and \vi or \en
 					text = await navigator.clipboard.readText!
-					url = "https://en.wikipedia.org/wiki/#text"
-					if combo is \O
-						location.href = url
-					else
+					url = "https://#lang.wikipedia.org/wiki/#text"
+					if comboIncludes \Shift
 						window.open url
+					else
+						location.href = url
 				| \F
 					find \subspecies no no yes
 				| \Shift+F
@@ -1884,7 +1885,8 @@ App =
 						| t.wikispecies
 							q = document.querySelector \#firstHeading .innerText
 						else
-							q = document.querySelector \.binomial ?.innerText
+							el = document.querySelector \.binomial or document.querySelector \#firstHeading
+							q = el?innerText
 					switch combo
 					| \G
 						{keyGPlus} = @cfg

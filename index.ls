@@ -4,7 +4,7 @@ localStorage
 	..taxonInfoLv ?= \0
 	..taxonRightClickAction ?= \g
 	..taxonPopupLang ?= \vi
-	..taxonTheme ?= \segoe
+	..taxonTheme ?= \default
 
 document.documentElement.classList.add localStorage.taxonTheme
 cstyle = getComputedStyle document.documentElement
@@ -415,6 +415,7 @@ App =
 		unless @finding
 			@finding = yes
 			m.redraw.sync!
+			findInputEl.select!
 		findInputEl.focus!
 		if @findTimo
 			clearTimeout @findTimo
@@ -734,7 +735,7 @@ App =
 				while node .= parent
 					names.push @getFullNameNoSubgenus node
 				matches = [title]
-				if rs = extract_html.match /<(b)>.+?<\/\1>/g
+				if rs = extract_html.match /<b>.+?<\/b>/g
 					matches.push ...rs
 				for title in matches
 					if r = /<(\w+)[^>]*>(.+?)<\/\1>/exec title
@@ -747,7 +748,7 @@ App =
 						titles ?= []
 						unless titles.includes title
 							titles.push title
-			if data.type is \standard and extract_html
+			if (data.type is \standard or isDev) and extract_html
 				summary = /<p>(.+?)<\/p>/su.exec extract_html .0 .replace /\n+/g " "
 			else throw
 		catch
@@ -865,9 +866,10 @@ App =
 									scrollTop = maxScrollTop
 								scrollEl.scrollTop = scrollTop
 			| \KeyV
-				unless ctrl
-					@popupLang = @popupLang is \vi and \en or \vi
-					localStorage.taxonPopupLang = @popupLang
+				if noFocus
+					unless ctrl
+						@popupLang = @popupLang is \vi and \en or \vi
+						localStorage.taxonPopupLang = @popupLang
 			| \KeyE
 				if isDev
 					try
