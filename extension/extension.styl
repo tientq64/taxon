@@ -5,8 +5,10 @@ $prim2 = #07d2
 // $fontSize = 12pt
 // $fontFamily = unquote("'Verdana',sans-serif")
 // $fontSize = 9pt
-$fontFamily = unquote("'Roboto',sans-serif")
-$fontSize = 15px
+// $fontFamily = unquote("'Roboto',sans-serif")
+// $fontSize = 15px
+$fontFamily = unquote("'Microsoft YaHei UI','Roboto',sans-serif")
+$fontSize = 14px
 // $fontFamily = unquote("'Segoe UI','IBM Plex Sans',sans-serif")
 // $fontSize = 14px
 // $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
@@ -192,9 +194,14 @@ body
 		font-weight bold
 		text-decoration underline solid
 	#vector-sticky-header
+	.mw-table-of-contents-container
 		display none !important
 	.mw-page-container
 		background #fff
+	.vector-layout-grid
+		.mw-page-container-inner
+			display block
+			grid-template-columns 0 0 minmax(0,1fr)
 	.mw-workspace-container
 		max-width unset !important
 		.mw-content-container

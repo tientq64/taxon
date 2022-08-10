@@ -575,7 +575,7 @@ App =
 	mouseenterName: (line, event) !->
 		unless line.name in [\? " "]
 			{imgs} = line
-			width = 338
+			width = 328
 			isTwoImage = imgs and imgs.0 and imgs.1
 			name = @getFullNameNoSubgenus line
 			icon = @getIcon line
@@ -749,7 +749,10 @@ App =
 						unless titles.includes title
 							titles.push title
 			if (data.type is \standard or isDev) and extract_html
-				summary = /<p>(.+?)<\/p>/su.exec extract_html .0 .replace /\n+/g " "
+				summary = /<p>(.+?)<\/p>/su
+					.exec extract_html .0
+					.replace /\n+/g " "
+					.replace /^<p><b>(.+?)<\/b><\/p>$/u "<p>$1</p>"
 			else throw
 		catch
 			summary = ""
@@ -790,11 +793,10 @@ App =
 				noFocus = document.activeElement is document.body
 				@isKeyDown = yes
 				@code = event.code
-				if noFocus
-					switch @code
-					| \KeyF
-						if event.ctrlKey
-							event.preventDefault!
+				switch @code
+				| \KeyF
+					if event.ctrlKey
+						event.preventDefault!
 
 	onkeyup: (event) !->
 		if @isKeyDown
@@ -917,13 +919,13 @@ App =
 							m \.node,
 								m \span.name,
 									class: @getRankName line.lv
-									onmouseenter: !~>
-										@mouseenterName line, it
+									onmouseenter: (event) !~>
+										@mouseenterName line, event
 									onmouseleave: @mouseleaveName
-									onmousedown: !~>
-										@mousedownName line, it
-									oncontextmenu: !~>
-										@contextmenuName line, it
+									onmousedown: (event) !~>
+										@mousedownName line, event
+									oncontextmenu: (event) !~>
+										@contextmenuName line, event
 									line.name
 								if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy isnt \...)
 									m \span.dash \\u2014
