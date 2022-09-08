@@ -639,11 +639,10 @@ App =
 												m \img.popupImg,
 													src: img.src
 													onload: (event) !~>
-														unless isTwoImage
-															{target} = event
-															ratio = target.width / target.height
-															if 1.233 < ratio < 1.333
-																target.classList.add \popupImg--cover
+														{target} = event
+														{width, height} = target
+														if (width < 320 and height < 240) or (not isTwoImage and 1.233 < width / height < 1.333)
+															target.classList.add \popupImg--cover
 														if @popper
 															updateHeight!
 													onerror: !~>

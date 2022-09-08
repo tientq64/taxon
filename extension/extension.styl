@@ -13,23 +13,10 @@ $fontSize = 14px
 // $fontSize = 14px
 // $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
 // $fontSize = 12pt
-::-webkit-scrollbar
-	appearance none
-	width 14px
-	height 14px
-	background #fff
-::-webkit-scrollbar-thumb
-	border solid 3px #eee
-	border-radius 14px
-	background $prim
-	&:hover
-		background darken($prim,20%)
 body, h1, h2, h3, h4, h5, h6, p, a, span
 	font-family $fontFamily !important
 body
 	font-size $fontSize
-	&::-webkit-scrollbar
-		background #eee
 #_app
 	position fixed
 	inset 0
@@ -198,10 +185,9 @@ body
 		display none !important
 	.mw-page-container
 		background #fff
-	.vector-layout-grid
-		.mw-page-container-inner
-			display block
-			grid-template-columns 0 0 minmax(0,1fr)
+	.mw-page-container-inner
+		display block
+		grid-template-columns 0 0 minmax(0,1fr)
 	.mw-workspace-container
 		max-width unset !important
 		.mw-content-container
