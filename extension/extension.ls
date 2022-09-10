@@ -997,270 +997,295 @@ App =
 				m.redraw!
 		@modal "Tải hình ảnh lên Github",, (modal$) ~>
 			modal := modal$
-			if loaded
-				m \._row._top._gap4,
-					m \._col._relative,
-						m \canvas._block._outline#imgGithubCanvasEl,
-							style: @style do
-								width: width
-								height: height
-							width: imgW
-							height: imgH
-							onpointerdown: (event) !~>
-								event.redraw = no
-								imgGithubCanvasEl.setPointerCapture event.pointerId
-								sel :=
-									x: event.offsetX
-									y: event.offsetY
-									phase: 2
-								m.redraw!
-							onpointermove: (event) !~>
-								event.redraw = no
-								if sel and sel.phase
-									{offsetX, offsetY} = event
-									{x, y} = sel
-									sel.phase = 1
-									if offsetX < 0
-										l = 0
-										w = x
-									else if offsetX > width
-										l = x
-										w = width - x
-									else
-										l = if offsetX < x => offsetX else x
-										w = Math.abs offsetX - x
-									r = l + w
-									if offsetY < 0
-										t = 0
-										h = y
-									else if offsetY > height
-										t = y
-										h = height - y
-									else
-										t = if offsetY < y => offsetY else y
-										h = Math.abs offsetY - y
-									b = t + h
-									updateSelCropPos!
-									sel <<< {l, t, w, h, r, b}
-									m.redraw!
-							onlostpointercapture: (event) !~>
-								event.redraw = no
-								if sel
-									if sel.phase is 1
-										sel.phase = 0
-									else
-										sel := void
-									m.redraw!
-						if sel and sel.phase < 2
-							m \#imgGithubSelEl,
+			m \.imgGithubModal,
+				if loaded
+					m \._row._top._gap4,
+						m \._col._relative,
+							m \canvas._block._outline#imgGithubCanvasEl,
 								style: @style do
-									left: sel.l
-									top: sel.t
-									width: sel.w
-									height: sel.h
+									width: width
+									height: height
+								width: imgW
+								height: imgH
 								onpointerdown: (event) !~>
 									event.redraw = no
-									if event.target is imgGithubSelEl
-										if sel
-											imgGithubSelEl.setPointerCapture event.pointerId
-											sel <<<
-												x: event.x - imgGithubCanvasEl.offsetLeft
-												y: event.y - imgGithubCanvasEl.offsetTop
-												l0: sel.l
-												t0: sel.t
-												move: yes
-											m.redraw!
+									imgGithubCanvasEl.setPointerCapture event.pointerId
+									sel :=
+										x: event.offsetX
+										y: event.offsetY
+										phase: 2
+									m.redraw!
 								onpointermove: (event) !~>
 									event.redraw = no
-									if sel and sel.move
-										mx = event.x - imgGithubCanvasEl.offsetLeft
-										my = event.y - imgGithubCanvasEl.offsetTop
-										{w, h} = sel
-										l = sel.l0 + mx - sel.x
-										t = sel.t0 + my - sel.y
-										r = l + w
-										b = t + h
-										if l < 0
+									if sel and sel.phase
+										{offsetX, offsetY} = event
+										{x, y} = sel
+										sel.phase = 1
+										if offsetX < 0
 											l = 0
-										else if r > width
-											l = width - w
-										if t < 0
-											t = 0
-										else if b > height
-											t = height - h
+											w = x
+										else if offsetX > width
+											l = x
+											w = width - x
+										else
+											l = if offsetX < x => offsetX else x
+											w = Math.abs offsetX - x
 										r = l + w
+										if offsetY < 0
+											t = 0
+											h = y
+										else if offsetY > height
+											t = y
+											h = height - y
+										else
+											t = if offsetY < y => offsetY else y
+											h = Math.abs offsetY - y
 										b = t + h
-										updateSelCropPos yes
-										sel <<< {l, t, r, b}
+										updateSelCropPos!
+										sel <<< {l, t, w, h, r, b}
 										m.redraw!
 								onlostpointercapture: (event) !~>
 									event.redraw = no
-									if sel and sel.move
-										sel.move = no
+									if sel
+										if sel.phase is 1
+											sel.phase = 0
+										else
+											sel := void
 										m.redraw!
-								m \.imgGithubSelEdges,
-									edges.map (edge) ~>
-										m \.imgGithubSelEdge,
-											style: @style do
-												left: edge.0 * 50 + 50 + \%
-												top: edge.1 * 50 + 50 + \%
-											onpointerdown: (event) !~>
-												event.redraw = no
-												if sel
-													event.target.setPointerCapture event.pointerId
-													sel <<<
-														x: event.x - imgGithubCanvasEl.offsetLeft
-														y: event.y - imgGithubCanvasEl.offsetTop
-														l0: sel.l
-														t0: sel.t
-														w0: sel.w
-														h0: sel.h
-														r0: sel.r
-														b0: sel.b
-														resize: yes
-													m.redraw!
-											onpointermove: (event) !~>
-												event.redraw = no
-												if sel and sel.resize
-													mx = event.x - imgGithubCanvasEl.offsetLeft
-													my = event.y - imgGithubCanvasEl.offsetTop
-													dx = mx - sel.x
-													dy = my - sel.y
-													{l, t, w, h, r, b} = sel
-													if edge.0
-														w = sel.w0 + dx * edge.0
-													if edge.0 is -1
-														l = sel.l0 + dx
-														if l < 0
-															l = 0
-															w = sel.r0
-														else if l > sel.r0
-															l = sel.r0
-															w = 0
-													else if edge.0 is 1
-														r = l + w
-														if r > width
-															w = width - sel.l0
-														else if r < sel.l0
-															w = 0
-														r = l + w
-													if edge.1
-														h = sel.h0 + dy * edge.1
-													if edge.1 is -1
-														t = sel.t0 + dy
-														if t < 0
-															t = 0
-															h = sel.b0
-														else if t > sel.b0
-															t = sel.b0
-															h = 0
-													else if edge.1 is 1
-														b = t + h
-														if b > height
-															h = height - sel.t0
-														else if b < sel.t0
-															h = 0
-														b = t + h
-													updateSelCropPos!
-													sel <<< {l, t, w, h, r, b}
-													m.redraw!
-											onlostpointercapture: (event) !~>
-												event.redraw = no
-												if sel and sel.resize
-													sel.resize = no
-													m.redraw!
-					m \._column._gap3,
-						style:
-							minWidth: \160px
-						m \div,
-							class: @class do
-								ratio < ratioMax and \_textRed or \_textGreen
-							"Tỷ lệ: " + ratio.toFixed 3
-						m \._row._middle._gap3,
-							"w:"
-							m \input._col,
-								value: imgW
-							"h:"
-							m \input._col,
-								value: imgH
-						if sel and sel.phase < 2
-							m.fragment do
-								m \div,
-									class: @class do
-										sel.ratio < ratioMax and \_textRed or \_textGreen
-									"Tỷ lệ: " + sel.ratio.toFixed 3
-								m \._row._middle._gap3,
-									"w:"
-									m \input._col,
-										value: sel.cw
-									"h:"
-									m \input._col,
-										value: sel.ch
-								m \._row._middle._gap3,
-									"x:"
-									m \input._col,
-										value: sel.cx
-									"y:"
-									m \input._col,
-										value: sel.cy
-								m \button,
-									onclick: (event) !~>
-										crop!
-									"Cắt ảnh"
-								m \div,
-						if size
+							if sel and sel.phase < 2
+								m \#imgGithubSelEl,
+									style: @style do
+										left: sel.l
+										top: sel.t
+										width: sel.w
+										height: sel.h
+									onpointerdown: (event) !~>
+										event.redraw = no
+										if event.target is imgGithubSelEl
+											if sel
+												imgGithubSelEl.setPointerCapture event.pointerId
+												sel <<<
+													x: event.x - imgGithubCanvasEl.offsetLeft
+													y: event.y - imgGithubCanvasEl.offsetTop
+													l0: sel.l
+													t0: sel.t
+													move: yes
+												m.redraw!
+									onpointermove: (event) !~>
+										event.redraw = no
+										if sel and sel.move
+											mx = event.x - imgGithubCanvasEl.offsetLeft
+											my = event.y - imgGithubCanvasEl.offsetTop
+											{w, h} = sel
+											l = sel.l0 + mx - sel.x
+											t = sel.t0 + my - sel.y
+											r = l + w
+											b = t + h
+											if l < 0
+												l = 0
+											else if r > width
+												l = width - w
+											if t < 0
+												t = 0
+											else if b > height
+												t = height - h
+											r = l + w
+											b = t + h
+											updateSelCropPos yes
+											sel <<< {l, t, r, b}
+											m.redraw!
+									onlostpointercapture: (event) !~>
+										event.redraw = no
+										if sel and sel.move
+											sel.move = no
+											m.redraw!
+									m \.imgGithubSelEdges,
+										edges.map (edge) ~>
+											m \.imgGithubSelEdge,
+												style: @style do
+													left: edge.0 * 50 + 50 + \%
+													top: edge.1 * 50 + 50 + \%
+												onpointerdown: (event) !~>
+													event.redraw = no
+													if sel
+														event.target.setPointerCapture event.pointerId
+														sel <<<
+															x: event.x - imgGithubCanvasEl.offsetLeft
+															y: event.y - imgGithubCanvasEl.offsetTop
+															l0: sel.l
+															t0: sel.t
+															w0: sel.w
+															h0: sel.h
+															r0: sel.r
+															b0: sel.b
+															resize: yes
+														m.redraw!
+												onpointermove: (event) !~>
+													event.redraw = no
+													if sel and sel.resize
+														mx = event.x - imgGithubCanvasEl.offsetLeft
+														my = event.y - imgGithubCanvasEl.offsetTop
+														dx = mx - sel.x
+														dy = my - sel.y
+														{l, t, w, h, r, b} = sel
+														if edge.0
+															w = sel.w0 + dx * edge.0
+														if edge.0 is -1
+															l = sel.l0 + dx
+															if l < 0
+																l = 0
+																w = sel.r0
+															else if l > sel.r0
+																l = sel.r0
+																w = 0
+														else if edge.0 is 1
+															r = l + w
+															if r > width
+																w = width - sel.l0
+															else if r < sel.l0
+																w = 0
+															r = l + w
+														if edge.1
+															h = sel.h0 + dy * edge.1
+														if edge.1 is -1
+															t = sel.t0 + dy
+															if t < 0
+																t = 0
+																h = sel.b0
+															else if t > sel.b0
+																t = sel.b0
+																h = 0
+														else if edge.1 is 1
+															b = t + h
+															if b > height
+																h = height - sel.t0
+															else if b < sel.t0
+																h = 0
+															b = t + h
+														updateSelCropPos!
+														sel <<< {l, t, w, h, r, b}
+														m.redraw!
+												onlostpointercapture: (event) !~>
+													event.redraw = no
+													if sel and sel.resize
+														sel.resize = no
+														m.redraw!
+						m \._column._gap3,
+							style:
+								minWidth: \200px
 							m \div,
-								"Kích thước: #{(size / 1024)toFixed 2} KB"
-						unless base64
-							m.fragment do
-								m \button,
-									disabled: compressed or saved
-									onclick: (event) !~>
-										compress no
-									"Nén mặc định"
-								m \button,
-									disabled: compressed or saved
-									onclick: (event) !~>
-										compress yes
-									"Nén sắc nét"
-						if res
-							if res.status is 201
-								m \._row._middle._gapX3._textGreen,
-									"Đã tải lên: "
-									m \._select._cursorCopy,
+								class: @class do
+									ratio < ratioMax and \_textRed or \_textGreen
+								"Tỷ lệ: " + ratio.toFixed 3
+							m \._row._middle._gap3,
+								"w:"
+								m \input._col,
+									value: imgW
+								"h:"
+								m \input._col,
+									value: imgH
+							if sel and sel.phase < 2
+								m.fragment do
+									m \div,
+										class: @class do
+											sel.ratio < ratioMax and \_textRed or \_textGreen
+										"Tỷ lệ: " + sel.ratio.toFixed 3
+									m \._row._middle._gap3,
+										"w:"
+										m \input._col,
+											type: \number
+											value: sel.cw
+											oninput: (event) !~>
+												val = event.target.valueAsNumber
+												if val?
+													sel.w = val / imgW * width
+													updateSelCropPos!
+										"h:"
+										m \input._col,
+											type: \number
+											value: sel.ch
+											oninput: (event) !~>
+												val = event.target.valueAsNumber
+												if val?
+													sel.h = val / imgH * height
+													updateSelCropPos!
+									m \._row._middle._gap3,
+										"x:"
+										m \input._col,
+											type: \number
+											value: sel.cx
+											oninput: (event) !~>
+												val = event.target.valueAsNumber
+												if val?
+													sel.l = val / imgW * width
+													updateSelCropPos yes
+										"y:"
+										m \input._col,
+											type: \number
+											value: sel.cy
+											oninput: (event) !~>
+												val = event.target.valueAsNumber
+												if val?
+													sel.t = val / imgH * height
+													updateSelCropPos yes
+									m \button,
 										onclick: (event) !~>
-											@copy " # =#filename"
-										oncontextmenu: (event) !~>
-											@copy " | =#filename"
-										"=#filename"
-							else
-								m \._textRed "Đã xảy ra lỗi"
+											crop!
+										"Cắt ảnh"
+									m \div,
+							if size
+								m \div,
+									"Kích thước: #{(size / 1024)toFixed 2} KB"
+							unless base64
+								m.fragment do
+									m \button,
+										disabled: compressed or saved
+										onclick: (event) !~>
+											compress no
+										"Nén mặc định"
+									m \button,
+										disabled: compressed or saved
+										onclick: (event) !~>
+											compress yes
+										"Nén sắc nét"
+							if res
+								if res.status is 201
+									m \._row._middle._gapX3._textGreen,
+										"Đã tải lên: "
+										m \._select._cursorCopy,
+											onclick: (event) !~>
+												@copy " # =#filename"
+											oncontextmenu: (event) !~>
+												@copy " | =#filename"
+											"=#filename"
+								else
+									m \._textRed "Đã xảy ra lỗi"
+							m \button,
+								disabled: saved
+								onclick: (event) !~>
+									save!
+								"Lưu"
+				else
+					m \._column._center,
+						m \img._contain._bgBlack._rightClickZone,
+							style: @style do
+								maxWidth: maxWidth
+								maxHeight: maxHeight
+							src: image
+							oncontextmenu: !~>
+								copied := yes
+						m \._my4._textSmall._textGray "Sao chép ảnh trên, sau đó bấm tiếp tục"
 						m \button,
-							disabled: saved
-							onclick: (event) !~>
-								save!
-							"Lưu"
-			else
-				m \._column._center,
-					m \img._contain._bgBlack._rightClickZone,
-						style: @style do
-							maxWidth: maxWidth
-							maxHeight: maxHeight
-						src: image
-						oncontextmenu: !~>
-							copied := yes
-					m \._my4._textSmall._textGray "Sao chép ảnh trên, sau đó bấm tiếp tục"
-					m \button,
-						disabled: not copied
-						onclick: !~>
-							blob = await @readCopiedImgBlob!
-							url = await @readAsBase64 blob
-							url = "data:#{blob.type};base64,#url"
-							img.src = url
-							img.onload = !~>
-								resize img.naturalWidth, img.naturalHeight
-								g.drawImage img, 0 0 imgW, imgH
-						"Tiếp tục"
+							disabled: not copied
+							onclick: !~>
+								blob = await @readCopiedImgBlob!
+								url = await @readAsBase64 blob
+								url = "data:#{blob.type};base64,#url"
+								img.src = url
+								img.onload = !~>
+									resize img.naturalWidth, img.naturalHeight
+									g.drawImage img, 0 0 imgW, imgH
+							"Tiếp tục"
 
 	notify: (html, ms) ->
 		notify =
@@ -1731,7 +1756,8 @@ App =
 						rank = @findRank \prefixes (.startsRegex.test text)
 						text = text
 							.replace /^.+?:\s*/ ""
-							.replace /\s+[-\u2013]\s+/g \\n
+							.replace /\s+-\s+|\s*\u2013\s*/g \\n
+						console.log text
 						@data = @extract text,
 							ranks: [rank]
 						@copy @data

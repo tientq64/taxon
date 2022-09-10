@@ -116,6 +116,12 @@ body
 	width 1px
 	height 1px
 	opacity 0
+.imgGithubModal
+	input
+		height 28px
+		margin 0
+	button
+		height 28px
 #imgGithubCanvasEl
 	filter contrast(1.1) saturate(1.1)
 	image-rendering -webkit-optimize-contrast
@@ -184,15 +190,19 @@ body
 	.mw-table-of-contents-container
 		display none !important
 	.mw-page-container
+		margin-left 20%
+		margin-right 20%
 		background #fff
 	.mw-page-container-inner
 		display block
 		grid-template-columns 0 0 minmax(0,1fr)
 	.mw-workspace-container
 		max-width unset !important
-		.mw-content-container
-			margin 0 20% !important
-			padding 0 16px
+	.mw-content-container
+		width unset
+		max-width unset
+		margin 0 !important
+		padding 0 16px
 	.mw-body-content
 		font-size $fontSize
 	.mw-mmv-lightbox-open> *
