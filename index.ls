@@ -20,9 +20,9 @@ chrsRanks =
 	[\order 16 24]
 	[\family 24 27]
 	[\tribe 27 30]
-	[\genus 30 34]
-	[\species 34 36]
-	[\subspecies 36 39]
+	[\genus 30 36]
+	[\species 36 38]
+	[\subspecies 38 41]
 isDev = location.hostname is \localhost
 maxLv = 99
 infoMaxLv = 2
@@ -196,7 +196,7 @@ parse = !->
 				text = void
 			if text
 				[textEn, textVi] = text.split /\ ?\| /
-			# if textEn and not textVi and lv > 34
+			# if textEn and not textVi and lv > 36
 			# 	translateText = []
 			# 	words = textEn.split /-| / .reverse!
 			# 	if words.length > 1
@@ -294,8 +294,8 @@ parse = !->
 				chrs2 = chars[chrs2]
 			else
 				chrs2 = chars[chrs2] = charsId++
-			if lv >= 35
-				if lv is 37
+			if lv >= 37
+				if lv is 39
 					fullName = "#parentName var. #name"
 				else
 					fullName = "#parentName #name"
@@ -315,7 +315,7 @@ parse = !->
 				chrs: chrs2
 			line.textEn = textEn if textEn
 			line.textVi = textVi if textVi
-			if maxLv < 35 and childs and childs.0.0 > maxLv
+			if maxLv < 37 and childs and childs.0.0 > maxLv
 				line.textVi = childs.length
 			if imgs
 				line.imgs = imgs
@@ -329,7 +329,7 @@ parse = !->
 			if childs
 				line.childs = []
 				chrs += "  "repeat(lvRange) + (last and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
-				if lv < 32 or lv > 34
+				if lv < 32 or lv > 36
 					if name not in [\? " "]
 						if lv is 31
 							parentName = "#parentName (#name)"
@@ -613,7 +613,7 @@ App =
 				view: (vnode) ~>
 					m \.popupBody,
 						class: @class do
-							"popupIsTrinomial": line.lv > 35
+							"popupIsTrinomial": line.lv > 37
 							"popupIsTwoImage": isTwoImage
 						style:
 							minWidth: width + \px
@@ -760,7 +760,7 @@ App =
 
 	fetchTextEnCopyLines: !->
 		for line in @lines
-			if line.lv > 34 and line.textEn is void and line.textEnCopy is void
+			if line.lv > 36 and line.textEn is void and line.textEnCopy is void
 				line.textEnCopy = \...
 				@fetchWiki line, (line, {titles}) !~>
 					line.textEnCopy = titles or no

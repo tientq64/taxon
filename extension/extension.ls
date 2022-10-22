@@ -332,11 +332,24 @@ App =
 					\sectiones
 					\mục
 				combo: \8+0
+			* name: \subsection
+				prefixes:
+					\subsection
+					\subsections
+					\subsectio
+					\subsectiones
+					"phân mục"
+				combo: \8+Minus
 			* name: \series
 				prefixes:
 					\series
 					\loạt
-				combo: \8+Minus
+				combo: \8+Equal
+			* name: \subseries
+				prefixes:
+					\subseries
+					"phân loạt"
+				combo: \8+Backspace
 			* name: \superspecies
 				prefixes:
 					\super-?species
@@ -1358,6 +1371,13 @@ App =
 			isElTarget = target instanceof Element
 			name = void
 			rank = opts.ranks[index]
+			varietyRegex = //
+				^[A-Z]([a-z]+|\.)?\s
+				([a-z-]{2,}|[a-z]\.)\s+
+				var\.\s
+				([a-z-]{2,})
+			//
+			varietyNameRegex = /^[a-z]{2,}$/
 			subspeciesRegex = //
 				^[A-Z]([a-z]+|\.)?\s
 				(\([a-z-]{2,}\)|[a-z-]{2,}|[a-z]\.)\s
@@ -1418,7 +1438,7 @@ App =
 						val = el.innerText.trim!
 						if val.0 is /[A-Z]/
 							if rank
-								if rank.lv is 34 and speciesRegex.test val or rank.lv is 35 and subspeciesRegex.test val
+								if rank.lv is 36 and speciesRegex.test val or rank.lv is 37 and subspeciesRegex.test val
 									nameEl = el
 							else
 								nameEl = el
@@ -1435,7 +1455,7 @@ App =
 						nameEl = el
 				if nameEl
 					if nameEl.localName is \i and el = nameEl.nextSibling
-						if el.wholeText is /^( subsp\. | sp\. )/
+						if el.wholeText is /^( subsp\. | sp\. | +var\. )/
 							nameEl = null
 				if nameEl
 					name = nameEl.innerText.trim!
@@ -1445,8 +1465,8 @@ App =
 				.replace /["'?]|=.+$/g ""
 				.replace /^([A-Z][a-z]+) \([A-Z][a-z]+\)( [a-z]{2,})$/ \$1$2
 				.replace /[()]/g ""
-			if name is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
-				subgenera[that.1] = yes
+			# if name is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
+			# 	subgenera[that.1] = yes
 			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is name
 				continue
 			tab = void
@@ -1456,14 +1476,21 @@ App =
 			notMatchTab ?= tab
 			if rank
 				switch
-				| rank.lv is 35
+				| rank.lv is 38
+					if matched = varietyRegex.exec name
+						name = matched.3
+					else if matched = varietyNameRegex.exec name
+						name = matched.0
+					else
+						name = opts.notMatchText
+				| rank.lv is 37
 					if matched = subspeciesRegex.exec name
 						name = matched.3
 					else if matched = subspeciesNameRegex.exec name
 						name = matched.0
 					else
 						name = opts.notMatchText
-				| rank.lv is 34
+				| rank.lv is 36
 					if matched = speciesRegex.exec name
 						name = matched.4
 					else
@@ -1479,6 +1506,9 @@ App =
 				| @regexes.incSedis.test name
 					name = \?
 					tab = notMatchTab
+				| matched = varietyRegex.exec name
+					name = matched.3
+					tab = @ranks.variety.tab
 				| matched = subspeciesRegex.exec name
 					name = matched.3
 					tab = @ranks.subspecies.tab
@@ -1492,7 +1522,7 @@ App =
 					name = opts.notMatchText
 					tab = notMatchTab
 			text = void
-			if tab.length in [34 35]
+			if tab.length in [36 37]
 				if target instanceof Element
 					textEl = null
 					if el = target.querySelector ':scope > a:first-child'
