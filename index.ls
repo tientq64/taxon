@@ -24,6 +24,7 @@ chrsRanks =
 	[\species 36 38]
 	[\subspecies 38 41]
 isDev = location.hostname is \localhost
+numFmt = new Intl.NumberFormat \en
 maxLv = 99
 infoMaxLv = 2
 infoLv = +localStorage.taxonInfoLv
@@ -35,6 +36,9 @@ infos =
 		label: "Tổng số họ"
 	genus:
 		label: "Tổng số chi"
+	species:
+		label: "Tổng số loài"
+		lv: 1
 	speciesSubsp:
 		label: "Tổng số phân loài hoặc loài"
 		lv: 1
@@ -69,7 +73,6 @@ parse = !->
 	chars := {}
 	charsId = 0
 	index = -1
-	numFmt = new Intl.NumberFormat \en
 	# translates =
 	# 	headed: "đầu"
 	# 	tailed: "đuôi"
@@ -299,6 +302,8 @@ parse = !->
 					fullName = "#parentName var. #name"
 				else
 					fullName = "#parentName #name"
+				if lv is 37
+					infos.species.count++
 				infos.speciesSubspHasViName.count++ if textEn
 				unless childs
 					infos.speciesSubsp.count++
@@ -356,10 +361,21 @@ parse = !->
 		chars[i] = chrs
 	infos.taxon.count = lines.length
 	infos.speciesSubspExists.count = infos.speciesSubsp.count - infos.speciesSubspExtinct.count
-	for , info of infos
-		info.count = numFmt.format info.count
 
 await parse!
+
+modfTime = new Date!setHours 0 0 0 0
+try
+	modfCounts = JSON.parse localStorage.taxonModfCounts
+catch
+	modfCounts = {}
+	for k, info of infos
+		modfCounts[k] = info.count
+for k, info of infos
+	info.modfCount = info.count - modfCounts[k]
+if modfTime isnt +localStorage.taxonModfTime
+	localStorage.taxonModfTime = modfTime
+	localStorage.taxonModfCounts = JSON.stringify modfCounts
 
 App =
 	oninit: !->
@@ -967,7 +983,12 @@ App =
 						if infoLv >= info.lv
 							m.fragment do
 								m \.info info.label
-								m \.info info.count
+								m \.info numFmt.format info.count
+								m \.info,
+									if info.modfCount
+										m \.modfCount,
+											class: info.modfCount > 0 and \modfCountIncr or \modfCountDecr
+											"(#{info.modfCount > 0 and \+ or ""}#{numFmt.format info.modfCount})"
 					m \.info "Ngôn ngữ popup"
 					m \.info @popupLang
 			if @finding

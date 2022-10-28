@@ -1636,6 +1636,7 @@ App =
 							"S+RMB": " # % ; specimen"
 							"U+RMB": " # % ; skull"
 							"V+RMB": " # % ; larva"
+							"Alt+V+RMB": " ; % ; larva"
 							"W+RMB": " | %"
 							"X+RMB": " # % ; dark morph"
 							"Shift+RMB": " | %"

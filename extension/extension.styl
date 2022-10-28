@@ -7,8 +7,10 @@ $prim2 = #07d2
 // $fontSize = 9pt
 // $fontFamily = unquote("'Roboto',sans-serif")
 // $fontSize = 15px
-$fontFamily = unquote("'Microsoft YaHei UI','Roboto',sans-serif")
-$fontSize = 14px
+// $fontFamily = unquote("'Microsoft YaHei UI','Roboto',sans-serif")
+// $fontSize = 14px
+$fontFamily = unquote("sans-serif")
+$fontSize = 15px
 // $fontFamily = unquote("'Segoe UI','IBM Plex Sans',sans-serif")
 // $fontSize = 14px
 // $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
@@ -58,7 +60,7 @@ body
 	top 6%
 	width fit-content
 	max-height 86%
-	border-radius 8px
+	// border-radius 8px
 	background #fff
 	box-shadow 0 2px 4px #000c,0 8px 16px 4px #0003
 	overflow hidden
@@ -73,7 +75,7 @@ body
 	textarea
 		padding 4px 8px
 		border solid 1px #aaa
-		border-radius 4px
+		// border-radius 4px
 	button
 		background #eee
 		box-shadow 0 0 0 1px inset #fff
@@ -107,7 +109,7 @@ body
 			box-shadow 0 0 0 1px #07d
 ._mark
 	position fixed
-	border-radius 2px
+	border-radius 1px
 	pointer-events none
 	z-index 120010
 ._copy
@@ -208,7 +210,7 @@ body
 	.mw-mmv-lightbox-open> *
 		display unset
 	.mwe-popups
-		border-radius 8px !important
+		// border-radius 8px !important
 		font-size $fontSize
 		overflow hidden
 		box-shadow 0 2px 4px #3338,0 8px 16px 4px #3333
@@ -230,7 +232,7 @@ body
 		animation _fadeOut95 .1s forwards
 	.infobox
 		padding 0
-		border-radius 4px
+		// border-radius 4px
 		border-spacing 0 8px
 		th
 			padding 4px 8px !important
@@ -245,13 +247,13 @@ body
 	img[src$="/7/74/Red_Pencil_Icon.png"]
 	.thumbinner .magnify
 		display none
-	.thumbinner, .thumbimage, img
-		border-radius 4px
-	.mw-mmv-wrapper
-		img
-			border-radius 0
+	// .thumbinner, .thumbimage, img
+	// 	border-radius 4px
+	// .mw-mmv-wrapper
+	// 	img
+	// 		border-radius 0
 	#toc
-		border-radius 4px
+		// border-radius 4px
 		display block
 		overflow auto
 		user-select none
@@ -275,7 +277,7 @@ body
 		> p
 			margin 0
 	ul
-		border-radius 2px
+		// border-radius 2px
 		&:hover
 			background $prim1
 			box-shadow 0 0 0 2px $prim1
@@ -365,7 +367,7 @@ body
 		top 5%
 		width fit-content !important
 		border 0
-		border-radius 0
+		// border-radius 0
 		> .ui-dialog-content
 			height 100% !important
 			max-height 90% !important
@@ -565,12 +567,12 @@ small
 	object-fit contain
 ._scaleDown
 	object-fit scale-down
-._round8
-	border-radius 8px
-._round6
-	border-radius 6px
-._round4
-	border-radius 4px
+// ._round8
+// 	border-radius 8px
+// ._round6
+// 	border-radius 6px
+// ._round4
+// 	border-radius 4px
 ._border
 	border solid 1px #aaa
 ._dashed
