@@ -18,11 +18,11 @@ chrsRanks =
 	[\phylum 5 10]
 	[\class 10 16]
 	[\order 16 24]
-	[\family 24 27]
-	[\tribe 27 30]
-	[\genus 30 36]
-	[\species 36 38]
-	[\subspecies 38 41]
+	[\family 24 29]
+	[\tribe 29 32]
+	[\genus 32 38]
+	[\species 38 40]
+	[\subspecies 40 43]
 isDev = location.hostname is \localhost
 numFmt = new Intl.NumberFormat \en
 maxLv = 99
@@ -199,7 +199,7 @@ parse = !->
 				text = void
 			if text
 				[textEn, textVi] = text.split /\ ?\| /
-			# if textEn and not textVi and lv > 36
+			# if textEn and not textVi and lv > 38
 			# 	translateText = []
 			# 	words = textEn.split /-| / .reverse!
 			# 	if words.length > 1
@@ -297,21 +297,21 @@ parse = !->
 				chrs2 = chars[chrs2]
 			else
 				chrs2 = chars[chrs2] = charsId++
-			if lv >= 37
-				if lv is 39
+			if lv >= 39
+				if lv is 41
 					fullName = "#parentName var. #name"
 				else
 					fullName = "#parentName #name"
-				if lv is 37
+				if lv is 39
 					infos.species.count++
 				infos.speciesSubspHasViName.count++ if textEn
 				unless childs
 					infos.speciesSubsp.count++
 					infos.speciesSubspHasImg.count++ if imgs
 					infos.speciesSubspExtinct.count++ if extinct
-			else if lv is 30
+			else if lv is 32
 				infos.genus.count++
-			else if lv is 25
+			else if lv is 27
 				infos.family.count++
 			line =
 				index: ++index
@@ -320,7 +320,7 @@ parse = !->
 				chrs: chrs2
 			line.textEn = textEn if textEn
 			line.textVi = textVi if textVi
-			if maxLv < 37 and childs and childs.0.0 > maxLv
+			if maxLv < 39 and childs and childs.0.0 > maxLv
 				line.textVi = childs.length
 			if imgs
 				line.imgs = imgs
@@ -334,13 +334,13 @@ parse = !->
 			if childs
 				line.childs = []
 				chrs += "  "repeat(lvRange) + (last and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
-				if lv < 32 or lv > 36
+				if lv < 34 or lv > 38
 					if name not in [\? " "]
-						if lv is 31
+						if lv is 33
 							parentName = "#parentName (#name)"
 						else
 							parentName = fullName or name
-					else if lv is 30
+					else if lv is 32
 						parentName = \" + parentName + \"
 				lastIndex = childs.length - 1
 				for child, i in childs
@@ -629,7 +629,7 @@ App =
 				view: (vnode) ~>
 					m \.popupBody,
 						class: @class do
-							"popupIsTrinomial": line.lv > 37
+							"popupIsTrinomial": line.lv > 39
 							"popupIsTwoImage": isTwoImage
 						style:
 							minWidth: width + \px
@@ -776,14 +776,14 @@ App =
 
 	fetchTextEnCopyLines: !->
 		for line in @lines
-			if line.lv > 36 and line.textEn is void and line.textEnCopy is void
+			if line.lv > 38 and line.textEn is void and line.textEnCopy is void
 				line.textEnCopy = \...
 				@fetchWiki line, (line, {titles}) !~>
 					line.textEnCopy = titles or no
 					m.redraw!
 
 	scroll: !->
-		top = scrollEl.scrollTop
+		top = Math.round scrollEl.scrollTop
 		mod = top % lineH
 		transY = top - mod
 		presEl.style.transform = "translateY(#{transY}px)"
@@ -864,11 +864,12 @@ App =
 								9) tiểu ngành      10) liên lớp       11) lớp                 12) phân lớp
 								13) thứ lớp          14) tiểu lớp      15) đoàn              16) liên đội
 								17) đội                18) tổng bộ      19) liên bộ            20) bộ
-								21) phân bộ         22) thứ bộ       23) tiểu bộ           24) liên họ
-								25) họ                  26) phân họ     27) liên tông        28) tông
-								29) phân tông     30) chi              31) phân chi         32) mục
-								33) loạt                34) liên loài      35) loài                 36) phân loài
-								37) thứ                 38) dạng
+								21) phân bộ         22) thứ bộ       23) tiểu bộ           24) đoạn
+								25) phân đoạn     26) liên họ       27) họ                  28) phân họ
+								29) liên tông        30) tông          31) phân tông      32) chi
+								33) phân chi        34) mục           35) phân mục       36) loạt
+								37) phân loạt       38) liên loài     39) loài                 40) phân loài
+								41) thứ                 42) dạng
 							"""
 							if lv
 								maxLv := lv
@@ -934,13 +935,10 @@ App =
 							m \.node,
 								m \span.name,
 									class: @getRankName line.lv
-									onmouseenter: (event) !~>
-										@mouseenterName line, event
+									onmouseenter: @mouseenterName.bind void line
 									onmouseleave: @mouseleaveName
-									onmousedown: (event) !~>
-										@mousedownName line, event
-									oncontextmenu: (event) !~>
-										@contextmenuName line, event
+									onmousedown: @mousedownName.bind void line
+									oncontextmenu: @contextmenuName.bind void line
 									line.name
 								if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy isnt \...)
 									m \span.dash \\u2014

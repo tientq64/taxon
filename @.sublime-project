@@ -83,7 +83,7 @@
 		"font_face": "InputMonoNarrow",
 		"font_size": 11,
 		"wrap_width": 105,
-		"rulers": [108],
+		"rulers": [112],
 		"font_options": ["no_italic"],
 		// "ui_scale": 1
 	},

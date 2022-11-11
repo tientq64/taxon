@@ -262,6 +262,22 @@ App =
 					\parv-?ordines
 					"tiểu bộ"
 				combo: \5+8
+			* name: \section
+				prefixes:
+					\section
+					\sections
+					\sectio
+					\sectiones
+					\đoạn
+				combo: \6+3
+			* name: \subsection
+				prefixes:
+					\subsection
+					\subsections
+					\subsectio
+					\subsectiones
+					"phân đoạn"
+				combo: \6+4
 			* name: \superfamily
 				prefixes:
 					\super-?family
@@ -1438,7 +1454,7 @@ App =
 						val = el.innerText.trim!
 						if val.0 is /[A-Z]/
 							if rank
-								if rank.lv is 36 and speciesRegex.test val or rank.lv is 37 and subspeciesRegex.test val
+								if rank.lv is 38 and speciesRegex.test val or rank.lv is 39 and subspeciesRegex.test val
 									nameEl = el
 							else
 								nameEl = el
@@ -1476,21 +1492,21 @@ App =
 			notMatchTab ?= tab
 			if rank
 				switch
-				| rank.lv is 38
+				| rank.lv is 40
 					if matched = varietyRegex.exec name
 						name = matched.3
 					else if matched = varietyNameRegex.exec name
 						name = matched.0
 					else
 						name = opts.notMatchText
-				| rank.lv is 37
+				| rank.lv is 39
 					if matched = subspeciesRegex.exec name
 						name = matched.3
 					else if matched = subspeciesNameRegex.exec name
 						name = matched.0
 					else
 						name = opts.notMatchText
-				| rank.lv is 36
+				| rank.lv is 38
 					if matched = speciesRegex.exec name
 						name = matched.4
 					else
@@ -1522,7 +1538,7 @@ App =
 					name = opts.notMatchText
 					tab = notMatchTab
 			text = void
-			if tab.length in [36 37]
+			if tab.length in [38 39]
 				if target instanceof Element
 					textEl = null
 					if el = target.querySelector ':scope > a:first-child'
