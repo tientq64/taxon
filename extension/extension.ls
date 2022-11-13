@@ -1817,7 +1817,9 @@ App =
 					@mark target
 				| @node and 0 < @nodeOffset < @node.length - 1
 					text = @node.wholeText.trim!
-					if ma = /\((.+?)\)/exec text
+					if ma = /\d{4}\)? - (.+)/exec text
+						text = ma.1
+					else if ma = /\((.+?)\)/exec text
 						text = ma.1
 					if text.includes \,
 						text = text
