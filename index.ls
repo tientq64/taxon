@@ -60,7 +60,7 @@ for , info of infos
 parse = !->
 	data = await (await fetch \tree.taxon)text!
 	data .= split \\n
-	tree = [0 \Organism no \/Sinh_vật [] "Sinh vật"]
+	tree = [0 \Life no [, \/Sự_sống] [] "Life" "Sự sống"]
 	refs = [tree]
 	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?$/
 	tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
@@ -237,7 +237,7 @@ parse = !->
 								ext = inaturalistExts[ext]
 								src = "https://#host/photos/#src/medium.#ext"
 							| \@
-								src = "https://live.staticflickr.com/#{src}_n.jpg"
+								src = "https://live.staticflickr.com/#{src}_e.jpg"
 							| \%
 								src = "https://www.biolib.cz/IMG/GAL/#src.jpg"
 							| \~
@@ -264,7 +264,7 @@ parse = !->
 								src = "https://cdn.jsdelivr.net/gh/tiencoffee/taimg/#src.webp"
 							else
 								src .= replace /^ttps?:/ ""
-							{src, captn}
+							[src, captn]
 		node = [lv, name]
 		node.2 = yes if ex
 		node.3 = disam if disam
@@ -332,7 +332,7 @@ parse = !->
 			line.parent = parent if parent
 			lines.push line
 			if childs
-				line.childs = []
+				line.childs = childs.length
 				chrs += "  "repeat(lvRange) + (last and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
 				if lv < 34 or lv > 38
 					if name not in [\? " "]
@@ -488,7 +488,7 @@ App =
 
 	mousedownImg: (img, event) !->
 		{target} = event
-		{src} = img
+		[src] = img
 		switch event.which
 		| 1
 			switch
@@ -500,7 +500,7 @@ App =
 			| src.includes \inaturalist-open-data.s3.amazonaws.com
 				src .= replace \/medium. \/large.
 			| src.includes \live.staticflickr.com
-				src .= replace \_n. \_b.
+				src .= replace \_e. \_b.
 			# | src.includes \biolib.cz
 			# 	src .= replace \/GAL/ \/GAL/BIG/
 			| src.includes \cdn.download.ams.birds.cornell.edu
@@ -651,9 +651,9 @@ App =
 										m \.popupGender,
 											m \.popupPicture,
 												m \img.popupBgImg,
-													src: img.src
+													src: img.0
 												m \img.popupImg,
-													src: img.src
+													src: img.0
 													onload: (event) !~>
 														{target} = event
 														{width, height} = target
@@ -664,15 +664,15 @@ App =
 													onerror: !~>
 														if @popper
 															@popper.update!
-											if imgs.length is 2 or imgs.some (?captn)
+											if imgs.length is 2 or imgs.some (?1)
 												m \.popupGenderCaptn,
 													if imgs.length is 2
 														i and \Cái or \Đực
-													if img.captn
+													if img.1
 														if imgs.length is 2
-															" \u2013 #{img.captn}"
+															" \u2013 #{img.1}"
 														else
-															img.captn
+															img.1
 						m \.popupSummary#summaryEl,
 							translate: yes
 			m.mount popupEl, popup
@@ -705,6 +705,21 @@ App =
 			@popper.destroy!
 			@popper = void
 			m.mount popupEl
+
+	onclickTextEnCopy: (line, text, event) !->
+		line.textEnCopy = text
+		row = line.index
+		try
+			copyText = await navigator.clipboard.readText!
+			copyText and+= \\n
+			copyText += "#row||"
+			copyText += switch
+				| line.textVi => " #text"
+				| line.imgs => " #text #"
+				else " # #text"
+			await navigator.clipboard.writeText copyText
+		catch
+			alert e.message
 
 	getFullNameNoSubgenus: (line) ->
 		(line.fullName or line.name)replace /\ \(.+?\)/ ""
@@ -776,7 +791,8 @@ App =
 
 	fetchTextEnCopyLines: !->
 		for line in @lines
-			if line.lv > 38 and line.textEn is void and line.textEnCopy is void
+			# if line.lv > 38 and line.textEn is void and line.textEnCopy is void
+			if (line.lv > 38 or line.childs > 1) and line.textEn is void and line.textEnCopy is void
 				line.textEnCopy = \...
 				@fetchWiki line, (line, {titles}) !~>
 					line.textEnCopy = titles or no
@@ -949,20 +965,7 @@ App =
 										m \.textEn,
 											line.textEnCopy.map (text) ~>
 												m \.textEnCopy,
-													onclick: !~>
-														line.textEnCopy = text
-														row = line.index
-														try
-															copyText = await navigator.clipboard.readText!
-															copyText and+= \\n
-															copyText += "#row||"
-															copyText += switch
-																| line.textVi => " #text"
-																| line.imgs => " #text #"
-																else " # #text"
-															await navigator.clipboard.writeText copyText
-														catch
-															alert e.message
+													onclick: @onclickTextEnCopy.bind void line, text
 													text
 									else
 										m \span.textEn line.textEnCopy
@@ -971,9 +974,8 @@ App =
 								line.imgs?map (img) ~>
 									if img
 										m \img.img,
-											src: img.src
-											onmousedown: !~>
-												@mousedownImg img, it
+											src: img.0
+											onmousedown: @mousedownImg.bind void img
 				m \#heightEl
 			if infoLv
 				m \#infosEl,

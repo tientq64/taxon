@@ -1537,6 +1537,10 @@ App =
 				else
 					name = opts.notMatchText
 					tab = notMatchTab
+			if nameEl
+				if aEl = nameEl.querySelector 'a[href*="_("]'
+					ma = /_\((.+?)\)/exec aEl
+					name += " \\#{ma.1}"
 			text = void
 			if tab.length in [38 39]
 				if target instanceof Element

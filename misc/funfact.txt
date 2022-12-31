@@ -2,6 +2,8 @@
 - Balaenoptera edeni: Cá voi Eden
 - Icosteus aenigmaticus: Cá giẻ rách
 - Cuculus micropterus: Bắt cô trói cột
+- Chaetodon robustus: Cá bướm ba sọc
+- Pristimantis paulodutrai: "Paulo đu trai"
 - Ampulex compressa: Tò vò ngọc lục bảo
 - Cuacuba
 - Ceramaster arcticus: đẹp
@@ -9,3 +11,4 @@
 - Iconaster longimanus: đẹp
 - Trachypoma macracanthus: đẹp
 - Qosqophryne gymnotis: màu nền ảnh đẹp
+- Allobates myersi: ảnh nét
