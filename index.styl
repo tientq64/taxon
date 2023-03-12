@@ -1,10 +1,12 @@
-// @import "https://fonts.googleapis.com/css?family=IBM+Plex+Sans:,i,b,ib"
+// @import "https://fonts.googleapis.com/css?family=IBM Plex Sans:,i,b,ib"
 // @import "https://fonts.googleapis.com/css?family=Roboto:,i,b,ib"
 @font-face
 	font-family "DejaVuSansMono"
 	src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
-*, *:before, *:after
+
+*, :before, :after
 	box-sizing border-box
+
 html
 	// --sans "Segoe UI","IBM Plex Sans",sans-serif
 	--sans "Microsoft YaHei UI","Roboto","Tahoma","IBM Plex Sans",sans-serif
@@ -27,12 +29,14 @@ body
 		font-size 13px
 	/.ibmpsans &
 		font-size 16px
+
 .loading
 	position absolute
 	left 50%
 	top 50%
 	color #fff
 	transform translate(-50%,-50%)
+
 ::-webkit-scrollbar
 	-webkit-appearance none
 	width 16px
@@ -42,6 +46,7 @@ body
 	background #0000
 ::-webkit-scrollbar-thumb
 	background #314657
+
 .line
 	height var(--lineH)
 .lineFind
@@ -287,7 +292,7 @@ body
 	// width 330px
 	width 320px
 	// padding 5px
-	// border-radius 8px
+	border-radius 8px
 	display flex
 	justify-content center
 	align-items center

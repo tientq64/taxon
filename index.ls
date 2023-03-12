@@ -23,8 +23,8 @@ chrsRanks =
 	[\genus 32 38]
 	[\species 38 40]
 	[\subspecies 40 43]
-isDev = location.hostname is \localhost
-numFmt = new Intl.NumberFormat \en
+isDev = location.hostname in [\localhost \127.0.0.1]
+numberFormat = new Intl.NumberFormat \en
 maxLv = 99
 infoMaxLv = 2
 infoLv = +localStorage.taxonInfoLv
@@ -230,7 +230,7 @@ parse = !->
 									src .= substring 1
 								else
 									type = \commons
-								src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-..webp"
+								src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-#{src.0}.jpg"
 							| \:
 								[, host, src, ext] = inaturalistRegex.exec src
 								host = host and \inaturalist-open-data.s3.amazonaws.com or \static.inaturalist.org
@@ -983,12 +983,12 @@ App =
 						if infoLv >= info.lv
 							m.fragment do
 								m \.info info.label
-								m \.info numFmt.format info.count
+								m \.info numberFormat.format info.count
 								m \.info,
 									if info.modfCount
 										m \.modfCount,
 											class: info.modfCount > 0 and \modfCountIncr or \modfCountDecr
-											"(#{info.modfCount > 0 and \+ or ""}#{numFmt.format info.modfCount})"
+											"(#{info.modfCount > 0 and \+ or ""}#{numberFormat.format info.modfCount})"
 					m \.info "Ngôn ngữ popup"
 					m \.info @popupLang
 			if @finding
@@ -1020,4 +1020,4 @@ App =
 						"\u2a09"
 			m \#popupEl
 
-m.mount appEl, App
+m.mount document.body, App

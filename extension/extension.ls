@@ -1425,7 +1425,7 @@ App =
 				.replace @regexes.extinct, ""
 				.trim!
 			if isElTarget
-				links = [...target.querySelectorAll ":scope> i> a, :scope> b> a, :scope> a"]
+				links = [...target.querySelectorAll ":scope > i > a, :scope > b > a, :scope > a"]
 				if links.length
 					for link in links
 						innerText = link.innerText.trim!
@@ -1467,7 +1467,7 @@ App =
 						if el.innerText.trim!
 							nameEl = el
 				unless nameEl
-					if el = target.querySelector ':scope> a:not([data-excl])'
+					if el = target.querySelector ':scope > a:not([data-excl])'
 						nameEl = el
 				if nameEl
 					if nameEl.localName is \i and el = nameEl.nextSibling
@@ -1545,13 +1545,33 @@ App =
 			if tab.length in [38 39]
 				if target instanceof Element
 					textEl = null
-					if el = target.querySelector ':scope > a:first-child'
-						textEl = el
+					do !~>
+						if el = target.querySelector ':scope > a:first-child'
+							textEl := el
+							return
+						if el = target.querySelector ':scope > i + small + span'
+							if val = el.nextSibling?textContent
+								if mat = val.match /\((.+?)\)/
+									text := mat.1
+									return
+						if el = target.querySelector ':scope > i + small'
+							if val = el.nextSibling?textContent
+								if mat = val.match /\((.+?)\)/
+									text := mat.1
+									return
+						if el = target.querySelector ':scope > i + span'
+							if val = el.nextSibling?textContent
+								if mat = val.match /^ \u2013 (.+)$/
+									text := mat.1
+									return
 					if textEl
 						if textEl is nameEl
 							textEl = null
 					if textEl
 						text = textEl.innerText
+					if text
+						text = text.split /, ?/ 1 .0
+						text = @upperFirst text
 			item =
 				* tab: tab
 					name: name

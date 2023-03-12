@@ -10,6 +10,7 @@
 		],
 		"exclude_matches": [
 			"*://localhost/*",
+			"*://127.0.0.1/*",
 			"*://*.wikipedia.org/w/api.php?*",
 			"*://*.wikipedia.org/w/rest.php/*",
 			"*://*.wikipedia.org/api/rest_v1/*",
