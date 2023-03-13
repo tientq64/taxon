@@ -376,6 +376,7 @@ body
 			height 100% !important
 			max-height 90% !important
 	.taxon_list_taxon
+		position relative
 		margin-bottom 0 !important
 		> a.right
 			margin-top 6px
@@ -391,6 +392,21 @@ body
 		.species
 		.subspecies
 			font-size $fontSize + 2
+	.inaturalistSearchFigure
+		position absolute
+		top 50%
+		left -100px
+		max-width 214px
+		word-break break-word
+		transform translate(-100%, -50%)
+		&[data-is-new-img=true]
+			background #2a3
+	.inaturalistSearchFigureImg
+		max-width 214px
+		max-height 160px
+		background #fff
+		filter contrast(1.1) saturate(1.1)
+		image-rendering -webkit-optimize-contrast
 	#iconic_taxa_facet
 		display none
 ._ebird

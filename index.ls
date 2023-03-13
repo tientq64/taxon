@@ -230,7 +230,8 @@ parse = !->
 									src .= substring 1
 								else
 									type = \commons
-								src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-#{src.0}.jpg"
+								ext = src.split \. .at -1
+								src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-#{src.0}.#ext"
 							| \:
 								[, host, src, ext] = inaturalistRegex.exec src
 								host = host and \inaturalist-open-data.s3.amazonaws.com or \static.inaturalist.org

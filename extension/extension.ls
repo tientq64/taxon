@@ -447,6 +447,7 @@ App =
 		@imgurEditRatioOrg = 0
 		@imgurEditRatio1Img = (320 / 240)toFixed 3
 		@imgurEditRatio2Img = (280 / 240)toFixed 3
+		@inaturalistSearchImportedData = null
 		window.addEventListener \selectionchange @onselectionchange, yes
 		window.addEventListener \mousedown @onmousedown, yes
 		window.addEventListener \mouseup @onmouseup, yes
@@ -461,13 +462,17 @@ App =
 					document.getElementById \allow .click!
 		else
 			chrome.storage.local.get do
-				<[cfg token tokenTime album]>
-				({@cfg = {}, @token, tokenTime, @album}) !~>
+				<[cfg token tokenTime album inaturalistSearchImportedData]>
+				({@cfg = {}, @token, tokenTime, @album, @inaturalistSearchImportedData}) !~>
 					unless t.imgur
 						unless @token and tokenTime + 6048e5 > Date.now!
 							await @getImgurToken!
 						unless @album
 							until await @getImgurAlbum! =>
+					if t.inaturalistSearch
+						if @inaturalistSearchImportedData
+							@inaturalistSearchImportedData = JSON.parse @inaturalistSearchImportedData
+							@renderInaturalistSearchImportedData!
 			switch
 			| t.wiki
 				switch
@@ -480,9 +485,9 @@ App =
 						..enLang = document.querySelector ".interlanguage-link-target[lang=en]"
 						..esLang = document.querySelector ".interlanguage-link-target[lang=es]"
 						..frLang = document.querySelector ".interlanguage-link-target[lang=fr]"
-						..commons = document.querySelector ".wb-otherproject-commons> a"
-						..species = document.querySelector ".wb-otherproject-species> a"
-						..infoboxImg = document.querySelector ".infobox.biota a.image> img, .infobox.taxobox a.image> img"
+						..commons = document.querySelector ".wb-otherproject-commons > a"
+						..species = document.querySelector ".wb-otherproject-species > a"
+						..infoboxImg = document.querySelector ".infobox.biota a.image > img, .infobox.taxobox a.image > img"
 						..infoboxLinkImg = ..infoboxImg?parentElement
 					if el = document.querySelector '
 					#Notes,#References,#External_links,#Reference\\/External_Links,#Sources,
@@ -543,7 +548,7 @@ App =
 			| t.inaturalist
 				switch
 				| t.inaturalistSearch
-					els = document.querySelectorAll ".taxon_list_taxon> .noimg"
+					els = document.querySelectorAll ".taxon_list_taxon > .noimg"
 					for el in els
 						el.remove!
 			| t.biolib
@@ -1711,6 +1716,35 @@ App =
 								[, name, ext] = /\/photos\/(\d+)\/[a-z]+\.([a-zA-Z]*)/.exec src
 								type = {jpg: "" jpeg: \e png: \p JPG: \J JPEG: \E PNG: \P "": \u}[ext]
 								data = ":#isAmazonAws#name#type"
+								if @inaturalistSearchImportedData
+									isWriteLocalData = no
+									{genusName, speciesList} = @inaturalistSearchImportedData
+									if target.classList.contains \inaturalistSearchFigureImg
+										{speciesName} = target.dataset
+										species = speciesList.find (.name is speciesName)
+										if species
+											species.newImg = species.oldImg
+											isWriteLocalData = yes
+										else
+											@notify "Không có loài này trong danh sách"
+									else if el = target.closest ".taxon_list_taxon:has(.species > .sciname)"
+										vals = el.querySelector \.sciname .innerText .split ' '
+										if vals.length is 2
+											if genusName is vals.0
+												species = speciesList.find (.name is vals.1)
+												if species
+													species.newImg = data
+													isWriteLocalData = yes
+												else
+													@notify "Không có loài này trong danh sách"
+											else
+												@notify "Không phải Chi đã nhập"
+									if isWriteLocalData
+										text = JSON.stringify @inaturalistSearchImportedData
+										chrome.storage.local.set do
+											inaturalistSearchImportedData: text
+											!~>
+												@renderInaturalistSearchImportedData!
 							else if src.includes \//live.staticflickr.com/
 								name = /^(?:https:)?\/\/live\.staticflickr\.com\/(\d+\/\d+_[\da-f]+)_[a-z]\.jpg+/.exec src .1
 								data = "@#name"
@@ -2057,6 +2091,75 @@ App =
 						location.href = \https://www.flickr.com/signin
 				| \W+D
 					document.querySelector \.wbc-editpage .click!
+				| \N+I
+					if t.inaturalistSearch
+						if text = prompt "Nhập danh sách dữ liệu Chi và Loài:"
+							if text .= replace /^\r?\n+|\r?\n+$/g ""
+								lineRegex = /^(\t*)([^ ]+)(\*?)(?: # (.+))?$/
+								tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
+								text = text.split /\r?\n/
+								[,, genusName, genusExtinct, genusTail] = lineRegex.exec text.0
+								lines = text.slice 1
+								text =
+									genusName: genusName
+									genusExtinct: genusExtinct
+									genusTail: genusTail
+									speciesList: []
+								species = void
+								for line in lines
+									[, tab, name, extinct, tail] = lineRegex.exec line
+									if tab.length is 38
+										textEn = void
+										img = void
+										if tail
+											if tailRegex.test tail
+												img = tail
+											else
+												[textEn, img] = tail.split " # "
+										species =
+											name: name
+											extinct: extinct
+											textEn: textEn
+											oldImg: img
+											newImg: img
+										text.speciesList.push species
+									else
+										species.subsps ?= ""
+										species.subsps += "\n#line"
+								@inaturalistSearchImportedData = text
+								text = JSON.stringify text
+								chrome.storage.local.set do
+									inaturalistSearchImportedData: text
+									!~>
+										@renderInaturalistSearchImportedData!
+										@notify "Đã nhập danh sách dữ liệu Chi và Loài"
+				| \N+O
+					if t.inaturalistSearch
+						if data = @inaturalistSearchImportedData
+							text = "\n#{'\t'repeat 31}#{data.genusName}"
+							text += data.genusExtinct if data.genusExtinct
+							text += data.genusTail if data.genusTail
+							for {name, extinct, textEn, newImg, subsps} in data.speciesList
+								text += "\n#{'\t'repeat 38}#{name}"
+								text += extinct if extinct
+								text += " # #textEn" if textEn
+								text += " # #newImg" if newImg
+								text += subsps if subsps
+							await @copy text
+							@notify "Đã sao chép danh sách dữ liệu Chi và Loài"
+				| \N+Delete
+					if t.inaturalistSearch
+						if data = @inaturalistSearchImportedData
+							@inaturalistSearchImportedData = null
+							chrome.storage.local.remove do
+								\inaturalistSearchImportedData
+								!~>
+									@notify "Đã xóa danh sách dữ liệu Chi và Loài"
+									location.reload!
+				| \N+L
+					if t.inaturalistSearch
+						if data = @inaturalistSearchImportedData
+							console.log data
 				| \A
 					cfgs =
 						c: \copyExtractDeepAndOpenLinkExtract
@@ -2093,6 +2196,57 @@ App =
 				| \W
 					@closeTab!
 		m.redraw!
+
+	renderInaturalistSearchImportedData: !->
+		if t.inaturalistSearch
+			if @inaturalistSearchImportedData
+				{genusName, speciesList} = @inaturalistSearchImportedData
+				inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
+				inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
+				listEl = document.querySelector \.taxa.list
+				for itemEl in listEl.children
+					vals = itemEl.querySelector \.sciname .innerText .split ' '
+					if vals.length is 2
+						speciesName = vals.1
+						if species = speciesList.find (.name is speciesName)
+							figureEl = itemEl.querySelector \.inaturalistSearchFigure
+							src = species.newImg
+							if src
+								unless figureEl
+									figureEl = document.createElement \figure
+									figureEl.className = \inaturalistSearchFigure
+									figureEl.innerHTML = """
+										<img class="inaturalistSearchFigureImg" data-species-name="#{species.name}">
+										<figcaption></figcaption>
+									"""
+									itemEl.appendChild figureEl
+								key = src.0
+								src .= substring 1
+								switch key
+								| \-
+									src = "https://i.imgur.com/#{src}m.png"
+								| \/
+									if src.0 is \/
+										type = \en
+										src .= substring 1
+									else
+										type = \commons
+									ext = src.split \. .at -1
+									src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-#{src.0}.#ext"
+								| \:
+									[, host, src, ext] = inaturalistRegex.exec src
+									host = host and \inaturalist-open-data.s3.amazonaws.com or \static.inaturalist.org
+									ext = inaturalistExts[ext]
+									src = "https://#host/photos/#src/medium.#ext"
+								| \@
+									src = "https://live.staticflickr.com/#{src}_e.jpg"
+								figureEl.dataset.isNewImg = species.newImg isnt species.oldImg
+								imgEl = figureEl.querySelector 'img'
+								imgEl.src = src
+								figcaptionEl = figureEl.querySelector \figcaption
+								figcaptionEl.innerText = species.newImg
+							else
+								figureEl?remove!
 
 	view: ->
 		m.fragment do

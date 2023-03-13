@@ -1,5 +1,5 @@
 {
-	"editor.fontFamily": "'PragmataPro Mono', Menlo, Consolas, monospace",
+	"editor.fontFamily": "Menlo, 'PragmataPro Mono', Consolas, monospace",
 	"editor.fontSize": 15.6,
 	"editor.tabSize": 2,
 	"editor.insertSpaces": false
