@@ -346,7 +346,7 @@ parse = !->
 				lastIndex = childs.length - 1
 				for child, i in childs
 					addNode child, line, lv, parentName, extinct, chrs, not i, i is lastIndex, childs[i + 1]?2
-	addNode tree,, -1, "" no "" yes yes
+	addNode tree,, -1 "" no "" yes yes
 	chars := Object.keys chars
 	for char, i in chars
 		chrs = []
@@ -592,8 +592,9 @@ App =
 	mouseenterName: (line, event) !->
 		unless line.name in [\? " "]
 			{imgs} = line
+			imgs .= slice 0 2 if imgs
 			width = 328
-			isTwoImage = imgs and imgs.0 and imgs.1
+			isTwoImage = Boolean imgs && imgs.0 && imgs.1
 			name = @getFullNameNoSubgenus line
 			icon = @getIcon line
 			summary = ""
@@ -945,10 +946,16 @@ App =
 							key: line.index
 							class: @class do
 								"lineFind": @finding and line is @findLines[@findIndex]
-							chars[line.chrs]map (char, i) ~>
-								m \span,
-									class: chrsRanks[i]0
-									char
+							chars[line.chrs]reduce (accum, char, i) ~>
+								if char.trim! or not accum.length
+									accum.push do
+										m \span,
+											class: chrsRanks[i]0
+											char
+								else
+									accum.at -1 .text += char
+								accum
+							, []
 							m \.node,
 								m \span.name,
 									class: @getRankName line.lv
@@ -972,8 +979,8 @@ App =
 										m \span.textEn line.textEnCopy
 								if line.textVi
 									m \span.textVi "(#{line.textVi})"
-								line.imgs?map (img) ~>
-									if img
+								line.imgs?map (img, i) ~>
+									if img and i < 2
 										m \img.img,
 											src: img.0
 											onmousedown: @mousedownImg.bind void img

@@ -1679,11 +1679,13 @@ App =
 							"Q+RMB": " # %"
 							"R+RMB": " # % ; restoration"
 							"S+RMB": " # % ; specimen"
+							"T+RMB": " # % ; caterpillar"
 							"U+RMB": " # % ; skull"
 							"V+RMB": " # % ; larva"
-							"Alt+V+RMB": " ; % ; larva"
 							"W+RMB": " | %"
 							"X+RMB": " # % ; dark morph"
+							"Alt+V+RMB": " ; % ; larva"
+							"Alt+T+RMB": " ; % ; caterpillar"
 							"Shift+RMB": " | %"
 							"Alt+RMB": " ; % ; "
 							"Shift+B+RMB": " | % ; breeding"
@@ -1691,9 +1693,9 @@ App =
 							"Alt+B+RMB": " ; % ; breeding"
 							"Alt+N+RMB": " ; % ; non-breeding"
 							"Shift+G+RMB": " | % ; light morph"
-							"Shift+K+RMB": " | % ; dark morph"
+							"Shift+X+RMB": " | % ; dark morph"
 							"Alt+G+RMB": " ; % ; light morph"
-							"Alt+K+RMB": " ; % ; dark morph"
+							"Alt+X+RMB": " ; % ; dark morph"
 						if caption = captions[combo]
 							{src} = target
 							unless src
