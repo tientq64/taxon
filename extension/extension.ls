@@ -1781,8 +1781,11 @@ App =
 								node = matched.1
 								name = matched.2
 								data = ">#node/#name"
+							else if src.includes \//i.pinimg.com/
+								name = /^https:\/\/i\.pinimg\.com\/\w+\/(.+?)\.jpg$/exec src .1
+								data = "!#name"
 							else if src.includes \//i.imgur.com/
-								name = /https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
+								name = /^https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
 								data = "-#name"
 							data = caption.replace \% data
 							switch
@@ -2086,13 +2089,11 @@ App =
 				| \W+M
 					location.href = document.querySelector '#ca-move a' .href
 				| \W+L
-					switch
-					| t.wiki
-						document.querySelector \#pt-login>a .click!
-					| t.flickr
-						location.href = \https://www.flickr.com/signin
+					document.querySelector \#pt-login>a .click!
 				| \W+D
 					document.querySelector \.wbc-editpage .click!
+				| \K+L
+					location.href = \https://www.flickr.com/signin
 				| \N+I
 					if t.inaturalistSearch
 						if text = prompt "Nhập danh sách dữ liệu Chi và Loài:"

@@ -63,7 +63,7 @@ parse = !->
 	tree = [0 \Life no [, \/Sự_sống] [] "Life" "Sự sống"]
 	refs = [tree]
 	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?$/
-	tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
+	tailRegex = /^([-/:@%~^+$<>=!?]|https?:\/\/)/
 	disamSplitRegex = /(?=[\\/])/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
 	inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
@@ -263,6 +263,8 @@ parse = !->
 								src = "https://biogeodb.stri.si.edu/#node/resources/img/images/species/#src.jpg"
 							| \=
 								src = "https://cdn.jsdelivr.net/gh/tiencoffee/taimg/#src.webp"
+							| \!
+								src = "https://i.pinimg.com/564x/#src.jpg"
 							else
 								src .= replace /^ttps?:/ ""
 							[src, captn]
@@ -506,6 +508,8 @@ App =
 			# 	src .= replace \/GAL/ \/GAL/BIG/
 			| src.includes \cdn.download.ams.birds.cornell.edu
 				src .= replace /\d+$/ \1800
+			| src.includes \i.pinimg.com
+				src .= replace \564x \originals
 			| src.includes \i.imgur.com
 				if @code is \Delete
 					src -= /(?<=:\/\/)i\.|m\.\w+$/g

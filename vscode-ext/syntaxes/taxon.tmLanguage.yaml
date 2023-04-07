@@ -1,0 +1,29 @@
+scopeName: text.taxon
+
+patterns:
+- match: ^\t{0,8}[^#\t* ]+
+  name: keyword.taxon
+
+- match: ^\t{9,14}[^#\t* ]+
+  name: variable.parameter.taxon
+
+- match: ^\t{15,22}[^#\t* ]+
+  name: storage.type.taxon
+
+- match: ^\t{23,27}[^#\t* ]+
+  name: entity.name.function.taxon
+
+- match: ^\t{28,30}[^#\t* ]+
+  name: constant.numeric.taxon
+
+- match: ^\t{31,36}[^#\t* ]+
+  name: string.taxon
+
+- match: \*
+  name: keyword.taxon
+
+- match: ' # .+$'
+  name: comment.taxon
+
+- match: ' [\\/][^ ]*'
+  name: keyword.taxon

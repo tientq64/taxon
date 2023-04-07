@@ -2,9 +2,9 @@
 	"editor.tabSize": 2,
 	"editor.wordWrap": "wordWrapColumn",
 	"editor.wordWrapColumn": 100,
-	"[taxonz]": {
-		"editor.fontFamily": "Cambria, Menlo, 'PragmataPro Mono', Consolas, monospace",
-		"editor.fontSize": 17.5,
+	"[taxon_]": {
+		"editor.fontFamily": "'Envy Code R', Cambria, Menlo, 'PragmataPro Mono', Consolas, monospace",
+		"editor.fontSize": 15.6,
 		"editor.tabSize": 4,
 		"editor.insertSpaces": false,
 		"editor.wordWrap": "wordWrapColumn",
