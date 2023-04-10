@@ -1,14 +1,15 @@
 {
-	"editor.tabSize": 2,
-	"editor.wordWrap": "wordWrapColumn",
-	"editor.wordWrapColumn": 100,
-	"[taxon_]": {
-		"editor.fontFamily": "'Envy Code R', Cambria, Menlo, 'PragmataPro Mono', Consolas, monospace",
-		"editor.fontSize": 15.6,
-		"editor.tabSize": 4,
-		"editor.insertSpaces": false,
-		"editor.wordWrap": "wordWrapColumn",
-		"editor.wordWrapColumn": 180,
-		// "editor.rulers": [80],
-	}
+   "[taxon]": {
+      "editor.tabSize": 2,
+      "editor.insertSpaces": false,
+      "editor.wordWrap": "wordWrapColumn",
+      "editor.wordWrapColumn": 100,
+   },
+   "material-icon-theme.files.associations": {
+      "*.taxon": "tree",
+      "OCTOKEN": "key"
+   },
+   "material-icon-theme.folders.associations": {
+      "vscode-ext": "vscode"
+   }
 }

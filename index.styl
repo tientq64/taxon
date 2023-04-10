@@ -1,373 +1,373 @@
-// @import "https://fonts.googleapis.com/css?family=IBM Plex Sans:,i,b,ib"
+// @import "https://fonts.googleapis.com/css?family=IBM+Plex+Sans:,i,b,ib"
 // @import "https://fonts.googleapis.com/css?family=Roboto:,i,b,ib"
 @font-face
-	font-family "DejaVuSansMono"
-	src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
+   font-family "DejaVuSansMono"
+   src url("https://cdn.jsdelivr.net/gh/tiencoffee/fonts/DejaVuSansMono.woff2")
 
 *, :before, :after
-	box-sizing border-box
+   box-sizing border-box
 
 html
-	// --sans "Segoe UI","IBM Plex Sans",sans-serif
-	--sans "Microsoft YaHei UI","Roboto","Tahoma","IBM Plex Sans",sans-serif
-	--lineH 19px
+   // --sans "Segoe UI","IBM Plex Sans",sans-serif
+   --sans "Microsoft YaHei UI","Roboto","Tahoma","IBM Plex Sans",sans-serif
+   --lineH 19px
 .verdana
-	--sans "Verdana","IBM Plex Sans",sans-serif
-	--lineH 15px
+   --sans "Verdana","IBM Plex Sans",sans-serif
+   --lineH 15px
 .ibmpsans
-	--sans "IBM Plex Sans",sans-serif
-	--lineH 19px
+   --sans "IBM Plex Sans",sans-serif
+   --lineH 19px
 .cambria
-	--sans "Cambria", "Franklin Gothic Book", sans-serif
-	--lineH 19px
+   --sans "Cambria", "Franklin Gothic Book", sans-serif
+   --lineH 19px
 body
-	margin 0
-	font-family var(--sans)
-	font-size 14px
-	background #011627
-	overflow hidden
-	user-select none
-	cursor default
-	/.verdana &
-		font-size 13px
-	/.ibmpsans &
-		font-size 16px
-	/.cambria &
-		font-size 17.5px
+   margin 0
+   font-family var(--sans)
+   font-size 14px
+   background #011627
+   overflow hidden
+   user-select none
+   cursor default
+   /.verdana &
+      font-size 13px
+   /.ibmpsans &
+      font-size 16px
+   /.cambria &
+      font-size 17.5px
 
 .loading
-	position absolute
-	left 50%
-	top 50%
-	color #fff
-	transform translate(-50%,-50%)
+   position absolute
+   left 50%
+   top 50%
+   color #fff
+   transform translate(-50%,-50%)
 
 ::-webkit-scrollbar
-	-webkit-appearance none
-	width 16px
-	height 16px
-	background #112637
+   -webkit-appearance none
+   width 16px
+   height 16px
+   background #112637
 ::-webkit-scrollbar-corner
-	background #0000
+   background #0000
 ::-webkit-scrollbar-thumb
-	background #314657
+   background #314657
 
 .line
-	height var(--lineH)
+   height var(--lineH)
 .lineFind
-	> .node
-		background #213647
+   > .node
+      background #213647
 .node
-	padding-left 6px
-	padding-right 6px
-	border-radius 4px
-	display inline-flex
-	align-items baseline
-	font-family var(--sans)
-	font-size 14px
-	vertical-align middle
-	// &:hover
-	// 	box-shadow 0 0 0 1px #648185 inset
-	/.verdana &
-		font-size 13px
-	/.ibmpsans &
-		font-size 16px
-	/.cambria &
-		font-size 17.5px
+   padding-left 6px
+   padding-right 6px
+   border-radius 4px
+   display inline-flex
+   align-items baseline
+   font-family var(--sans)
+   font-size 14px
+   vertical-align middle
+   // &:hover
+   // 	box-shadow 0 0 0 1px #648185 inset
+   /.verdana &
+      font-size 13px
+   /.ibmpsans &
+      font-size 16px
+   /.cambria &
+      font-size 17.5px
 .name
-	cursor pointer
+   cursor pointer
 .dash
 .textEn
 .textVi
-	margin-left 6px
-	font-family var(--sans)
-	color #648185
+   margin-left 6px
+   font-family var(--sans)
+   color #648185
 .dash
-	margin-left 8px
+   margin-left 8px
 .textEnCopy
-	display inline-block
-	text-decoration underline
-	text-decoration-skip-ink none
-	cursor copy
-	&:not(:first-child)
-		margin-left 6px
+   display inline-block
+   text-decoration underline
+   text-decoration-skip-ink none
+   cursor copy
+   &:not(:first-child)
+      margin-left 6px
 .textEn
-	font-size 13px
-	/.verdana &
-		font-size 12px
-	/.ibmpsans &
-		font-size 15px
-	/.cambria &
-		font-size 16px
+   font-size 13px
+   /.verdana &
+      font-size 12px
+   /.ibmpsans &
+      font-size 15px
+   /.cambria &
+      font-size 16px
 .textVi
-	font-size 13px
-	color #a39f83
-	/.verdana &
-		font-size 12px
-	/.ibmpsans &
-		font-size 15px
-	/.cambria &
-		font-size 16px
+   font-size 13px
+   color #a39f83
+   /.verdana &
+      font-size 12px
+   /.ibmpsans &
+      font-size 15px
+   /.cambria &
+      font-size 16px
 .img
-	min-width 6px
-	min-height 6px
-	max-width 16px
-	max-height 16px
-	margin-left 8px
-	// border-radius 1px
-	padding 1px
-	background #fff
-	cursor pointer
-	+ .img
-		margin-left 4px
+   min-width 6px
+   min-height 6px
+   max-width 16px
+   max-height 16px
+   margin-left 8px
+   // border-radius 1px
+   padding 1px
+   background #fff
+   cursor pointer
+   + .img
+      margin-left 4px
 .life
-	color #ec2b1d
+   color #ec2b1d
 .domain
-	color #ec2b1d
+   color #ec2b1d
 .kingdom
-	color #ec2b1d
+   color #ec2b1d
 .phylum
-	color #ff1267
+   color #ff1267
 .class
-	color #ff8e08
+   color #ff8e08
 .order
-	color #2cb3e6
+   color #2cb3e6
 .family
-	color #6ae22e
+   color #6ae22e
 .tribe
-	color #a370ff
+   color #a370ff
 .genus
-	color #ffcc66
+   color #ffcc66
 .species
-	font-weight normal
-	color #f8f8f2
+   font-weight normal
+   color #f8f8f2
 .subspecies
-	font-weight normal
-	color #f8f8f2
+   font-weight normal
+   color #f8f8f2
 #scrollEl
-	position absolute
-	left 0
-	top 0
-	width 100%
-	height 100%
-	overflow-x hidden
-	overflow-y auto
-	// scroll-behavior smooth
+   position absolute
+   left 0
+   top 0
+   width 100%
+   height 100%
+   overflow-x hidden
+   overflow-y auto
+   // scroll-behavior smooth
 #heightEl
-	width 1px
-	display inline-block
-	pointer-events none
+   width 1px
+   display inline-block
+   pointer-events none
 #presEl
-	height 100%
-	margin 0
-	padding-left 64px
-	font-family "DejaVuSansMono",monospace
-	font-size 16px
-	white-space pre
-	tab-size 2
-	/.verdana &
-		padding-left 176px
-		font-size 13px
+   height 100%
+   margin 0
+   padding-left 64px
+   font-family "DejaVuSansMono",monospace
+   font-size 16px
+   white-space pre
+   tab-size 2
+   /.verdana &
+      padding-left 176px
+      font-size 13px
 #infosEl
-	position absolute
-	right 16px
-	bottom 0
-	padding 16px
-	border-radius 8px 4px 4px 4px
-	display grid
-	grid-template-columns repeat(3,auto)
-	grid-gap 4px 16px
-	background #fff
+   position absolute
+   right 16px
+   bottom 0
+   padding 16px
+   border-radius 8px 4px 4px 4px
+   display grid
+   grid-template-columns repeat(3,auto)
+   grid-gap 4px 16px
+   background #fff
 .modfCountIncr
-	color #5b1
+   color #5b1
 .modfCountDecr
-	color #e43
+   color #e43
 #findEl
-	position absolute
-	top 0
-	right 16px
-	width 300px
-	padding 6px
-	border-radius 4px 4px 4px 8px
-	display flex
-	align-items center
-	background #fff
+   position absolute
+   top 0
+   right 16px
+   width 300px
+   padding 6px
+   border-radius 4px 4px 4px 8px
+   display flex
+   align-items center
+   background #fff
 #findInputEl
-	width 0
-	height 24px
-	padding 0 8px
-	border 0
-	flex-grow 1
-	font inherit
-	outline 0
+   width 0
+   height 24px
+   padding 0 8px
+   border 0
+   flex-grow 1
+   font inherit
+   outline 0
 .findButton
-	width 28px
-	margin-left 4px
-	border-radius 4px
-	display flex
-	justify-content center
-	align-items center
-	align-self stretch
-	font-family "DejaVuSansMono",monospace
-	font-size 15px
-	cursor pointer
-	&:hover
-		background #07d3
-	/.verdana &
-		font-size 14px
-	/.ibmpsans &
-		font-size 16px
-	/.cambria &
-		font-size 17px
+   width 28px
+   margin-left 4px
+   border-radius 4px
+   display flex
+   justify-content center
+   align-items center
+   align-self stretch
+   font-family "DejaVuSansMono",monospace
+   font-size 15px
+   cursor pointer
+   &:hover
+      background #07d3
+   /.verdana &
+      font-size 14px
+   /.ibmpsans &
+      font-size 16px
+   /.cambria &
+      font-size 17px
 .findButtonOn
-	color #07d
+   color #07d
 #findClose
-	font-weight 700
-	color #e43
-	&:hover
-		background #e433
+   font-weight 700
+   color #e43
+   &:hover
+      background #e433
 #findTextEl
-	margin 0 8px 0
-	font-size 14px
-	color #888
+   margin 0 8px 0
+   font-size 14px
+   color #888
 #popupEl
-	max-width min-content
-	border-radius 8px
-	font-size 14px
-	text-align center
-	overflow hidden
-	box-shadow 1px 2px 4px 1px #0008
-	// box-shadow -4px 0 #011627,1px 2px 4px 1px #0008
-	pointer-events none
-	/.verdana &
-		font-size 13px
-	/.ibmpsans &
-		font-size 15px
-	/.cambria &
-		font-size 16.5px
+   max-width min-content
+   border-radius 8px
+   font-size 14px
+   text-align center
+   overflow hidden
+   box-shadow 1px 2px 4px 1px #0008
+   // box-shadow -4px 0 #011627,1px 2px 4px 1px #0008
+   pointer-events none
+   /.verdana &
+      font-size 13px
+   /.ibmpsans &
+      font-size 15px
+   /.cambria &
+      font-size 16.5px
 .popupBody
-	width 328px
-	padding 8px 4px
-	border-radius 8px
-	display flex
-	flex-direction column
-	background #f1f5f9
-	animation popup 50ms forwards
+   width 328px
+   padding 8px 4px
+   border-radius 8px
+   display flex
+   flex-direction column
+   background #f1f5f9
+   animation popup 50ms forwards
 @keyframes popup
-	from
-		transform scale(.96)
-	to
-		transform scale(1)
+   from
+      transform scale(.96)
+   to
+      transform scale(1)
 .popupIsTrinomial
-	.popupName
-		font-size 15px
-		/.verdana &
-			font-size 14px
-		/.ibmpsans &
-			font-size 16px
-		/.cambria &
-			font-size 18px
+   .popupName
+      font-size 15px
+      /.verdana &
+         font-size 14px
+      /.ibmpsans &
+         font-size 16px
+      /.cambria &
+         font-size 18px
 .popupIsTwoImage
-	width 652px
+   width 652px
 .popupName
-	position relative
-	padding 2px 8px 4px
-	display flex
-	justify-content center
-	align-items center
-	font-size 16px
-	font-weight bold
-	white-space nowrap
-	/.verdana &
-		font-size 15px
-	/.ibmpsans &
-		font-size 17px
-	/.cambria &
-		font-size 20px
+   position relative
+   padding 2px 8px 4px
+   display flex
+   justify-content center
+   align-items center
+   font-size 16px
+   font-weight bold
+   white-space nowrap
+   /.verdana &
+      font-size 15px
+   /.ibmpsans &
+      font-size 17px
+   /.cambria &
+      font-size 20px
 .popupIcon
-	position absolute
-	left 8px
-	height 24px
+   position absolute
+   left 8px
+   height 24px
 .popupTextEn
 .popupTextVi
-	padding 0 8px 1px
-	white-space nowrap
-	text-overflow ellipsis
-	overflow hidden
-	color #333
+   padding 0 8px 1px
+   white-space nowrap
+   text-overflow ellipsis
+   overflow hidden
+   color #333
 .popupGenders
-	margin-top 6px
-	// padding 0 4px
-	display flex
-	justify-content center
-	column-gap 4px
+   margin-top 6px
+   // padding 0 4px
+   display flex
+   justify-content center
+   column-gap 4px
 .popupGender
-	width 100%
-	display flex
-	flex-direction column
-	align-self stretch
+   width 100%
+   display flex
+   flex-direction column
+   align-self stretch
 .popupPicture
-	position relative
-	// width 330px
-	width 320px
-	// padding 5px
-	border-radius 8px
-	display flex
-	justify-content center
-	align-items center
-	flex-grow 1
-	overflow hidden
-	// &:after
-	// 	content ""
-	// 	position absolute
-	// 	left 0
-	// 	top 0
-	// 	width 100%
-	// 	height 100%
-	// 	border-radius 8px
-	// 	box-shadow 0 0 0 1px #aaa inset,0 0 0 5px #fff inset
-	// 	pointer-events none
+   position relative
+   // width 330px
+   width 320px
+   // padding 5px
+   border-radius 8px
+   display flex
+   justify-content center
+   align-items center
+   flex-grow 1
+   overflow hidden
+   // &:after
+   // 	content ""
+   // 	position absolute
+   // 	left 0
+   // 	top 0
+   // 	width 100%
+   // 	height 100%
+   // 	border-radius 8px
+   // 	box-shadow 0 0 0 1px #aaa inset,0 0 0 5px #fff inset
+   // 	pointer-events none
 .popupBgImg
-	position absolute
-	left 0
-	top 0
-	width 100%
-	height 100%
-	display block
-	object-fit cover
-	filter blur(24px) saturate(2)
+   position absolute
+   left 0
+   top 0
+   width 100%
+   height 100%
+   display block
+   object-fit cover
+   filter blur(24px) saturate(2)
 .popupImg
-	max-width 320px
-	max-height 240px
-	display block
-	background #fff
-	filter contrast(1.1) saturate(1.1)
-	image-rendering -webkit-optimize-contrast
-	z-index 0
+   max-width 320px
+   max-height 240px
+   display block
+   background #fff
+   filter contrast(1.1) saturate(1.1)
+   image-rendering -webkit-optimize-contrast
+   z-index 0
 .popupImg--cover
-	width 100%
-	height 100%
-	object-fit cover
+   width 100%
+   height 100%
+   object-fit cover
 .popupGenderCaptn
-	margin-top 2px
-	margin-bottom -1px
-	padding 0 8px
-	font-size 13px
-	color #333
-	/.verdana &
-		font-size 12px
-	/.ibmpsans &
-		font-size 14px
-	/.cambria &
-		font-size 15.5px
+   margin-top 2px
+   margin-bottom -1px
+   padding 0 8px
+   font-size 13px
+   color #333
+   /.verdana &
+      font-size 12px
+   /.ibmpsans &
+      font-size 14px
+   /.cambria &
+      font-size 15.5px
 .popupSummary
-	padding 0 8px
-	line-height 1.35
-	&:not(:empty)
-		margin-top 6px
-	> p
-		margin 0
-		text-align justify !important
-	a
-		text-decoration none
-		color inherit
+   padding 0 8px
+   line-height 1.35
+   &:not(:empty)
+      margin-top 6px
+   > p
+      margin 0
+      text-align justify !important
+   a
+      text-decoration none
+      color inherit
