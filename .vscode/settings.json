@@ -3,7 +3,7 @@
       "editor.tabSize": 2,
       "editor.insertSpaces": false,
       "editor.wordWrap": "wordWrapColumn",
-      "editor.wordWrapColumn": 100,
+      "editor.wordWrapColumn": 110,
    },
    "material-icon-theme.files.associations": {
       "*.taxon": "tree",

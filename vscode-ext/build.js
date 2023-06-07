@@ -5,30 +5,27 @@
    const jsYaml = require('js-yaml')
    const terser = require('terser')
 
-   let dist = 'F:/apps/Microsoft VS Code/resources/app/extensions'
+   const vscodeExtsPath = 'F:/apps/Microsoft VS Code/resources/app/extensions'
 
-   if (fs.existsSync(dist)) {
-      let text, json
+   if (fs.existsSync(vscodeExtsPath)) {
+      const vscodeExtsTaxonPath = vscodeExtsPath + '/taxon'
 
-      dist += '/taxon'
+      fs.emptyDirSync(vscodeExtsTaxonPath)
 
-      fs.emptyDirSync(dist)
+      let yamlText = fs.readFileSync('./syntaxes/taxon.tmLanguage.yaml', 'utf8')
+      let json = jsYaml.load(yamlText)
+      fs.outputJsonSync(`${vscodeExtsTaxonPath}/syntaxes/taxon.tmLanguage.json`, json)
 
-      text = fs.readFileSync('./syntaxes/taxon.tmLanguage.yaml', 'utf8')
-      json = jsYaml.load(text)
-
-      fs.outputJsonSync(`${dist}/syntaxes/taxon.tmLanguage.json`, json)
-
-      text = fs.readFileSync('./src/extension.js', 'utf8')
-      text = (await terser.minify(text)).code
-      fs.outputFileSync(`${dist}/dist/extension.js`, text)
+      let code = fs.readFileSync('./src/extension.js', 'utf8')
+      code = (await terser.minify(code)).code
+      fs.outputFileSync(`${vscodeExtsTaxonPath}/dist/extension.js`, code)
 
       json = fs.readJsonSync('./package.json')
-      fs.outputJsonSync(`${dist}/package.json`, json)
+      fs.outputJsonSync(`${vscodeExtsTaxonPath}/package.json`, json)
 
       json = fs.readJsonSync('./language-configuration.json')
-      fs.outputJsonSync(`${dist}/language-configuration.json`, json)
+      fs.outputJsonSync(`${vscodeExtsTaxonPath}/language-configuration.json`, json)
    } else {
-      throw Error(`Không tìm thấy path: ${dist}`)
+      throw Error(`Không tìm thấy path: ${vscodeExtsPath}`)
    }
 })()

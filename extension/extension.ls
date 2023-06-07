@@ -1392,6 +1392,13 @@ App =
          isElTarget = target instanceof Element
          name = void
          rank = opts.ranks[index]
+         formRegex = //
+            ^[A-Z]([a-z]+|\.)?\s
+            ([a-z-]{2,}|[a-z]\.)\s+
+            ([a-z-]{2,}|[a-z]\.)\s+
+            f\.\s
+            ([a-z-]{2,})
+         //
          varietyRegex = //
             ^[A-Z]([a-z]+|\.)?\s
             ([a-z-]{2,}|[a-z]\.)\s+
@@ -1401,6 +1408,7 @@ App =
          varietyNameRegex = /^[a-z]{2,}$/
          subspeciesRegex = //
             ^[A-Z]([a-z]+|\.)?\s
+            (?:\([A-Z]\.\)\s)?
             (\([a-z-]{2,}\)|[a-z-]{2,}|[a-z]\.)\s
             (?:subsp\.\s)?
             ([a-z-]{2,})
@@ -1475,9 +1483,13 @@ App =
                if el = target.querySelector ':scope > a:not([data-excl])'
                   nameEl = el
             if nameEl
-               if nameEl.localName is \i and el = nameEl.nextSibling
-                  if el.wholeText is /^( subsp\. | sp\. | +var\. )/
+               if nameEl.localName is \i and (node = nameEl.nextSibling) and node.nodeName is \#text
+                  if node.wholeText is /^( subsp\. | sp\. | +var\. )/
                      nameEl = null
+                  else if node.wholeText.trim! is \f.
+                     if el = nameEl.nextElementSibling
+                        name = el.innerText
+                        nameEl = null
             if nameEl
                name = nameEl.innerText.trim!
          name ?= targetText
@@ -1485,6 +1497,7 @@ App =
             .replace @regexes.startsPrefixes, ""
             .replace /["'?]|=.+$/g ""
             .replace /^([A-Z][a-z]+) \([A-Z][a-z]+\)( [a-z]{2,})$/ \$1$2
+            .replace /\([A-Z]\.\)\s/ ""
             .replace /[()]/g ""
          # if name is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
          # 	subgenera[that.1] = yes
@@ -1497,6 +1510,10 @@ App =
          notMatchTab ?= tab
          if rank
             switch
+            | rank.lv is 41
+               if matched = formRegex.exec name
+                  name = matched.4
+               name .= split " " .0
             | rank.lv is 40
                if matched = varietyRegex.exec name
                   name = matched.3
@@ -1568,6 +1585,11 @@ App =
                      if val = el.nextSibling?textContent
                         if mat = val.match /^ \u2013 (.+)$/
                            text := mat.1
+                           return
+                  if el = target.querySelector ':scope > i'
+                     if node = el.nextSibling
+                        if node.wholeText.includes " – "
+                           text := node.wholeText.replace " – " "" .trim!
                            return
                if textEl
                   if textEl is nameEl
@@ -1867,7 +1889,6 @@ App =
                   text = text
                      .replace /^.+?:\s*/ ""
                      .replace /\s+-\s+|\s*\u2013\s*/g \\n
-                  console.log text
                   @data = @extract text,
                      ranks: [rank]
                   @copy @data

@@ -374,9 +374,13 @@ catch
    modfCounts = {}
    for k, info of infos
       modfCounts[k] = info.count
-for k, info of infos
-   info.modfCount = info.count - modfCounts[k]
-if modfTime isnt +localStorage.taxonModfTime
+if modfTime is +localStorage.taxonModfTime
+   for k, info of infos
+      info.modfCount = info.count - modfCounts[k]
+else
+   for k, info of infos
+      modfCounts[k] = info.count
+      info.modfCount = 0
    localStorage.taxonModfTime = modfTime
    localStorage.taxonModfCounts = JSON.stringify modfCounts
 
@@ -396,6 +400,7 @@ App =
       @findTimo = void
       @code = void
       @isKeyDown = yes
+      @hoveredLine = void
       @popper = void
       @abortCtrler = void
       @rightClickAction = localStorage.taxonRightClickAction
@@ -481,6 +486,10 @@ App =
       not= @findCase
       localStorage.taxonFindCase = @findCase and \1 or ""
       @find!
+
+   togglePopupLang: !->
+      @popupLang = @popupLang is \vi and \en or \vi
+      localStorage.taxonPopupLang = @popupLang
 
    closeFind: !->
       if @finding
@@ -595,6 +604,7 @@ App =
 
    mouseenterName: (line, event) !->
       unless line.name in [\? " "]
+         @hoveredLine = line
          {imgs} = line
          imgs .= slice 0 2 if imgs
          width = 328
@@ -619,6 +629,15 @@ App =
                if nameEl.offsetWidth > maxWidth
                   vals = name.split " "
                   switch vals.length
+                  | 4
+                     switch step
+                     | 0
+                        name := "#{vals.0} #{vals.1.0}. #{vals.2} #{vals.3}"
+                        nameEl.textContent = name
+                        updateWidth 1
+                     | 1
+                        name := "#{vals.0.0}. #{vals.1} #{vals.2} #{vals.3}"
+                        nameEl.textContent = name
                   | 3
                      switch step
                      | 0
@@ -682,15 +701,18 @@ App =
                   m \.popupSummary#summaryEl,
                      translate: yes
          m.mount popupEl, popup
-         @popper = Popper.createPopper event.target, popupEl,
-            placement: \left
-            modifiers:
-               * name: \offset
-                  options:
-                     offset: [0 21]
-               * name: \preventOverflow
-                  options:
-                     padding: 2
+         if @popper
+            @popper.update!
+         else
+            @popper = Popper.createPopper event.target, popupEl,
+               placement: \left
+               modifiers:
+                  *  name: \offset
+                     options:
+                        offset: [0 21]
+                  *  name: \preventOverflow
+                     options:
+                        padding: 2
          updateWidth!
          {summary} = await @fetchWiki line
          if @popper
@@ -704,7 +726,8 @@ App =
             updateHeight!
 
    mouseleaveName: !->
-      if @popper
+      if @hoveredLine
+         @hoveredLine = void
          if @abortCtrler
             @abortCtrler.abort!
             @abortCtrler = void
@@ -757,9 +780,11 @@ App =
          q = @getWikiPageName line, lang
          opts = {}
          unless cb
+            @abortCtrler?abort!
             @abortCtrler = new AbortController
             opts.signal = @abortCtrler.signal
          data = await (await fetch "https://#lang.wikipedia.org/api/rest_v1/page/summary/#q" opts)json!
+         @abortCtrler = void
          {extract_html} = data
          if data.type is \standard
             title = data.title.replace /\ \(.+?\)/ ""
@@ -908,8 +933,9 @@ App =
          | \KeyV
             if noFocus
                unless ctrl
-                  @popupLang = @popupLang is \vi and \en or \vi
-                  localStorage.taxonPopupLang = @popupLang
+                  @togglePopupLang!
+                  if @hoveredLine
+                     @mouseenterName @hoveredLine
          | \KeyE
             if isDev
                try
@@ -1003,6 +1029,13 @@ App =
                                  "(#{info.modfCount > 0 and \+ or ""}#{numberFormat.format info.modfCount})"
                m \.info "Ngôn ngữ popup"
                m \.info @popupLang
+         else
+            m \.lang,
+               class: "langIsVi" if @popupLang is \vi
+               title: "Ngôn ngữ trong phần mô tả"
+               onclick: !~>
+                  @togglePopupLang!
+               @popupLang
          if @finding
             m \#findEl,
                m \input#findInputEl,
