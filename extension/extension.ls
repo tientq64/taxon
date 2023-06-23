@@ -1581,6 +1581,9 @@ App =
                         if mat = val.match /\((.+?)\)/
                            text := mat.1
                            return
+                        if mat = val.match /^ – (.+?)$/
+                           text := mat.1
+                           return
                   if el = target.querySelector ':scope > i + span'
                      if val = el.nextSibling?textContent
                         if mat = val.match /^ \u2013 (.+)$/

@@ -1,29 +1,38 @@
 scopeName: text.taxon
 
 patterns:
-- match: ^\t{0,8}[^#\t* ]+
-  name: keyword.taxon
+- match: ^\t{0,3}[^#\t* ]+
+  name: red.taxon
+
+- match: ^\t{4,8}[^#\t* ]+
+  name: pink.taxon
 
 - match: ^\t{9,14}[^#\t* ]+
-  name: variable.parameter.taxon
+  name: orange.taxon
 
 - match: ^\t{15,22}[^#\t* ]+
-  name: storage.type.taxon
+  name: blue.taxon
 
 - match: ^\t{23,27}[^#\t* ]+
-  name: entity.name.function.taxon
+  name: green.taxon
 
 - match: ^\t{28,30}[^#\t* ]+
-  name: constant.numeric.taxon
+  name: purple.taxon
 
 - match: ^\t{31,36}[^#\t* ]+
-  name: string.taxon
+  name: yellow.taxon
 
 - match: \*
-  name: keyword.taxon
-
-- match: ' # .+$'
-  name: comment.taxon
+  name: pink.taxon
 
 - match: ' [\\/][^ ]*'
-  name: keyword.taxon
+  name: orange.taxon
+
+- match: ' \|[a-z\-]+'
+  name: orange.taxon
+
+- match: ' # ([-/:@%~^+$<>=!?]|https?:\/\/).+$'
+  name: gray.taxon
+
+- match: ' #( [^|#]*[^|# ])?( \|[^#]*[^# ])?'
+  name: slate.taxon

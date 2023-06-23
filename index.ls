@@ -255,7 +255,7 @@ parse = !->
                      | \+
                         src = "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/#{src}1/320"
                      | \$
-                        src = "https://www.reptarium.cz/content/photo_#src.jpg"
+                        src = "https://reptile-database.reptarium.cz/content/photo_#src.jpg"
                      | \<
                         src = "https://www.fishwisepro.com/pics/JPG/#src.jpg"
                      | \>
