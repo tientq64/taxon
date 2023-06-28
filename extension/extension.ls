@@ -1590,10 +1590,11 @@ App =
                            text := mat.1
                            return
                   if el = target.querySelector ':scope > i'
-                     if node = el.nextSibling
-                        if node.wholeText.includes " – "
-                           text := node.wholeText.replace " – " "" .trim!
-                           return
+                     if val = el.nextSibling?wholeText
+                        if val.includes " – "
+                           val = val.replace " – " "" .trim!
+                           unless val.endsWith \(
+                              return
                if textEl
                   if textEl is nameEl
                      textEl = null

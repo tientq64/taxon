@@ -23,6 +23,50 @@ chrsRanks =
    [\genus 32 38]
    [\species 38 40]
    [\subspecies 40 43]
+textRanks =
+   ["" ""]
+   ["Domain" "Vực"]
+   ["Kingdom" "Giới"]
+   ["Subkingdom" "Phân giới"]
+   ["Infrakingdom" "Thứ giới"]
+   ["Superphylum" "Liên ngành"]
+   ["Phylum" "Ngành"]
+   ["Subphylum" "Phân ngành"]
+   ["Infraphylum" "Thứ ngành"]
+   ["Parvphylum" "Tiểu ngành"]
+   ["Superclass" "Liên lớp"]
+   ["Class" "Lớp"]
+   ["Subclass" "Phân lớp"]
+   ["Infraclass" "Thứ lớp"]
+   ["Parvclass" "Tiểu lớp"]
+   ["Legion" "Đoàn"]
+   ["Supercohort" "Liên đội"]
+   ["Cohort" "Đội"]
+   ["Megaorder" "Tổng bộ"]
+   ["Superorder" "Liên bộ"]
+   ["Order" "Bộ"]
+   ["Suborder" "Phân bộ"]
+   ["Infraorder" "Thứ bộ"]
+   ["Parvorder" "Tiểu bộ"]
+   ["Section" "Đoạn"]
+   ["Subsection" "Phân đoạn"]
+   ["Superfamily" "Liên họ"]
+   ["Family" "Họ"]
+   ["Subfamily" "Phân họ"]
+   ["Supertribe" "Liên tông"]
+   ["Tribe" "Tông"]
+   ["Subtribe" "Phân tông"]
+   ["Genus" "Chi"]
+   ["Subgenus" "Phân chi"]
+   ["Section" "Mục"]
+   ["Subsection" "Phân mục"]
+   ["Series" "Loạt"]
+   ["Subseries" "Phân loạt"]
+   ["Superspecies" "Liên loài"]
+   ["Species" "Loài"]
+   [["Subspecies" "Subsp."] ["Phân loài" "Ph.loài"]]
+   [["Variety" "Var."] "Thứ"]
+   ["Form" "Dạng"]
 isDev = location.hostname in [\localhost \127.0.0.1]
 numberFormat = new Intl.NumberFormat \en
 maxLv = 99
@@ -431,6 +475,13 @@ App =
    getRankName: (lv) ->
       chrsRanks.find (.2 > lv) .0
 
+   getRankTexts: (lv, lang, isGetAbbr) ->
+      texts = textRanks[lv]
+      text = texts[Number lang is \vi]
+      if Array.isArray text
+         text[+isGetAbbr]
+      else text
+
    find: (val) !->
       if val?
          @findVal = val
@@ -625,7 +676,7 @@ App =
                @popper.update!
          updateWidth = (step = 0) !~>
             unless isTwoImage
-               maxWidth = icon and 239 or 309
+               maxWidth = 224
                if nameEl.offsetWidth > maxWidth
                   vals = name.split " "
                   switch vals.length
@@ -663,6 +714,8 @@ App =
                         m \img.popupIcon,
                            src: "https://img.icons8.com/plumpy/1x/#icon.png"
                      m \#nameEl name
+                     m \.popupRank,
+                        @getRankTexts line.lv, @popupLang, yes
                   if line.textEn
                      m \.popupTextEn line.textEn
                   if line.textVi and isNaN line.textVi
@@ -763,7 +816,7 @@ App =
    getWikiPageName: (line, lang) ->
       {disam} = line
       if disam
-         index = +(lang is \vi)
+         index = Number lang is \vi
          if disamLang = disam[index]
             chr = disamLang.0
             disamLang .= substring 1
@@ -796,8 +849,8 @@ App =
             while node .= parent
                names.push @getFullNameNoSubgenus node
             matches = [title]
-            if rs = extract_html.match /<b>.+?<\/b>/g
-               matches.push ...rs
+            if mat = extract_html.match /<b>.+?<\/b>/g
+               matches.push ...mat
             for title in matches
                if r = /<(\w+)[^>]*>(.+?)<\/\1>/exec title
                   title = r.2
