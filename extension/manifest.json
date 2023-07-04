@@ -23,6 +23,7 @@
          "*://diori.tiencoffee.vercel.app/*",
          "*://ls2.vercel.app/",
          "*://livescript2.vercel.app/",
+         "*://tetr.io/*",
          "*://*.messenger.com/*",
          "*://*.facebook.com/*",
          "*://*.fna.fbcdn.net/*",
