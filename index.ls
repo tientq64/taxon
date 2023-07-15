@@ -2,7 +2,7 @@ localStorage
    ..taxonFindExact ?= ""
    ..taxonFindCase ?= \1
    ..taxonInfoLv ?= \0
-   ..taxonRightClickAction ?= \g
+   ..taxonRightClickAction ?= \k
    ..taxonPopupLang ?= \vi
    ..taxonTheme ?= \default
 
@@ -69,7 +69,7 @@ textRanks =
    ["Form" "Dạng"]
 isDev = location.hostname in [\localhost \127.0.0.1]
 numberFormat = new Intl.NumberFormat \en
-maxLv = 99
+maxLv = void
 infoMaxLv = 2
 infoLv = +localStorage.taxonInfoLv
 infos =
@@ -326,72 +326,71 @@ parse = !->
       refs.push node
    addNode = (node, parent, parentLv, parentName, extinct, chrs, isFirst, isLast, nextSiblExtinct) !~>
       [lv, name, ex, disam, childs, textEn, textVi, imgs, icon] = node
-      if lv <= maxLv
-         extinct = yes if ex
-         if parentLv >= 0
-            lvRange = lv - parentLv - 1
-            if extinct
-               chrs2 = (chrs + (isFirst and ("╸╸"repeat lvRange) + \╸┓ or ("  "repeat lvRange) + " ╏"))
-                  .replace /\ (?=[╸━┓])/ \╹
-                  .replace /┃(?=[━┓])/ \┣
-            else
-               chrs2 = (chrs + (isFirst and ("━━"repeat lvRange) + \━┓ or ("  "repeat lvRange) + " ┃"))
-                  .replace /\ (?=[╸━┓])/ \┗
-                  .replace /[┃╏](?=[━┓])/ \┣
+      extinct = yes if ex
+      if parentLv >= 0
+         lvRange = lv - parentLv - 1
+         if extinct
+            chrs2 = (chrs + (isFirst and ("╸╸"repeat lvRange) + \╸┓ or ("  "repeat lvRange) + " ╏"))
+               .replace /\ (?=[╸━┓])/ \╹
+               .replace /┃(?=[━┓])/ \┣
          else
-            chrs2 = " ┃"
-         if chars[chrs2]?
-            chrs2 = chars[chrs2]
+            chrs2 = (chrs + (isFirst and ("━━"repeat lvRange) + \━┓ or ("  "repeat lvRange) + " ┃"))
+               .replace /\ (?=[╸━┓])/ \┗
+               .replace /[┃╏](?=[━┓])/ \┣
+      else
+         chrs2 = " ┃"
+      if chars[chrs2]?
+         chrs2 = chars[chrs2]
+      else
+         chrs2 = chars[chrs2] = charsId++
+      if lv >= 39
+         if lv is 41
+            fullName = "#parentName var. #name"
          else
-            chrs2 = chars[chrs2] = charsId++
-         if lv >= 39
-            if lv is 41
-               fullName = "#parentName var. #name"
-            else
-               fullName = "#parentName #name"
-            if lv is 39
-               infos.species.count++
-            infos.speciesSubspHasViName.count++ if textEn
-            unless childs
-               infos.speciesSubsp.count++
-               infos.speciesSubspHasImg.count++ if imgs
-               infos.speciesSubspExtinct.count++ if extinct
-         else if lv is 32
-            infos.genus.count++
-         else if lv is 27
-            infos.family.count++
-         line =
-            index: ++index
-            lv: lv
-            name: name
-            chrs: chrs2
-         line.textEn = textEn if textEn
-         line.textVi = textVi if textVi
-         if maxLv < 39 and childs and childs.0.0 > maxLv
-            line.textVi = childs.length
-         if imgs
-            line.imgs = imgs
-            infos.img.count += imgs.length
-         line.extinct = extinct if extinct
-         line.disam = disam if disam
-         line.fullName = fullName if fullName
-         line.icon = icon if icon
-         line.parent = parent if parent
-         lines.push line
-         if childs
-            line.childs = childs.length
-            chrs += "  "repeat(lvRange) + (isLast and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
-            if lv < 34 or lv > 38
-               if name not in [\? " "]
-                  if lv is 33
-                     parentName = "#parentName (#name)"
-                  else
-                     parentName = fullName or name
-               else if lv is 32
-                  parentName = \" + parentName + \"
-            lastIndex = childs.length - 1
-            for child, i in childs
-               addNode child, line, lv, parentName, extinct, chrs, not i, i is lastIndex, childs[i + 1]?2
+            fullName = "#parentName #name"
+         if lv is 39
+            infos.species.count++
+         infos.speciesSubspHasViName.count++ if textEn
+         unless childs
+            infos.speciesSubsp.count++
+            infos.speciesSubspHasImg.count++ if imgs
+            infos.speciesSubspExtinct.count++ if extinct
+      else if lv is 32
+         infos.genus.count++
+      else if lv is 27
+         infos.family.count++
+      line =
+         index: ++index
+         lv: lv
+         name: name
+         chrs: chrs2
+      line.textEn = textEn if textEn
+      line.textVi = textVi if textVi
+      if maxLv and maxLv < 39 and childs and childs.0.0 > maxLv
+         line.isShowChildsCount = yes
+      if imgs
+         line.imgs = imgs
+         infos.img.count += imgs.length
+      line.extinct = extinct if extinct
+      line.disam = disam if disam
+      line.fullName = fullName if fullName
+      line.icon = icon if icon
+      line.parent = parent if parent
+      lines.push line
+      if childs
+         line.childsCount = childs.length
+         chrs += "  "repeat(lvRange) + (isLast and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
+         if lv < 34 or lv > 38
+            if name not in [\? " "]
+               if lv is 33
+                  parentName = "#parentName (#name)"
+               else
+                  parentName = fullName or name
+            else if lv is 32
+               parentName = \" + parentName + \"
+         lastIndex = childs.length - 1
+         for child, i in childs
+            addNode child, line, lv, parentName, extinct, chrs, not i, i is lastIndex, childs[i + 1]?2
    addNode tree,, -1 "" no "" yes yes
    chars := Object.keys chars
    for char, i in chars
@@ -408,6 +407,8 @@ parse = !->
       chars[i] = chrs
    infos.taxon.count = lines.length
    infos.speciesSubspExists.count = infos.speciesSubsp.count - infos.speciesSubspExtinct.count
+   if maxLv
+      lines := lines.filter (.lv <= maxLv)
 
 await parse!
 
@@ -611,6 +612,7 @@ App =
             name = @getFullNameNoSubgenus line
             action =
                | event.altKey => \g
+               | @code is \KeyC => \c
                | @code is \KeyB => \b
                | @code is \KeyL => \l
                | @code is \KeyH => \h
@@ -622,6 +624,8 @@ App =
             switch action
             | \g
                window.open "https://google.com/search?tbm=isch&q=#name" \_blank
+            | \c
+               window.open "https://google.com/search?q=#name+common+name" \_blank
             | \b
                window.open "https://bugguide.net/index.php?q=search&keys=#name"
             | \l
@@ -645,10 +649,10 @@ App =
             | \s
                name = name.toLowerCase!replace /\ /g \-
                window.open "https://www.seriouslyfish.com/species/#name"
+            | \n
+               window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
             | \k
                window.open "https://www.flickr.com/search/?text=#name"
-            else
-               window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
       else
          q = @getWikiPageName line, \en
          window.open "https://en.wikipedia.org/wiki/#q" \_blank
@@ -794,7 +798,7 @@ App =
       try
          copyText = await navigator.clipboard.readText!
          copyText and+= \\n
-         copyText += "#row||"
+         copyText += "#row|DA84.&D-+7eDL2qr|"
          copyText += switch
             | line.textVi => " #text"
             | line.imgs => " #text #"
@@ -876,7 +880,7 @@ App =
    fetchTextEnCopyLines: !->
       for line in @lines
          # if line.lv > 38 and line.textEn is void and line.textEnCopy is void
-         if (line.lv > 38 or line.childs > 1) and line.textEn is void and line.textEnCopy is void
+         if (line.lv > 38 or line.childsCount > 1) and line.textEn is void and line.textEnCopy is void
             line.textEnCopy = \...
             @fetchWiki line, (line, {titles}) !~>
                line.textEnCopy = titles or no
@@ -942,13 +946,14 @@ App =
                      action = prompt """
                         Nhập hành động khi bấm chuột phải:
                         g) google
+                        c) google (common name)
                         b) bugguide
                         l) biolib
                         h) fishbase
                         e) ebird
                         s) seriouslyfish
-                        k) flickr
-                        n) inaturalist (mặc định)
+                        n) inaturalist
+                        k) flickr (mặc định)
                      """ @rightClickAction
                      if action
                         @rightClickAction = action
@@ -1062,6 +1067,8 @@ App =
                               m \span.textEn line.textEnCopy
                         if line.textVi
                            m \span.textVi "(#{line.textVi})"
+                        if line.isShowChildsCount
+                           m \span.textVi "(#{line.childsCount})"
                         line.imgs?map (img, i) ~>
                            if img and i < 2
                               m \img.img,

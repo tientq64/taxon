@@ -966,6 +966,7 @@ App =
          loaded := yes
          m.redraw.sync!
          g := imgGithubCanvasEl.getContext \2d
+         g.imageSmoothingEnabled = no
       updateSelCropPos = (onlyXY) !~>
          sel.cx = Math.round sel.l / width * imgW
          sel.cy = Math.round sel.t / height * imgH
@@ -1014,7 +1015,7 @@ App =
             crop!
             filename := @numToRadix62 Date.now! / 100 - 16378201202
             unless window.Octokit
-               {Octokit} = await import \https://cdn.skypack.dev/@octokit/rest?min
+               {Octokit} = await import \https://cdn.skypack.dev/@octokit/rest@18.12.0?min
                window.Octokit = Octokit
             octo = new Octokit do
                auth: OCTOKEN
@@ -1295,7 +1296,7 @@ App =
                         else
                            m \._textRed "Đã xảy ra lỗi"
                      m \button,
-                        disabled: saved
+                        disabled: saved or not base64
                         onclick: (event) !~>
                            save!
                         "Lưu"
@@ -1705,13 +1706,13 @@ App =
                      "Q+RMB": " # %"
                      "R+RMB": " # % ; restoration"
                      "S+RMB": " # % ; specimen"
-                     "T+RMB": " # % ; caterpillar"
                      "U+RMB": " # % ; skull"
                      "V+RMB": " # % ; larva"
                      "W+RMB": " | %"
                      "X+RMB": " # % ; dark morph"
+                     "Y+RMB": " # % ; caterpillar"
                      "Alt+V+RMB": " ; % ; larva"
-                     "Alt+T+RMB": " ; % ; caterpillar"
+                     "Alt+Y+RMB": " ; % ; caterpillar"
                      "Shift+RMB": " | %"
                      "Alt+RMB": " ; % ; "
                      "Shift+B+RMB": " | % ; breeding"
@@ -1813,6 +1814,8 @@ App =
                      else if src.includes \//i.imgur.com/
                         name = /^https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
                         data = "-#name"
+                     else
+                        data = src
                      data = caption.replace \% data
                      switch
                      | combo is \RMB
