@@ -43,10 +43,13 @@
       ]
    },
    "[taxon]": {
-      "editor.tabSize": 2,
+      "editor.tabSize": 4,
+      "editor.fontFamily": "Clear Sans, Arial, sans-serif",
+      "editor.fontSize": 16,
       "editor.insertSpaces": false,
       "editor.wordWrap": "wordWrapColumn",
-      "editor.wordWrapColumn": 110
+      "editor.wordWrapColumn": 190,
+      "editor.foldingStrategy": "indentation"
    },
    "material-icon-theme.files.associations": {
       "*.taxon": "tree",

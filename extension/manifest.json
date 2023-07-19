@@ -29,6 +29,7 @@
          "*://*.fna.fbcdn.net/*",
          "*://*.googlevideo.com/*",
          "*://chat.zalo.me/*",
+         "*://chat.openai.com/*",
          "*://*.quora.com/*",
          "*://codepen.io/*",
          "*://*.youtube.com/*",
