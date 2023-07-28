@@ -596,10 +596,17 @@ App =
                window.open "https://vi.wikipedia.org/wiki/#q" \_blank
          | 2
             event.preventDefault!
+            name = @getFullNameNoSubgenus line
             if event.altKey
-               text = line.name
+               if isDev
+                  text = name
+               else
+                  text = line.name
             else
-               text = @getFullNameNoSubgenus line
+               if isDev
+                  window.open "https://google.com/search?q=#name+common+name" \_blank
+               else
+                  text = name
             try
                navigator.clipboard.writeText text
             catch
@@ -1053,9 +1060,11 @@ App =
                            oncontextmenu: @contextmenuName.bind void line
                            line.name
                         if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy isnt \...)
-                           m \span.dash \\u2014
+                           m \span.dash,
+                              \\u2014
                         if line.textEn
-                           m \span.textEn line.textEn
+                           m \span.textEn,
+                              line.textEn
                         if line.textEnCopy
                            if Array.isArray line.textEnCopy
                               m \.textEn,
@@ -1064,11 +1073,14 @@ App =
                                        onclick: @onclickTextEnCopy.bind void line, text
                                        text
                            else
-                              m \span.textEn line.textEnCopy
+                              m \span.textEn,
+                                 line.textEnCopy
                         if line.textVi
-                           m \span.textVi "(#{line.textVi})"
+                           m \span.textVi,
+                              line.textVi
                         if line.isShowChildsCount
-                           m \span.textVi "(#{line.childsCount})"
+                           m \span.textVi,
+                              "(#{line.childsCount})"
                         line.imgs?map (img, i) ~>
                            if img and i < 2
                               m \img.img,

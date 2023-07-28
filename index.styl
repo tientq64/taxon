@@ -27,7 +27,7 @@ body
    margin 0
    font-family var(--sans)
    font-size 16px
-   background #011627
+   background #282a39
    overflow hidden
    user-select none
    cursor default
@@ -99,7 +99,7 @@ body
    &:not(:first-child)
       margin-left 6px
 .textEn
-   font-size 15px
+   font-size 16px
    /.yahei &
       font-size 13px
    /.verdana &
@@ -109,7 +109,7 @@ body
    /.cambria &
       font-size 16px
 .textVi
-   font-size 15px
+   font-size 16px
    color #a39f83
    /.yahei &
       font-size 13px
@@ -119,6 +119,11 @@ body
       font-size 15px
    /.cambria &
       font-size 16px
+.textEn
+   + .textVi
+      &:before
+         content "\b7"
+         margin-right 6px
 .img
    min-width 6px
    min-height 6px
@@ -150,11 +155,9 @@ body
 .genus
    color #ffcc66
 .species
-   font-weight 300
-   color #f8f8f2
+   color #fff
 .subspecies
-   font-weight 300
-   color #f8f8f2
+   color #fff
 #scrollEl
    position absolute
    left 0

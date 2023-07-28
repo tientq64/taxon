@@ -24,6 +24,7 @@
          "*://ls2.vercel.app/",
          "*://livescript2.vercel.app/",
          "*://tetr.io/*",
+         "*://krunker.io/*",
          "*://*.messenger.com/*",
          "*://*.facebook.com/*",
          "*://*.fna.fbcdn.net/*",

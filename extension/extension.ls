@@ -587,6 +587,9 @@ App =
    upperFirst: (text) ->
       text.charAt 0 .toUpperCase! + text.substring 1
 
+   upperFirstLowerRest: (text) ->
+      text.charAt 0 .toUpperCase! + text.substring 1 .toLowerCase!
+
    table: (table) ->
       grid = []
       for row, y in table.rows
@@ -1604,6 +1607,8 @@ App =
                if text
                   text = text.split /, ?/ 1 .0
                   text = @upperFirst text
+                  if /^(Arizona|California|Nevada|Texas)$/.test text
+                     text = void
          item =
             *  tab: tab
                name: name
@@ -1656,7 +1661,7 @@ App =
       didSel = no
       if sel
          data = sel.replace @regexes.startsPrefixes, ""
-         data = @upperFirst data
+         data = @upperFirstLowerRest data
          switch combo
          | \LMB
             @lineData.0 = " # #data"
@@ -1904,7 +1909,7 @@ App =
                      ranks: [rank]
                   @copy @data
                   @mark target
-            | target.matches '#firstHeading, ._summTitle, h1, b'
+            | target.matches '#firstHeading, ._summTitle, h1, b, em'
                doCombo combo,, target.innerText
             | target.matches 'i'
                @data = @extract target
@@ -1927,7 +1932,7 @@ App =
                   .replace /[–—]/gu ""
                   .replace /^- | \($/ ""
                   .trim!
-               text = @upperFirst text
+               text = @upperFirstLowerRest text
                @data = " # #text"
                @copy @data
                @mark @node
@@ -2032,7 +2037,7 @@ App =
                find \subspecies no no yes
             | \Shift+F
                find \subspecies no yes yes
-            | \G \G+N \G+E \G+H \G+S \G+K \N \H \K
+            | \G \G+F \G+N \G+E \G+H \G+S \G+K \N \H \K
                switch
                | t.google
                   q = document.querySelector \#REsRA .value
@@ -2064,6 +2069,8 @@ App =
                      doCombo "G+#keyGPlus"
                   else
                      location.href = "https://google.com/search?tbm=isch&q=#q"
+               | \G+F
+                  location.href = "https://google.com/search?tbm=isch&q=#q"
                | \G+N \N
                   location.href = "https://inaturalist.org/taxa/search?view=list&q=#q"
                | \G+E
@@ -2131,7 +2138,7 @@ App =
                   if text = prompt "Nhập danh sách dữ liệu Chi và Loài:"
                      if text .= replace /^\r?\n+|\r?\n+$/g ""
                         lineRegex = /^(\t*)([^ ]+)(\*?)(?: # (.+))?$/
-                        tailRegex = /^([-/:@%~^+$<>=?]|https?:\/\/)/
+                        tailRegex = /^([-/:@%~^+$<>=!?]|https?:\/\/)/
                         text = text.split /\r?\n/
                         [,, genusName, genusExtinct, genusTail] = lineRegex.exec text.0
                         lines = text.slice 1
