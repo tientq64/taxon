@@ -15,6 +15,8 @@ $prim2 = #07d2
 // $fontSize = 16.5px
 // $fontFamily = unquote("'IBM Plex Sans',sans-serif")
 // $fontSize = 16px
+// $fontFamily = unquote("'Clear Sans',sans-serif")
+// $fontSize = 16px
 $fontFamily = unquote("sans-serif")
 $fontSize = 16px
 // $fontFamily = unquote("'Segoe UI','IBM Plex Sans',sans-serif")
@@ -53,12 +55,15 @@ body
    pointer-events none
 ._notify
    margin-top 4px
-   padding 4px 8px
+   padding 6px 10px
+   border-radius 6px
    display inline-flex
    align-items center
+   font-family inherit
+   font-size 16px
    background #112
    color #fff
-   animation _fadeIn5 .1s forwards
+   animation _fadeIn5 .15s ease-out forwards
 ._modals
    pointer-events none
 ._modal

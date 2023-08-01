@@ -934,6 +934,31 @@ App =
                resolve album
          else resolve!
 
+   uploadBase64ToGithub: (base64, message, isFemale) !->
+      filename = @numToRadix62 Date.now! / 100 - 16378201202
+      saved = no
+      notify = @notify "Đang upload ảnh lên Github" -1
+      unless window.Octokit
+         {Octokit} = await import \https://cdn.skypack.dev/@octokit/rest@18.12.0?min
+         window.Octokit = Octokit
+      octo = new window.Octokit do
+         auth: OCTOKEN
+      res = await octo.repos.createOrUpdateFileContents do
+         owner: \tiencoffee
+         repo: \taimg
+         path: "#filename.webp"
+         message: message
+         content: base64
+      if res.status is 201
+         copiedData = " #{isFemale and \| or \#} =#filename"
+         await @copy copiedData
+         saved = yes
+         notify.update "Đã upload ảnh lên Github: #copiedData"
+      else
+         notify.update "Upload ảnh lên Github thất bại"
+      m.redraw!
+      [filename, res, saved]
+
    modalImgGithub: ({image, isFemale}) !->
       loaded = no
       img = new Image
@@ -1016,22 +1041,8 @@ App =
          unless saved
             saved := yes
             crop!
-            filename := @numToRadix62 Date.now! / 100 - 16378201202
-            unless window.Octokit
-               {Octokit} = await import \https://cdn.skypack.dev/@octokit/rest@18.12.0?min
-               window.Octokit = Octokit
-            octo = new Octokit do
-               auth: OCTOKEN
-            res := await octo.repos.createOrUpdateFileContents do
-               owner: \tiencoffee
-               repo: \taimg
-               path: "#filename.webp"
-               message: image
-               content: base64
-            if res.status is 201
-               @copy " #{isFemale and \| or \#} =#filename"
-            else
-               saved := no
+            m.redraw!
+            [filename, res, saved] := await @uploadBase64ToGithub base64, image, isFemale
             m.redraw!
       @modal "Tải hình ảnh lên Github",, (modal$) ~>
          modal := modal$
@@ -2119,6 +2130,14 @@ App =
                      m \._col3._mb2 data.ClientLimit
                      m \._col9._mb2 "Giới hạn ứng dụng còn lại"
                      m \._col3._mb2 data.ClientRemaining
+            | \T+U \Shift+T+U
+               if blob = await @readCopiedImgBlob!
+                  base64 = await @readAsBase64 blob
+                  message = Date.now! + ""
+                  isFemale = comboIncludes \Shift
+                  await @uploadBase64ToGithub base64, message, isFemale
+               else
+                  @notify "Không có gì để upload lên Github"
             | \W+P
                location.href = \https://en.wikipedia.org/wiki/Special:Preferences
             | \W+E
