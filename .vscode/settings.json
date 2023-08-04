@@ -54,8 +54,8 @@
   },
   "[taxon]": {
     "editor.tabSize": 2,
-    "editor.fontFamily": "PT Mono, Clear Sans, Arial, sans-serif",
-    "editor.fontSize": 14.5,
+    // "editor.fontFamily": "PT Mono, Clear Sans, Arial, sans-serif",
+    // "editor.fontSize": 14.5,
     "editor.insertSpaces": false,
     "editor.wordWrap": "wordWrapColumn",
     "editor.wordWrapColumn": 110,

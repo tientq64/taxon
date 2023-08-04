@@ -31,7 +31,7 @@ patterns:
 - match: ' \|[a-z\-]+'
   name: orange.taxon
 
-- match: ' # ([-/:@%~^+$<>=!?]|https?:\/\/).+$'
+- match: ' # ([-/:@%~^+$<>=!&?]|https?:\/\/).+$'
   name: gray.taxon
 
 - match: ' #( [^|#]*[^|# ])?( \|[^#]*[^# ])?'

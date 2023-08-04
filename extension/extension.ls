@@ -1831,6 +1831,9 @@ App =
                      else if src.includes \//i.pinimg.com/
                         name = /^https:\/\/i\.pinimg\.com\/\w+\/(.+?)\.jpg$/exec src .1
                         data = "!#name"
+                     else if src.includes \//images.marinespecies.org/
+                        name = /^https:\/\/images\.marinespecies\.org\/thumbs\/(.+?)\.jpg/exec src .1
+                        data = "&#name"
                      else if src.includes \//i.imgur.com/
                         name = /^https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
                         data = "-#name"
@@ -2157,7 +2160,7 @@ App =
                   if text = prompt "Nhập danh sách dữ liệu Chi và Loài:"
                      if text .= replace /^\r?\n+|\r?\n+$/g ""
                         lineRegex = /^(\t*)([^ ]+)(\*?)(?: # (.+))?$/
-                        tailRegex = /^([-/:@%~^+$<>=!?]|https?:\/\/)/
+                        tailRegex = /^([-/:@%~^+$<>=!&?]|https?:\/\/)/
                         text = text.split /\r?\n/
                         [,, genusName, genusExtinct, genusTail] = lineRegex.exec text.0
                         lines = text.slice 1
