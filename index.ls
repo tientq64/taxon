@@ -891,7 +891,8 @@ App =
    fetchTextEnCopyLines: !->
       for line in @lines
          # if line.lv > 38 and line.textEn is void and line.textEnCopy is void
-         if (line.lv > 38 or line.childsCount > 1) and line.textEn is void and line.textEnCopy is void
+         # if (line.lv > 38 or line.childsCount > 1) and line.textEn is void and line.textEnCopy is void
+         if line.lv >= 0 and line.textEn is void and line.textEnCopy is void
             line.textEnCopy = \...
             @fetchWiki line, (line, {titles}) !~>
                line.textEnCopy = titles or no

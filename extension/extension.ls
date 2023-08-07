@@ -555,6 +555,9 @@ App =
             setTimeout !~>
                document.activeElement.blur!
             , 10
+         | t.flickr
+            uiEvent = new UIEvent \resize
+            window.dispatchEvent uiEvent
 
    oncreate: !->
       if t.wiki
@@ -589,6 +592,19 @@ App =
 
    upperFirstLowerRest: (text) ->
       text.charAt 0 .toUpperCase! + text.substring 1 .toLowerCase!
+
+   formatTaxonText: (text) ->
+      words = text.split /\s+/
+      text =
+         if words.every (.0.toUpperCase! is it.0)
+            @upperFirstLowerRest text
+         else
+            @upperFirst text
+      text = text
+         .trim!
+         .replace /\xa0+/g " "
+         .replace /\u2013/g \-
+      text
 
    table: (table) ->
       grid = []
@@ -646,7 +662,8 @@ App =
       @lastCode = which
       which = [, \LMB \MMB \RMB][which]
       @makeModfCombo event
-      @combo += (@combo and \+ or '') + which
+      @combo += (@combo and \+ or "") + which
+      @oncombo event if @sel
 
    onmouseup: (event) !->
       {which} = event
@@ -1592,13 +1609,21 @@ App =
                            text := mat.1
                            return
                   if el = target.querySelector ':scope > i + small'
-                     if val = el.nextSibling?textContent
+                     el2 = el.nextSibling
+                     if val = el2?textContent
                         if mat = val.match /\((.+?)\)/
                            text := mat.1
                            return
                         if mat = val.match /^ – (.+?)$/
                            text := mat.1
                            return
+                        if mat = val.match /^ \( ?$/
+                           el3 = el2.nextSibling
+                           if el3?localName is \a
+                              el4 = el3.nextSibling
+                              if el4?textContent is \)
+                                 text := el3.innerText
+                                 return
                   if el = target.querySelector ':scope > i + span'
                      if val = el.nextSibling?textContent
                         if mat = val.match /^ \u2013 (.+)$/
@@ -1672,7 +1697,7 @@ App =
       didSel = no
       if sel
          data = sel.replace @regexes.startsPrefixes, ""
-         data = @upperFirstLowerRest data
+         data = @formatTaxonText data
          switch combo
          | \LMB
             @lineData.0 = " # #data"
@@ -1715,7 +1740,8 @@ App =
                      "F+RMB": " # % ; fossil"
                      "H+RMB": " # % ; holotype"
                      "I+P+RMB": " # % ; initial phase"
-                     "J+RMB": " # % ; jaw"
+                     "J+RMB": " # % ; juvenile"
+                     "J+W+RMB": " # % ; jaw"
                      "K+RMB": " # % ; skeleton"
                      "L+RMB": " # % ; illustration"
                      "L+M+RMB": " # % ; light morph"
@@ -1731,8 +1757,9 @@ App =
                      "W+RMB": " | %"
                      "Alt+V+RMB": " ; % ; larva"
                      "Alt+C+T+RMB": " ; % ; caterpillar"
-                     "Alt+T+P+RMB": " ; % ; terminal phase"
                      "Alt+I+P+RMB": " ; % ; initial phase"
+                     "Alt+J+RMB": " ; % ; juvenile"
+                     "Alt+T+P+RMB": " ; % ; terminal phase"
                      "Shift+RMB": " | %"
                      "Alt+RMB": " ; % ; "
                      "Shift+B+RMB": " | % ; breeding"
@@ -1946,7 +1973,7 @@ App =
                   .replace /[–—]/gu ""
                   .replace /^- | \($/ ""
                   .trim!
-               text = @upperFirstLowerRest text
+               text = @formatTaxonText text
                @data = " # #text"
                @copy @data
                @mark @node
@@ -1966,6 +1993,13 @@ App =
                   subUls = ul.querySelectorAll \ul
                   for subUl in subUls
                      subUl.remove!
+               | \J+RMB \J+LMB
+                  sibUls = ul.parentElement.querySelectorAll \:scope>ul
+                  lis = []
+                  for sibUl in sibUls
+                     lis.push ...sibUl.children
+                     sibUl.remove! unless sibUl is ul
+                  ul.replaceChildren ...lis
             | el = target.closest "
             .infobox.biota p, .infobox.biota td:only-child,
             .infobox.taxobox p, .infobox.taxobox td:only-child"
