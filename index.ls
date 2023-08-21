@@ -3,7 +3,7 @@ localStorage
    ..taxonFindCase ?= \1
    ..taxonInfoLv ?= \0
    ..taxonRightClickAction ?= \k
-   ..taxonPopupLang ?= \vi
+   ..taxonPopupLang ?= \en
    ..taxonTheme ?= \default
 
 document.documentElement.classList.add localStorage.taxonTheme
@@ -852,7 +852,8 @@ App =
             @abortCtrler = new AbortController
             opts.signal = @abortCtrler.signal
          data = await (await fetch "https://#lang.wikipedia.org/api/rest_v1/page/summary/#q" opts)json!
-         @abortCtrler = void
+         unless cb
+            @abortCtrler = void
          {extract_html} = data
          if data.type is \standard
             title = data.title.replace /\ \(.+?\)/ ""
@@ -892,7 +893,7 @@ App =
       for line in @lines
          # if line.lv > 38 and line.textEn is void and line.textEnCopy is void
          # if (line.lv > 38 or line.childsCount > 1) and line.textEn is void and line.textEnCopy is void
-         if line.lv >= 0 and line.textEn is void and line.textEnCopy is void
+         if (line.lv >= 0 and line.childsCount isnt 1) and line.textEn is void and line.textEnCopy is void
             line.textEnCopy = \...
             @fetchWiki line, (line, {titles}) !~>
                line.textEnCopy = titles or no
@@ -900,8 +901,7 @@ App =
 
    scroll: !->
       top = Math.round scrollEl.scrollTop
-      mod = top % lineH
-      transY = top - mod
+      transY = top - top % lineH
       presEl.style.transform = "translateY(#{transY}px)"
       localStorage.taxonTop = top
       start = Math.floor top / lineH

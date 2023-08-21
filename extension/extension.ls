@@ -594,17 +594,23 @@ App =
       text.charAt 0 .toUpperCase! + text.substring 1 .toLowerCase!
 
    formatTaxonText: (text) ->
-      words = text.split /\s+/
-      text =
-         if words.every (.0.toUpperCase! is it.0)
-            @upperFirstLowerRest text
-         else
-            @upperFirst text
-      text = text
-         .trim!
-         .replace /\xa0+/g " "
-         .replace /\u2013/g \-
-      text
+      text .= trim!
+      if text and text.length > 1
+         words = text.split /\s+/
+         text =
+            if words.every (.0.toUpperCase! is it.0)
+               @upperFirstLowerRest text
+            else
+               @upperFirst text
+         text = text
+            .trim!
+            .replace /\u2019/g "'"
+            .replace /\xa0+/g " "
+            .replace /\ \u2013.*/ ""
+            .replace /\u2013/g \-
+      else
+         text = void
+      text or void
 
    table: (table) ->
       grid = []
@@ -1336,7 +1342,6 @@ App =
                   m \img._contain._bgBlack._rightClickZone,
                      style: @style do
                         maxWidth: maxWidth
-                        maxHeight: maxHeight
                      src: image
                      oncontextmenu: !~>
                         copied := yes
@@ -1643,8 +1648,10 @@ App =
                if text
                   text = text.split /, ?/ 1 .0
                   text = @upperFirst text
-                  if /^(Arizona|California|Nevada|Texas)$/.test text
+                  if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam)$/.test text
                      text = void
+               if text
+                  text = @formatTaxonText text
          item =
             *  tab: tab
                name: name
@@ -1741,7 +1748,7 @@ App =
                      "H+RMB": " # % ; holotype"
                      "I+P+RMB": " # % ; initial phase"
                      "J+RMB": " # % ; juvenile"
-                     "J+W+RMB": " # % ; jaw"
+                     "J+A+RMB": " # % ; jaw"
                      "K+RMB": " # % ; skeleton"
                      "L+RMB": " # % ; illustration"
                      "L+M+RMB": " # % ; light morph"
@@ -1751,6 +1758,8 @@ App =
                      "Q+RMB": " # %"
                      "R+RMB": " # % ; restoration"
                      "S+RMB": " # % ; specimen"
+                     "T+E+RMB": " # % ; teeth"
+                     "T+O+RMB": " # % ; tooth"
                      "T+P+RMB": " # % ; terminal phase"
                      "U+RMB": " # % ; skull"
                      "V+RMB": " # % ; larva"

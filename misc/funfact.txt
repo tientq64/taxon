@@ -5,6 +5,7 @@
 - Chaetodon robustus: Cá bướm ba sọc
 - Benthodesmus neglectus: Cá hố lôi thôi
 - Pristimantis paulodutrai: "Paulo đu trai"
+- Atretochoana eiselti: Penis snake
 - Ensete glaucum: Chuối cô đơn
 - Meliaceae: Họ dái ngựa
 - Menyanthaceae: Họ Trang
@@ -40,6 +41,14 @@
 - Raorchestes dubois: đẹp
 - Raorchestes ghatei: đẹp
 - Raorchestes travancoricus: đẹp
+- Ghatixalus magnus: đẹp
+- Psammophis brevirostris: đẹp
+- Micrurus nigrocinctus: đẹp
+- Philodryas agassizii: đẹp
+- Oxyrhopus guibei: đẹp
+- Oxyrhopus melanogenys: đẹp
+- Senticolis triaspis: đẹp
+- Parabathippus shelfordi: đẹp
 - Vanellus cayanus: nhỏ nhắn, dth
 - Charadrius pecuarius: nhỏ nhắn, dth
 - Monachaster sanderi: dth
