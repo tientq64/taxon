@@ -25,7 +25,7 @@
             "settings": {"foreground": "#ffcc66"}
          }, {
             "scope": ["white.taxon"],
-            "settings": {"foreground": "#f8f8f2"}
+            "settings": {"foreground": "#ffffff"}
          }, {
             "scope": ["slate.taxon"],
             "settings": {"foreground": "#648185"}
@@ -62,8 +62,8 @@
       // "editor.tabSize": 4,
       // "editor.fontFamily": "PT Mono, Clear Sans, Arial, sans-serif",
       // "editor.fontSize": 14.5,
-      "editor.fontFamily": "Droid Sans Mono Slashed, Consolas",
-      "editor.fontSize": 13.5,
+      "editor.fontFamily": "D2Coding, Droid Sans Mono Slashed, Consolas",
+      "editor.fontSize": 16,
       // "editor.fontFamily": "sans-serif",
       // "editor.fontSize": 16,
       "editor.insertSpaces": false,

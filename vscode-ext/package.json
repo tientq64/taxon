@@ -1,7 +1,7 @@
 {
    "name": "taxon",
    "displayName": "Taxon",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "author": "tientq64",
    "engines": {
       "vscode": "^1.75.1"
@@ -36,13 +36,21 @@
       "commands": [
          {
             "command": "extension.taxonFillEnNames",
-            "title": "taxonFillEnNames"
+            "title": "Taxon: Tự động điền tên tiếng Anh đã copy bên trang web"
+         },
+         {
+            "command": "extension.taxonPaste",
+            "title": "Taxon: Paste"
          }
       ],
       "menus": {
          "commandPalette": [
             {
                "command": "extension.taxonFillEnNames",
+               "when": "editorLangId == taxon"
+            },
+            {
+               "command": "extension.taxonPaste",
                "when": "editorLangId == taxon"
             }
          ]
