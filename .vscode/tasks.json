@@ -6,10 +6,11 @@
          "type": "shell",
          "command": "node ./vscode-ext/build.js",
          "presentation": {
+            "clear": true,
+            "close": true,
             "reveal": "silent",
             "revealProblems": "onProblem",
-            "clear": true,
-            "close": true
+            "showReuseMessage": false
          }
       }
    ]

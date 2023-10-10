@@ -306,7 +306,7 @@ parse = !->
                         [node, src] = src.split \/
                         src = "https://biogeodb.stri.si.edu/#node/resources/img/images/species/#src.jpg"
                      | \=
-                        src = "https://cdn.jsdelivr.net/gh/tiencoffee/taimg/#src.webp"
+                        src = "https://cdn.jsdelivr.net/gh/tientq64/taimg/#src.webp"
                      | \!
                         src = "https://i.pinimg.com/564x/#src.jpg"
                      | \&
@@ -581,10 +581,10 @@ App =
                src += \?_taxonDelete=1
             else
                src .= replace /m(?=\.\w+$)/ \r
-         | src.includes \cdn.jsdelivr.net/gh/tiencoffee/taimg
+         | src.includes \cdn.jsdelivr.net/gh/tientq64/taimg
             name = src.split \/ .[* - 1]
             act = @code is \Delete and \delete or \blob
-            src = "https://github.com/tiencoffee/taimg/#act/main/#name"
+            src = "https://github.com/tientq64/taimg/#act/main/#name"
          window.open src, \_blank
 
    mousedownName: (line, event) !->

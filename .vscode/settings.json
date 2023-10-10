@@ -1,79 +1,84 @@
 {
-  "javascript.format.semicolons": "insert",
-  "editor.tokenColorCustomizations": {
-    "textMateRules": [
-      {
-        "scope": ["red.taxon"],
-        "settings": {"foreground": "#ec2b1d"}
-      }, {
-        "scope": ["pink.taxon"],
-        "settings": {"foreground": "#ff1267"}
-      }, {
-        "scope": ["orange.taxon"],
-        "settings": {"foreground": "#ff8e08"}
-      }, {
-        "scope": ["blue.taxon"],
-        "settings": {"foreground": "#2cb3e6"}
-      }, {
-        "scope": ["green.taxon"],
-        "settings": {"foreground": "#6ae22e"}
-      }, {
-        "scope": ["purple.taxon"],
-        "settings": {"foreground": "#a370ff"}
-      }, {
-        "scope": ["yellow.taxon"],
-        "settings": {"foreground": "#ffcc66"}
-      }, {
-        "scope": ["white.taxon"],
-        "settings": {"foreground": "#f8f8f2"}
-      }, {
-        "scope": ["slate.taxon"],
-        "settings": {"foreground": "#648185"}
-      }, {
-        "scope": ["gray.taxon"],
-        "settings": {"foreground": "#a39f83"}
-      }, {
-        "scope": [
-          "storage.type.livescript",
-          "variable.parameter.livescript",
-          "storage.type.js",
-          "storage.type.js",
-          "storage.type.function.js",
-          "storage.type.class.js",
-          "storage.type.property.js",
-          "storage.modifier.async.js",
-          "support.type.object.module.js",
-          "variable.language.this.js",
-          "variable.parameter.js"
-        ],
-        "settings": {
-          "fontStyle": ""
-        }
-      }
-    ]
-  },
-  "[taxon]": {
-    "editor.tabSize": 2,
-    // "editor.tabSize": 4,
-    // "editor.fontFamily": "PT Mono, Clear Sans, Arial, sans-serif",
-    // "editor.fontSize": 14.5,
-    "editor.fontFamily": "Droid Sans Mono Slashed, Consolas",
-    "editor.fontSize": 13.5,
-    // "editor.fontFamily": "sans-serif",
-    // "editor.fontSize": 16,
-    "editor.insertSpaces": false,
-    "editor.wordWrap": "wordWrapColumn",
-    "editor.wordWrapColumn": 110,
-    "editor.rulers": [120],
-    // "editor.wordWrapColumn": 200,
-    // "editor.rulers": [120],
-    "editor.foldingStrategy": "indentation"
-  },
-  "material-icon-theme.files.associations": {
-    "*.taxon": "tree",
-    "OCTOKEN": "key"
-  },
-  "material-icon-theme.folders.associations": {
-    "vscode-ext": "vscode"
-  }
+   "javascript.format.semicolons": "insert",
+   "editor.tokenColorCustomizations": {
+      "textMateRules": [
+         {
+            "scope": ["red.taxon"],
+            "settings": {"foreground": "#ec2b1d"}
+         }, {
+            "scope": ["pink.taxon"],
+            "settings": {"foreground": "#ff1267"}
+         }, {
+            "scope": ["orange.taxon"],
+            "settings": {"foreground": "#ff8e08"}
+         }, {
+            "scope": ["blue.taxon"],
+            "settings": {"foreground": "#2cb3e6"}
+         }, {
+            "scope": ["green.taxon"],
+            "settings": {"foreground": "#6ae22e"}
+         }, {
+            "scope": ["purple.taxon"],
+            "settings": {"foreground": "#a370ff"}
+         }, {
+            "scope": ["yellow.taxon"],
+            "settings": {"foreground": "#ffcc66"}
+         }, {
+            "scope": ["white.taxon"],
+            "settings": {"foreground": "#f8f8f2"}
+         }, {
+            "scope": ["slate.taxon"],
+            "settings": {"foreground": "#648185"}
+         }, {
+            "scope": ["gray.taxon"],
+            "settings": {"foreground": "#a39f83"}
+         }, {
+            "scope": [
+               "storage.type.livescript",
+               "variable.parameter.livescript",
+               "storage.type.js",
+               "storage.type.js",
+               "storage.type.function.js",
+               "storage.type.class.js",
+               "storage.type.property.js",
+               "storage.modifier.async.js",
+               "support.type.object.module.js",
+               "variable.language.this.js",
+               "variable.parameter.js",
+               "entity.other.attribute-name.id.css",
+               "entity.other.attribute-name.class.css",
+               "entity.other.attribute-name.attribute.css",
+               "entity.other.attribute-name.pseudo-class.css",
+               "entity.other.attribute-name.pseudo-element.css"
+            ],
+            "settings": {
+               "fontStyle": ""
+            }
+         }
+      ]
+   },
+   "[taxon]": {
+      "editor.tabSize": 2,
+      // "editor.tabSize": 4,
+      // "editor.fontFamily": "PT Mono, Clear Sans, Arial, sans-serif",
+      // "editor.fontSize": 14.5,
+      "editor.fontFamily": "Droid Sans Mono Slashed, Consolas",
+      "editor.fontSize": 13.5,
+      // "editor.fontFamily": "sans-serif",
+      // "editor.fontSize": 16,
+      "editor.insertSpaces": false,
+      "editor.wordWrap": "wordWrapColumn",
+      "editor.wordWrapColumn": 110,
+      "editor.rulers": [120],
+      // "editor.wordWrapColumn": 200,
+      // "editor.rulers": [120],
+      "editor.foldingStrategy": "indentation"
+   },
+   "material-icon-theme.files.associations": {
+      "*.taxon": "tree",
+      "OCTOKEN": "key"
+   },
+   "material-icon-theme.folders.associations": {
+      "vscode-ext": "vscode"
+   }
 }
