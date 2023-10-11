@@ -558,6 +558,14 @@ App =
       | t.flickr
         uiEvent = new UIEvent \resize
         window.dispatchEvent uiEvent
+        setTimeout !~>
+          el = document.querySelector '[data-track="search-layout-justified"]'
+          el.click!
+          setTimeout !~>
+            el = document.querySelector '[data-track="search-layout-tiles"]'
+            el.click!
+          , 100
+        , 900
 
   oncreate: !->
     if t.wiki
@@ -1648,7 +1656,7 @@ App =
           if text
             text = text.split /, ?/ 1 .0
             text = @upperFirst text
-            if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines)$/.test text
+            if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines|Malaysia|Indonesia|Japan)$/.test text
               text = void
           if text
             text = @formatTaxonText text

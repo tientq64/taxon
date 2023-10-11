@@ -1047,7 +1047,8 @@ App =
                      class: @class do
                         "lineFind": @finding and line is @findLines[@findIndex]
                      chars[line.chrs]reduce (accum, char, i) ~>
-                        if char.trim! or not accum.length
+                        prevVdom = accum.at -1
+                        if (not prevVdom) or (char.trim! and prevVdom.text.trim!)
                            accum.push do
                               m \span,
                                  class: chrsRanks[i]0

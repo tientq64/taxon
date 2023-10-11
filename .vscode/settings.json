@@ -3,6 +3,9 @@
    "editor.tokenColorCustomizations": {
       "textMateRules": [
          {
+            "scope": ["text.taxon"],
+            "settings": {"foreground": "#ffffff"}
+         }, {
             "scope": ["red.taxon"],
             "settings": {"foreground": "#ec2b1d"}
          }, {
