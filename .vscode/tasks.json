@@ -4,7 +4,7 @@
       {
          "label": "build",
          "type": "shell",
-         "command": "node ./vscode-ext/build.js",
+         "command": "cd vscode-ext; node build.js; cd dist; vsce package",
          "presentation": {
             "clear": true,
             "close": true,

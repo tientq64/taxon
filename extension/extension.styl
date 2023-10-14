@@ -24,587 +24,587 @@ $fontSize = 16px
 // $fontFamily = unquote("'Schoolbell','Roboto Condensed',sans-serif")
 // $fontSize = 12pt
 body, h1, h2, h3, h4, h5, h6, p, a, span
-  font-family $fontFamily !important
+   font-family $fontFamily !important
 body
-  font-size $fontSize
+   font-size $fontSize
 #_app
-  position fixed
-  inset 0
-  display flex
-  box-sizing border-box
-  color #000
-  pointer-events none
-  z-index 120000
-  *
-    box-sizing border-box
+   position fixed
+   inset 0
+   display flex
+   box-sizing border-box
+   color #000
+   pointer-events none
+   z-index 120000
+   *
+      box-sizing border-box
 ._sideLeft
 ._sideCenter
 ._sideRight
-  position relative
-  pointer-events none
-  > *
-    pointer-events auto
+   position relative
+   pointer-events none
+   > *
+      pointer-events auto
 ._sideLeft
 ._sideRight
-  width 20%
-  background #fff
+   width 20%
+   background #fff
 ._notifies
-  display flex
-  flex-direction column
-  align-items center
-  pointer-events none
+   display flex
+   flex-direction column
+   align-items center
+   pointer-events none
 ._notify
-  margin-top 4px
-  padding 6px 10px
-  border-radius 6px
-  display inline-flex
-  align-items center
-  font-family inherit
-  font-size 16px
-  background #112
-  color #fff
-  animation _fadeIn5 .15s ease-out forwards
+   margin-top 4px
+   padding 6px 10px
+   border-radius 6px
+   display inline-flex
+   align-items center
+   font-family inherit
+   font-size 16px
+   background #112
+   color #fff
+   animation _fadeIn5 .15s ease-out forwards
 ._modals
-  pointer-events none
+   pointer-events none
 ._modal
-  position absolute
-  top 6%
-  width fit-content
-  max-height 86%
-  // border-radius 8px
-  background #fff
-  box-shadow 0 2px 4px #000c,0 8px 16px 4px #0003
-  overflow hidden
-  transition margin-top .1s
-  animation _fadeIn95 .1s forwards
-  pointer-events auto
-  user-select none
-  z-index 1
-  button
-  input
-  select
-  textarea
-    padding 4px 8px
-    border solid 1px #aaa
-    // border-radius 4px
-  button
-    background #eee
-    box-shadow 0 0 0 1px inset #fff
-    &:hover
-      background #ddd
-      box-shadow 0 0 0 1px inset #eee
-    &:active
-      background #ccc
-      box-shadow none
-  ._modalClose
-    width 24px
-    height 24px
-    display flex
-    justify-content center
-    align-items center
-    &:hover
-      border-color #c43
-      background #f43
-      color #fff
-      box-shadow 0 0 0 1px inset #f76
-    &:active
-      border-color #943
-      background #c43
-      color #fff
-      box-shadow none
-  input
-  textarea
-    outline 0
-    &:focus
-      border-color #07d
-      box-shadow 0 0 0 1px #07d
-._mark
-  position fixed
-  border-radius 1px
-  pointer-events none
-  z-index 120010
-._copy
-  position fixed
-  left -10px
-  width 1px
-  height 1px
-  opacity 0
-.imgGithubModal
-  input
-    height 28px
-    margin 0
-  button
-    height 28px
-#imgGithubCanvasEl
-  // filter contrast(1.1) saturate(1.1)
-  image-rendering -webkit-optimize-contrast
-#imgGithubSelEl
-  position absolute
-  border dashed 1px #fff
-  outline dashed 1px #000
-.imgGithubSelEdges
-  position relative
-  width 100%
-  height 100%
-  pointer-events none
-.imgGithubSelEdge
-  position absolute
-  width 16px
-  height 16px
-  transform translate(-50%,-50%)
-  pointer-events auto
-  &:nth-child(1)
-  &:nth-child(4)
-    width 100%
-    cursor n-resize !important
-  &:nth-child(2)
-  &:nth-child(3)
-    height 100%
-    cursor w-resize !important
-  &:nth-child(5)
-  &:nth-child(8)
-    cursor nw-resize !important
-  &:nth-child(6)
-  &:nth-child(7)
-    cursor ne-resize !important
-._fadeOut95
-  animation _fadeOut95 .1s forwards
-@keyframes _fadeIn5
-  from
-    transform scale(.5)
-    opacity 0
-  to
-    transform scale(1)
-    opacity 1
-@keyframes _fadeIn95
-  from
-    transform scale(.95)
-    opacity 0
-  to
-    transform scale(1)
-    opacity 1
-@keyframes _fadeOut95
-  from
-    transform scale(1)
-    opacity 1
-  to
-    transform scale(.95)
-    opacity 0
-._wiki
-  *
-    box-sizing border-box
-    cursor default
-  body
-    background #fff
-  a[href*="_("]
-    font-weight bold
-    text-decoration underline solid
-  #vector-sticky-header
-  .mw-table-of-contents-container
-    display none !important
-  .mw-page-container
-    margin-left 20%
-    margin-right 20%
-    background #fff
-  .mw-page-container-inner
-    display block
-    grid-template-columns 0 0 minmax(0,1fr)
-  .mw-workspace-container
-    max-width unset !important
-  .mw-content-container
-    width unset
-    max-width unset
-    margin 0 !important
-    padding 0 16px
-  .mw-body-content
-    font-size $fontSize
-  .mw-mmv-lightbox-open> *
-    display unset
-  .mwe-popups
-    // border-radius 8px !important
-    font-size $fontSize
-    overflow hidden
-    box-shadow 0 2px 4px #3338,0 8px 16px 4px #3333
-    pointer-events none
-    z-index 2040
-    footer
-      display none
-  .mw-mmv-image> img
-    max-width 60%
-    max-height 100%
-    height unset
-  .mw-mmv-image-wrapper
-    bottom 60px
-  .mwe-popups-fade-in-up
-  .mwe-popups-fade-in-down
-    animation _fadeIn95 .1s forwards
-  .mwe-popups-fade-out-up
-  .mwe-popups-fade-out-down
-    animation _fadeOut95 .1s forwards
-  .infobox
-    padding 0
-    // border-radius 4px
-    border-spacing 0 8px
-    th
-      padding 4px 8px !important
-    td
-      padding 0 8px
-    &.taxobox
-      // width min-content !important
-      font-size 1em !important
-      th
-        padding 6px 8px !important
-        font-size 1em !important
-  img[src$="/7/74/Red_Pencil_Icon.png"]
-  .thumbinner .magnify
-    display none
-  // .thumbinner, .thumbimage, img
-  // 	border-radius 4px
-  // .mw-mmv-wrapper
-  // 	img
-  // 		border-radius 0
-  #toc
-    // border-radius 4px
-    display block
-    overflow auto
-    user-select none
-    ul
-      background unset
-      box-shadow unset
-  .noresize
-    overflow hidden
-  #firstHeading
-    border-bottom-width 2px
-    > *
-      pointer-events none
-  ._summTitle
-    margin 0 0 .5em
-    padding 0
-    font-weight 400
-  ._summImg
-    max-width 100%
-    max-height 240px
-  ._summExtract
-    > p
-      margin 0
-  ul
-    // border-radius 2px
-    &:hover
-      background $prim1
-      box-shadow 0 0 0 2px $prim1
-    ul
+   position absolute
+   top 6%
+   width fit-content
+   max-height 86%
+   // border-radius 8px
+   background #fff
+   box-shadow 0 2px 4px #000c,0 8px 16px 4px #0003
+   overflow hidden
+   transition margin-top .1s
+   animation _fadeIn95 .1s forwards
+   pointer-events auto
+   user-select none
+   z-index 1
+   button
+   input
+   select
+   textarea
+      padding 4px 8px
+      border solid 1px #aaa
+      // border-radius 4px
+   button
+      background #eee
+      box-shadow 0 0 0 1px inset #fff
       &:hover
-        background $prim2
-        box-shadow 0 0 0 2px $prim2
-  a[data-opened-a]
-    border-bottom solid 2px currentColor
-    text-decoration none
-._wikiEdit
-  body
-    font-size $fontSize + 2
-._wikicommons
-  .mw-parser-output
-    > *
-      display none
-    > .gallery
-    > #wdinfobox
-      display unset !important
-  #wdinfoboxcaption
-    background none !important
-._wikispecies
-  .mw-body
-    width 60%
-    margin-left 20%
-    padding-left 16px !important
-    padding-right 16px ! important
-    border 0
-._google
-  body
-    opacity 1
-  .hm60ue
-    opacity 0
-  .ZGGHx
-    display none
-._imgurEdit
-  ._sideRight
-    width 150px
-    align-self flex-end
-._inaturalist
-  *
-    cursor default !important
-  body
-    background #fff
-  #header
-  #footer
-  #inatnotice
-  #bodywrapper:after
-    display none !important
-  #filters
-    padding 0
-  #taxa-grid
-    margin-top 24px
-  .form-control
-    border 0
-    box-shadow 0 0 0 1px inset #ccc
-    transition none
-    &:focus
-      box-shadow 0 0 0 2px inset #07d
-  .thumbnail
-  .ac-menu
-    overflow hidden !important
-  .photo-hover
-    overflow hidden
-    transition-duration 50ms
-    > .btn
-      opacity 0
-      cursor default
-  .photo
-  .CoverImage
-    background-size contain !important
-    background-repeat no-repeat
-    background-color #ccc
-._inaturalistSearch
-  #wrapper
-    padding-top 16px
-    > h2
-      display none
-  #q
-    outline 0
-  .modal_link
-    border solid 1px #ccc !important
-  .modal-dialog
-    transform none !important
-    transition none
-    animation _fadeIn5 .1s forwards
-  .modal-backdrop
-    background #8886 !important
-  .photo-modal-content
-    overflow hidden
-  .ui-dialog
-    position fixed
-    top 5%
-    width fit-content !important
-    border 0
-    // border-radius 0
-    > .ui-dialog-content
-      height 100% !important
-      max-height 90% !important
-  .taxon_list_taxon
-    position relative
-    margin-bottom 0 !important
-    > a.right
-      margin-top 6px
-    > h3
+         background #ddd
+         box-shadow 0 0 0 1px inset #eee
+      &:active
+         background #ccc
+         box-shadow none
+   ._modalClose
+      width 24px
+      height 24px
+      display flex
+      justify-content center
+      align-items center
+      &:hover
+         border-color #c43
+         background #f43
+         color #fff
+         box-shadow 0 0 0 1px inset #f76
+      &:active
+         border-color #943
+         background #c43
+         color #fff
+         box-shadow none
+   input
+   textarea
+      outline 0
+      &:focus
+         border-color #07d
+         box-shadow 0 0 0 1px #07d
+._mark
+   position fixed
+   border-radius 1px
+   pointer-events none
+   z-index 120010
+._copy
+   position fixed
+   left -10px
+   width 1px
+   height 1px
+   opacity 0
+.imgGithubModal
+   input
+      height 28px
       margin 0
-    .taxon
-      margin-top 8px
-      font-size $fontSize + 4
-      color #e26
-      > span
-        font-weight 400
-        font-style normal
-    .species
-    .subspecies
+   button
+      height 28px
+#imgGithubCanvasEl
+   // filter contrast(1.1) saturate(1.1)
+   image-rendering -webkit-optimize-contrast
+#imgGithubSelEl
+   position absolute
+   border dashed 1px #fff
+   outline dashed 1px #000
+.imgGithubSelEdges
+   position relative
+   width 100%
+   height 100%
+   pointer-events none
+.imgGithubSelEdge
+   position absolute
+   width 16px
+   height 16px
+   transform translate(-50%,-50%)
+   pointer-events auto
+   &:nth-child(1)
+   &:nth-child(4)
+      width 100%
+      cursor n-resize !important
+   &:nth-child(2)
+   &:nth-child(3)
+      height 100%
+      cursor w-resize !important
+   &:nth-child(5)
+   &:nth-child(8)
+      cursor nw-resize !important
+   &:nth-child(6)
+   &:nth-child(7)
+      cursor ne-resize !important
+._fadeOut95
+   animation _fadeOut95 .1s forwards
+@keyframes _fadeIn5
+   from
+      transform scale(.5)
+      opacity 0
+   to
+      transform scale(1)
+      opacity 1
+@keyframes _fadeIn95
+   from
+      transform scale(.95)
+      opacity 0
+   to
+      transform scale(1)
+      opacity 1
+@keyframes _fadeOut95
+   from
+      transform scale(1)
+      opacity 1
+   to
+      transform scale(.95)
+      opacity 0
+._wiki
+   *
+      box-sizing border-box
+      cursor default
+   body
+      background #fff
+   a[href*="_("]
+      font-weight bold
+      text-decoration underline solid
+   #vector-sticky-header
+   .mw-table-of-contents-container
+      display none !important
+   .mw-page-container
+      margin-left 20%
+      margin-right 20%
+      background #fff
+   .mw-page-container-inner
+      display block
+      grid-template-columns 0 0 minmax(0,1fr)
+   .mw-workspace-container
+      max-width unset !important
+   .mw-content-container
+      width unset
+      max-width unset
+      margin 0 !important
+      padding 0 16px
+   .mw-body-content
+      font-size $fontSize
+   .mw-mmv-lightbox-open> *
+      display unset
+   .mwe-popups
+      // border-radius 8px !important
+      font-size $fontSize
+      overflow hidden
+      box-shadow 0 2px 4px #3338,0 8px 16px 4px #3333
+      pointer-events none
+      z-index 2040
+      footer
+         display none
+   .mw-mmv-image> img
+      max-width 60%
+      max-height 100%
+      height unset
+   .mw-mmv-image-wrapper
+      bottom 60px
+   .mwe-popups-fade-in-up
+   .mwe-popups-fade-in-down
+      animation _fadeIn95 .1s forwards
+   .mwe-popups-fade-out-up
+   .mwe-popups-fade-out-down
+      animation _fadeOut95 .1s forwards
+   .infobox
+      padding 0
+      // border-radius 4px
+      border-spacing 0 8px
+      th
+         padding 4px 8px !important
+      td
+         padding 0 8px
+      &.taxobox
+         // width min-content !important
+         font-size 1em !important
+         th
+            padding 6px 8px !important
+            font-size 1em !important
+   img[src$="/7/74/Red_Pencil_Icon.png"]
+   .thumbinner .magnify
+      display none
+   // .thumbinner, .thumbimage, img
+   // 	border-radius 4px
+   // .mw-mmv-wrapper
+   // 	img
+   // 		border-radius 0
+   #toc
+      // border-radius 4px
+      display block
+      overflow auto
+      user-select none
+      ul
+         background unset
+         box-shadow unset
+   .noresize
+      overflow hidden
+   #firstHeading
+      border-bottom-width 2px
+      > *
+         pointer-events none
+   ._summTitle
+      margin 0 0 .5em
+      padding 0
+      font-weight 400
+   ._summImg
+      max-width 100%
+      max-height 240px
+   ._summExtract
+      > p
+         margin 0
+   ul
+      // border-radius 2px
+      &:hover
+         background $prim1
+         box-shadow 0 0 0 2px $prim1
+      ul
+         &:hover
+            background $prim2
+            box-shadow 0 0 0 2px $prim2
+   a[data-opened-a]
+      border-bottom solid 2px currentColor
+      text-decoration none
+._wikiEdit
+   body
       font-size $fontSize + 2
-  .inaturalistSearchFigure
-    position absolute
-    top 50%
-    left -100px
-    max-width 214px
-    word-break break-word
-    transform translate(-100%, -50%)
-    &[data-is-new-img=true]
-      background #2a3
-  .inaturalistSearchFigureImg
-    max-width 214px
-    max-height 160px
-    background #fff
-    filter contrast(1.1) saturate(1.1)
-    image-rendering -webkit-optimize-contrast
-  #iconic_taxa_facet
-    display none
+._wikicommons
+   .mw-parser-output
+      > *
+         display none
+      > .gallery
+      > #wdinfobox
+         display unset !important
+   #wdinfoboxcaption
+      background none !important
+._wikispecies
+   .mw-body
+      width 60%
+      margin-left 20%
+      padding-left 16px !important
+      padding-right 16px ! important
+      border 0
+._google
+   body
+      opacity 1
+   .hm60ue
+      opacity 0
+   .ZGGHx
+      display none
+._imgurEdit
+   ._sideRight
+      width 150px
+      align-self flex-end
+._inaturalist
+   *
+      cursor default !important
+   body
+      background #fff
+   #header
+   #footer
+   #inatnotice
+   #bodywrapper:after
+      display none !important
+   #filters
+      padding 0
+   #taxa-grid
+      margin-top 24px
+   .form-control
+      border 0
+      box-shadow 0 0 0 1px inset #ccc
+      transition none
+      &:focus
+         box-shadow 0 0 0 2px inset #07d
+   .thumbnail
+   .ac-menu
+      overflow hidden !important
+   .photo-hover
+      overflow hidden
+      transition-duration 50ms
+      > .btn
+         opacity 0
+         cursor default
+   .photo
+   .CoverImage
+      background-size contain !important
+      background-repeat no-repeat
+      background-color #ccc
+._inaturalistSearch
+   #wrapper
+      padding-top 16px
+      > h2
+         display none
+   #q
+      outline 0
+   .modal_link
+      border solid 1px #ccc !important
+   .modal-dialog
+      transform none !important
+      transition none
+      animation _fadeIn5 .1s forwards
+   .modal-backdrop
+      background #8886 !important
+   .photo-modal-content
+      overflow hidden
+   .ui-dialog
+      position fixed
+      top 5%
+      width fit-content !important
+      border 0
+      // border-radius 0
+      > .ui-dialog-content
+         height 100% !important
+         max-height 90% !important
+   .taxon_list_taxon
+      position relative
+      margin-bottom 0 !important
+      > a.right
+         margin-top 6px
+      > h3
+         margin 0
+      .taxon
+         margin-top 8px
+         font-size $fontSize + 4
+         color #e26
+         > span
+            font-weight 400
+            font-style normal
+      .species
+      .subspecies
+         font-size $fontSize + 2
+   .inaturalistSearchFigure
+      position absolute
+      top 50%
+      left -100px
+      max-width 214px
+      word-break break-word
+      transform translate(-100%, -50%)
+      &[data-is-new-img=true]
+         background #2a3
+   .inaturalistSearchFigureImg
+      max-width 214px
+      max-height 160px
+      background #fff
+      filter contrast(1.1) saturate(1.1)
+      image-rendering -webkit-optimize-contrast
+   #iconic_taxa_facet
+      display none
 ._ebird
-  .SkipTo
-  .Tooltip--license
-    display none !important
+   .SkipTo
+   .Tooltip--license
+      display none !important
 ._seriouslyfish
-  #ezmobfooter
-    display none !important
+   #ezmobfooter
+      display none !important
 ._flickr
-  .global-nav-view
-  .search-subnav-slender-view
-  .search-prints-results
-  .sidebar-column
-  .moola-search-div
-    display none
-  .search-slender-advanced-panel-view
-    top 0
-  .no-results-message-container + .search-box-container
-    display none !important
-  // .photo-list-tile-view
-  //   translate 0 -1248px
+   .global-nav-view
+   .search-subnav-slender-view
+   .search-prints-results
+   .sidebar-column
+   .moola-search-div
+      display none
+   .search-slender-advanced-panel-view
+      top 0
+   .no-results-message-container + .search-box-container
+      display none !important
+   // .photo-list-tile-view
+   //   translate 0 -1248px
 
 ._row
-  display flex
-  flex-direction row
+   display flex
+   flex-direction row
 ._column
-  display flex
-  flex-direction column
+   display flex
+   flex-direction column
 ._col
-  flex-grow 1
+   flex-grow 1
 ._col0
-  flex-shrink 0
+   flex-shrink 0
 input
-  &._col
-  &._col0
-    width 0
+   &._col
+   &._col0
+      width 0
 for i in range(1, 12)
-  val = floor(i / 12 * 100%, 2)
-  ._row > ._col{i}
-    width val
-  ._column > ._col{i}
-    height val
-  val = floor(100% / i, 2)
-  ._row{i}
-    display grid
-    grid-template-columns repeat(i,1fr)
-    > ._col{i}
-      grid-column span (i)
+   val = floor(i / 12 * 100%, 2)
+   ._row > ._col{i}
+      width val
+   ._column > ._col{i}
+      height val
+   val = floor(100% / i, 2)
+   ._row{i}
+      display grid
+      grid-template-columns repeat(i,1fr)
+      > ._col{i}
+         grid-column span (i)
 ._full
-  position absolute
-  left 0
-  top 0
-  width 100%
-  height 100%
+   position absolute
+   left 0
+   top 0
+   width 100%
+   height 100%
 ._wrap
-  flex-wrap wrap
+   flex-wrap wrap
 ._nowrap
-  flex-wrap nowrap
+   flex-wrap nowrap
 for dir in row column
-  ._{dir}
-    prop = dir is column ? "align-items" : "justify-content"
-    &._start
-      {prop} flex-start
-    &._center
-      {prop} center
-    &._end
-      {prop} flex-end
-    prop = dir is column ? "justify-content" : "align-items"
-    &._top
-      {prop} flex-start
-    &._middle
-      {prop} center
-    &._bottom
-      {prop} flex-end
+   ._{dir}
+      prop = dir is column ? "align-items" : "justify-content"
+      &._start
+         {prop} flex-start
+      &._center
+         {prop} center
+      &._end
+         {prop} flex-end
+      prop = dir is column ? "justify-content" : "align-items"
+      &._top
+         {prop} flex-start
+      &._middle
+         {prop} center
+      &._bottom
+         {prop} flex-end
 ._between
-  justify-content space-between
+   justify-content space-between
 ._around
-  justify-content space-around
+   justify-content space-around
 ._evenly
-  justify-content space-evenly
+   justify-content space-evenly
 ._stretch
-  align-items stretch
+   align-items stretch
 props = {p: padding, m: margin}
 sides = {t: top, r: right, b: bottom, l: left}
 sizes = 48px 40px 32px 24px 16px 8px 4px 2px 0
 for size, i in sizes
-  j = 8 - i
-  ._gap{j}
-    gap size
-  ._gapX{j}
-    column-gap size
-  ._gapY{j}
-    row-gap size
+   j = 8 - i
+   ._gap{j}
+      gap size
+   ._gapX{j}
+      column-gap size
+   ._gapY{j}
+      row-gap size
 for p, prop in props
-  for size, i in sizes
-    i = 8 - i
-    hasNegate = p is m and i
-    ._{p}{i}
-      {prop} size
-    if hasNegate
-      ._-{p}{i}
-        {prop} -(size)
-for p, prop in props
-  for size, i in sizes
-    i = 8 - i
-    hasNegate = p is m and i
-    ._{p}x{i}
-      {prop}-left size
-      {prop}-right size
-    ._{p}y{i}
-      {prop}-top size
-      {prop}-bottom size
-    if hasNegate
-      ._-{p}x{i}
-        {prop}-left -(size)
-        {prop}-right -(size)
-      ._-{p}y{i}
-        {prop}-top -(size)
-        {prop}-bottom -(size)
-for p, prop in props
-  for size, i in sizes
-    i = 8 - i
-    hasNegate = p is m and i
-    for s, side in sides
-      ._{p}{s}{i}
-        {prop}-{side} size
+   for size, i in sizes
+      i = 8 - i
+      hasNegate = p is m and i
+      ._{p}{i}
+         {prop} size
       if hasNegate
-        .-_{p}{s}{i}
-          {prop}-{side} -(size)
+         ._-{p}{i}
+            {prop} -(size)
+for p, prop in props
+   for size, i in sizes
+      i = 8 - i
+      hasNegate = p is m and i
+      ._{p}x{i}
+         {prop}-left size
+         {prop}-right size
+      ._{p}y{i}
+         {prop}-top size
+         {prop}-bottom size
+      if hasNegate
+         ._-{p}x{i}
+            {prop}-left -(size)
+            {prop}-right -(size)
+         ._-{p}y{i}
+            {prop}-top -(size)
+            {prop}-bottom -(size)
+for p, prop in props
+   for size, i in sizes
+      i = 8 - i
+      hasNegate = p is m and i
+      for s, side in sides
+         ._{p}{s}{i}
+            {prop}-{side} size
+         if hasNegate
+            .-_{p}{s}{i}
+               {prop}-{side} -(size)
 for pos in absolute relative fixed
-  ._{pos}
-    position pos
+   ._{pos}
+      position pos
 for dis in block inline-block inline flex inline-flex
-  ._{dis}
-    display dis
+   ._{dis}
+      display dis
 ._w100
-  width 100%
+   width 100%
 ._h100
-  height 100%
+   height 100%
 ._hidden, [hidden]
-  display none
+   display none
 aligns = {left: Left, center: Center, right: Right, justify: Justify}
 for align, a in aligns
-  ._text{a}
-    text-align unquote(align)
+   ._text{a}
+      text-align unquote(align)
 ._textNowrap
-  white-space nowrap
-  word-break break-word
+   white-space nowrap
+   word-break break-word
 ._textTruncate
-  overflow hidden
-  text-overflow ellipsis
-  white-space nowrap
-  word-break break-word
+   overflow hidden
+   text-overflow ellipsis
+   white-space nowrap
+   word-break break-word
 ._textBold
-  font-weight 700
+   font-weight 700
 ._textItalic
-  font-style italic
+   font-style italic
 small
 ._textSmall
-  font-size smaller
+   font-size smaller
 ._scroll
-  overflow auto
+   overflow auto
 ._scrollY
-  overflow-x hidden
-  overflow-y auto
+   overflow-x hidden
+   overflow-y auto
 ._noscroll
-  overflow hidden
+   overflow hidden
 ._event
-  pointer-events auto
+   pointer-events auto
 ._noevent
-  pointer-events none
+   pointer-events none
 ._select
-  user-select text
+   user-select text
 ._selectAll
-  user-select all
+   user-select all
 ._noselect
-  user-select none
+   user-select none
 ._cover
-  object-fit cover
+   object-fit cover
 ._contain
-  object-fit contain
+   object-fit contain
 ._scaleDown
-  object-fit scale-down
+   object-fit scale-down
 // ._round8
 // 	border-radius 8px
 // ._round6
@@ -612,41 +612,41 @@ small
 // ._round4
 // 	border-radius 4px
 ._border
-  border solid 1px #aaa
+   border solid 1px #aaa
 ._dashed
-  border dashed 1px #aaa
+   border dashed 1px #aaa
 ._dotted
-  border dotted 1px #aaa
+   border dotted 1px #aaa
 ._border0
-  border 0
+   border 0
 ._outline
-  box-shadow 0 0 0 1px #aaa
+   box-shadow 0 0 0 1px #aaa
 ._bgBlack
-  background #000
+   background #000
 ._bgWhite
-  background #fff
+   background #fff
 ._bgRed
-  background #f43
+   background #f43
 ._bgYellow
-  background #eb4
+   background #eb4
 ._bgGreen
-  background #2a3
+   background #2a3
 ._textGray
-  color #888
+   color #888
 ._textRed
-  color #f43
+   color #f43
 ._textGreen
-  color #2a3
+   color #2a3
 ._active
 ._hover:hover
-    background $prim
-    color #fff
+      background $prim
+      color #fff
 ._cursor
-  cursor default
+   cursor default
 ._cursorPointer
-  cursor pointer
+   cursor pointer
 ._cursorCopy
-  cursor copy
+   cursor copy
 ._noscrollbar
-  &::-webkit-scrollbar
-    display none
+   &::-webkit-scrollbar
+      display none

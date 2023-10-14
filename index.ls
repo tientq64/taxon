@@ -106,7 +106,7 @@ parse = !->
    data .= split \\n
    tree = [0 \Life no [, \/Sự_sống] [] "Life" "Sự sống"]
    refs = [tree]
-   headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?$/
+   headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?(?: (!))?$/
    tailRegex = /^([-/:@%~^+$<>=!&?]|https?:\/\/)/
    disamSplitRegex = /(?=[\\/])/
    inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
@@ -231,7 +231,7 @@ parse = !->
       textEn = void
       textVi = void
       [head, text, tail] = line.split " # "
-      [, lv, name, ex, disam, icon] = headRegex.exec head
+      [, lv, name, ex, disam, icon, isDuplicateTextEn] = headRegex.exec head
       lv = lv.length + 1
       name = " " if name is \_
       if disam
@@ -312,7 +312,7 @@ parse = !->
                      | \&
                         src = "https://images.marinespecies.org/thumbs/#src.jpg?w=320"
                      else
-                        src .= replace /^ttps?:/ ""
+                        src = "h#src"
                      [src, captn]
       node = [lv, name]
       node.2 = yes if ex
@@ -321,13 +321,14 @@ parse = !->
       node.6 = textVi if textVi
       node.7 = imgs if imgs
       node.8 = icon if icon
+      node.9 = yes if isDuplicateTextEn
       if refs.some (.0 >= lv)
          refs .= filter (.0 < lv)
       ref = refs[* - 1]
       ref[]4.push node
       refs.push node
    addNode = (node, parent, parentLv, parentName, extinct, chrs, isFirst, isLast, nextSiblExtinct) !~>
-      [lv, name, ex, disam, childs, textEn, textVi, imgs, icon] = node
+      [lv, name, ex, disam, childs, textEn, textVi, imgs, icon, isDuplicateTextEn] = node
       extinct = yes if ex
       if parentLv >= 0
          lvRange = lv - parentLv - 1
@@ -377,6 +378,7 @@ parse = !->
       line.disam = disam if disam
       line.fullName = fullName if fullName
       line.icon = icon if icon
+      line.isDuplicateTextEn = isDuplicateTextEn if isDuplicateTextEn
       line.parent = parent if parent
       lines.push line
       if childs
@@ -896,6 +898,9 @@ App =
          if (line.lv >= 0 and line.childsCount isnt 1) and line.textEn is void and line.textEnCopy is void
             line.textEnCopy = \...
             @fetchWiki line, (line, {titles}) !~>
+               if titles
+                  titles .= map (title) ~>
+                     title.replace /’/g \'
                line.textEnCopy = titles or no
                m.redraw!
 
@@ -1076,6 +1081,7 @@ App =
                               m \.textEn,
                                  line.textEnCopy.map (text) ~>
                                     m \.textEnCopy,
+                                       class: "textEnCopyIsDuplicateTextEn" if line.isDuplicateTextEn
                                        onclick: @onclickTextEnCopy.bind void line, text
                                        text
                            else
