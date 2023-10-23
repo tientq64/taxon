@@ -6,8 +6,8 @@
             "scope": ["text.taxon"],
             "settings": {"foreground": "#ffffff"}
          }, {
-            "scope": ["red.taxon"],
-            "settings": {"foreground": "#ec2b1d"}
+            "scope": ["indigo.taxon"],
+            "settings": {"foreground": "#3b82f6"}
          }, {
             "scope": ["pink.taxon"],
             "settings": {"foreground": "#ff1267"}

@@ -1,7 +1,7 @@
 {
    "name": "taxon",
    "displayName": "Taxon",
-   "version": "1.0.2",
+   "version": "1.0.3",
    "author": "tientq64",
    "engines": {
       "vscode": "^1.75.1"

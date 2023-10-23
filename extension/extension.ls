@@ -1347,9 +1347,9 @@ App =
                         "Lưu"
             else
                m \._column._center,
-                  m \img._contain._bgBlack._rightClickZone,
+                  m \img._w100._contain._bgBlack._rightClickZone,
                      style: @style do
-                        maxWidth: maxWidth
+                        maxWidth: 320
                      src: image
                      oncontextmenu: !~>
                         copied := yes
@@ -1656,7 +1656,7 @@ App =
                if text
                   text = text.split /, ?/ 1 .0
                   text = @upperFirst text
-                  if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines|Malaysia|Indonesia|Japan)$/.test text
+                  if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines|Malaysia|Indonesia|Japan|Yunnan|Java|Australia|Southeast Asia|Africa|Indomalaya|Thailand|Papua New Guinea|Island of Reunion|Madagascar|Sri Lanka)$/.test text
                      text = void
                if text
                   text = @formatTaxonText text
