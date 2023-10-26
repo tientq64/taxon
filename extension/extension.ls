@@ -1455,7 +1455,7 @@ App =
             ^[A-Z]([a-z]+|\.)?\s
             (?:\([A-Z]\.\)\s)?
             (\([a-z-]{2,}\)|[a-z-]{2,}|[a-z]\.)\s
-            (?:subsp\.\s)?
+            (?:(?:subsp|ssp)\.\s)?
             ([a-z-]{2,})
          //
          subspeciesNameRegex = /^[a-z]{2,}$/
@@ -1495,38 +1495,48 @@ App =
                   else
                      opts.link? target, link
             nameEl = null
-            unless nameEl
+            do
                if el = target.querySelector ':scope > a > .toctext'
                   if el.innerText.trim!0 is /[A-Z]/
                      nameEl = el
-            unless nameEl
+                     break
                if el = target.querySelector ':scope > a:not([data-excl])'
                   if el.nextSibling?textContent.0 is \:
                      nameEl = el
-            unless nameEl
+                     break
                if el = target.querySelector ':scope > i:first-child'
                   if el.innerText.trim!0 is /[A-Z]/
-                     nameEl = el
-            unless nameEl
+                     if node = el.nextSibling
+                        if node.textContent.trim! is \ssp.
+                           if el2 = node.nextElementSibling
+                              if el2.localName == \i
+                                 name = "#{el.innerText.trim!} #{el2.innerText.trim!}"
+                                 break
+                     else
+                        nameEl = el
+                        break
                if el = target.querySelector ':scope > i > a:not([data-excl])'
                   val = el.innerText.trim!
                   if val.0 is /[A-Z]/
                      if rank
                         if rank.lv is 38 and speciesRegex.test val or rank.lv is 39 and subspeciesRegex.test val
                            nameEl = el
+                           break
                      else
                         nameEl = el
-            unless nameEl
+                        break
                if el = target.querySelector ':scope > b > a:not([data-excl])'
                   if el.innerText.trim!0 is /[A-Z]/
                      nameEl = el
-            unless nameEl
+                     break
                if el = target.querySelector ':scope > i'
                   if el.innerText.trim!
                      nameEl = el
-            unless nameEl
+                     break
                if el = target.querySelector ':scope > a:not([data-excl])'
                   nameEl = el
+                  break
+            while no
             if nameEl
                if nameEl.localName is \i and (node = nameEl.nextSibling) and node.nodeName is \#text
                   if node.wholeText is /^( subsp\. | sp\. | +var\. )/

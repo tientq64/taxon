@@ -1053,13 +1053,13 @@ App =
                         "lineFind": @finding and line is @findLines[@findIndex]
                      chars[line.chrs]reduce (accum, char, i) ~>
                         prevVdom = accum.at -1
-                        if (not prevVdom) or (char.trim! and prevVdom.text.trim!)
+                        if !prevVdom or (char.trim! and prevVdom.children.0.children.trim!)
                            accum.push do
                               m \span,
                                  class: chrsRanks[i]0
                                  char
                         else
-                           accum.at -1 .text += char
+                           accum.at -1 .children.0.children += char
                         accum
                      , []
                      m \.node,

@@ -83,5 +83,6 @@
    },
    "material-icon-theme.folders.associations": {
       "vscode-ext": "vscode"
-   }
+   },
+   "liveServer.settings.wait": 200
 }
