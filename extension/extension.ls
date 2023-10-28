@@ -601,6 +601,15 @@ App =
    upperFirstLowerRest: (text) ->
       text.charAt 0 .toUpperCase! + text.substring 1 .toLowerCase!
 
+   chunkArr: (arr, size) ->
+      newArr = []
+      for val, i in arr
+         if i % size == 0
+            vals = []
+            newArr.push vals
+         vals.push val
+      newArr
+
    formatTaxonText: (text) ->
       text .= trim!
       if text and text.length > 1
@@ -816,11 +825,15 @@ App =
    closeTab: ->
       chrome.runtime.sendMessage \closeTab
 
+   dataUrlToBase64: (dataUrl) ->
+      dataUrl - /^data:[a-z\d-]+\/[a-z\d-]+;base64,/
+
    readAsBase64: (file) ->
       new Promise (resolve) !~>
          reader = new FileReader
          reader.onload = !~>
-            resolve it.target.result - /^data:[a-z\d-]+\/[a-z\d-]+;base64,/
+            base64 = @dataUrlToBase64 reader.result
+            resolve base64
          reader.readAsDataURL file
 
    readCopiedImgBlob: ->
@@ -966,7 +979,7 @@ App =
          else resolve!
 
    uploadBase64ToGithub: (base64, message, isFemale) !->
-      filename = @numToRadix62 Date.now! / 100 - 16378201202
+      filename = @numToRadix62 Date.now! / 10000 - 169851443
       saved = no
       notify = @notify "Đang upload ảnh lên Github" -1
       unless window.Octokit
@@ -974,18 +987,21 @@ App =
          window.Octokit = Octokit
       octo = new window.Octokit do
          auth: OCTOKEN
-      res = await octo.repos.createOrUpdateFileContents do
-         owner: \tientq64
-         repo: \taimg
-         path: "#filename.webp"
-         message: message
-         content: base64
-      if res.status is 201
-         copiedData = " #{isFemale and \| or \#} =#filename"
-         await @copy copiedData
-         saved = yes
-         notify.update "Đã upload ảnh lên Github: #copiedData"
-      else
+      try
+         res = await octo.repos.createOrUpdateFileContents do
+            owner: \tientq64
+            repo: \taimg
+            path: "#filename.webp"
+            message: message
+            content: base64
+         if res.status == 201
+            copiedData = " #{isFemale and \| or \#} =#filename"
+            await @copy copiedData
+            saved = yes
+            notify.update "Đã upload ảnh lên Github: #copiedData"
+         else
+            notify.update "Upload ảnh lên Github thất bại"
+      catch
          notify.update "Upload ảnh lên Github thất bại"
       m.redraw!
       [filename, res, saved]
@@ -1035,9 +1051,9 @@ App =
             sel.ratio = sel.cw / sel.ch
       crop = !~>
          if sel and sel.phase < 2
-            imgdata = g.getImageData sel.cx, sel.cy, sel.cw, sel.ch
+            imgData = g.getImageData sel.cx, sel.cy, sel.cw, sel.ch
             resize sel.cw, sel.ch
-            g.putImageData imgdata, 0 0
+            g.putImageData imgData, 0 0
             sel := void
             m.redraw!
       compress = (sharpen) !~>
@@ -1371,7 +1387,7 @@ App =
          html: ""
          ms: 0
          timer: 0
-         update: (html, ms = 2000) !~>
+         update: (html, ms = 3000) !~>
             notify.html? = html
             notify.ms = ms
             clearTimeout notify.timer
@@ -2195,14 +2211,68 @@ App =
                      m \._col3._mb2 data.ClientLimit
                      m \._col9._mb2 "Giới hạn ứng dụng còn lại"
                      m \._col3._mb2 data.ClientRemaining
+            | \T+R
+               if blob = await @readCopiedImgBlob!
+                  notify = @notify "Đang xóa viền hình ảnh..."
+                  url = URL.createObjectURL blob
+                  img = new Image
+                  img.onload = !~>
+                     {width, height} = img
+                     canvas = document.createElement \canvas
+                     canvas.width = width
+                     canvas.height = height
+                     g = canvas.getContext \2d
+                     g.drawImage img, 0 0
+                     imgData = g.getImageData 0 0 width, height
+                     data = @chunkArr imgData.data, 4
+                     data .= map (.toString! == "255,255,255,255")
+                     data = @chunkArr data, width
+                     t = 0
+                     while data[t]every Boolean
+                        t++
+                     b = height - 1
+                     while data[b]every Boolean
+                        b--
+                     l = 0
+                     while data.every (.[l])
+                        l++
+                     r = width - 1
+                     while data.every (.[r])
+                        r--
+                     width = r - l + 1
+                     height = b - t + 1
+                     canvas.width = width
+                     canvas.height = height
+                     g = canvas.getContext \2d
+                     g.putImageData imgData, -l, -t, l, t, width, height
+                     dataUrl = canvas.toDataURL \image/webp 0.9
+                     @copy dataUrl
+                     URL.revokeObjectURL url
+                     notify.update "Xóa viền ảnh thành công"
+                  img.src = url
+               else
+                  @notify "Không có ảnh để xóa viền"
             | \T+U \Shift+T+U
+               dataUrl = await navigator.clipboard.readText!
+               if dataUrl.length > 5000
+                  base64 = @dataUrlToBase64 dataUrl
+                  try
+                     atob base64
+                     message = new Date!toLocaleString \en-uk
+                     isFemale = comboIncludes \Shift
+                     await @uploadBase64ToGithub base64, message, isFemale
+                  catch
+                     @notify "Base64 upload lên Github không hợp lệ"
+               else
+                  @notify "Không có base64 để upload lên Github"
+            | \T+I \Shift+T+I
                if blob = await @readCopiedImgBlob!
                   base64 = await @readAsBase64 blob
-                  message = Date.now! + ""
+                  message = new Date!toLocaleString \en-uk
                   isFemale = comboIncludes \Shift
                   await @uploadBase64ToGithub base64, message, isFemale
                else
-                  @notify "Không có gì để upload lên Github"
+                  @notify "Không có ảnh để upload lên Github"
             | \W+P
                location.href = \https://en.wikipedia.org/wiki/Special:Preferences
             | \W+E

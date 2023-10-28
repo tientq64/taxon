@@ -4,9 +4,7 @@ localStorage
    ..taxonInfoLv ?= \0
    ..taxonRightClickAction ?= \k
    ..taxonPopupLang ?= \en
-   ..taxonTheme ?= \default
 
-document.documentElement.classList.add localStorage.taxonTheme
 cstyle = getComputedStyle document.documentElement
 lineH = parseInt cstyle.getPropertyValue \--lineH
 lines = []
@@ -233,17 +231,17 @@ parse = !->
       [head, text, tail] = line.split " # "
       [, lv, name, ex, disam, icon, isDuplicateTextEn] = headRegex.exec head
       lv = lv.length + 1
-      name = " " if name is \_
+      name = " " if name == \_
       if disam
          disam = disam.split disamSplitRegex .map (val) ~>
-            if val is \\ => void else val
+            if val == \\ => void else val
       if text
          if tailRegex.test text
             tail = text
             text = void
          if text
             [textEn, textVi] = text.split /\ ?\| /
-         # if textEn and not textVi and lv > 38
+         # if textEn and !textVi and lv > 38
          # 	translateText = []
          # 	words = textEn.split /-| / .reverse!
          # 	if words.length > 1
@@ -261,15 +259,15 @@ parse = !->
                .split " | "
                .map (imgg) ~>
                   [src, captn] = imgg.split " ; "
-                  unless src is \?
-                     captn = void if captn is \.
+                  unless src == \?
+                     captn = void if captn == \.
                      key = src.0
                      src .= substring 1
                      switch key
                      | \-
                         src = "https://i.imgur.com/#{src}m.png"
                      | \/
-                        if src.0 is \/
+                        if src.0 == \/
                            type = \en
                            src .= substring 1
                         else
@@ -290,7 +288,7 @@ parse = !->
                         type = bugguideTypes[type]
                         src = "https://bugguide.net/images/#type/#{src.substring 0 3}/#{src.substring 3 6}/#src.jpg"
                      | \^
-                        if src.0 is \^
+                        if src.0 == \^
                            path = \tools/uploadphoto/uploads
                            src .= substring 1
                         else
@@ -347,20 +345,20 @@ parse = !->
       else
          chrs2 = chars[chrs2] = charsId++
       if lv >= 39
-         if lv is 41
+         if lv == 41
             fullName = "#parentName var. #name"
          else
             fullName = "#parentName #name"
-         if lv is 39
+         if lv == 39
             infos.species.count++
          infos.speciesSubspHasViName.count++ if textEn
          unless childs
             infos.speciesSubsp.count++
             infos.speciesSubspHasImg.count++ if imgs
             infos.speciesSubspExtinct.count++ if extinct
-      else if lv is 32
+      else if lv == 32
          infos.genus.count++
-      else if lv is 27
+      else if lv == 27
          infos.family.count++
       line =
          index: ++index
@@ -385,16 +383,16 @@ parse = !->
          line.childsCount = childs.length
          chrs += "  "repeat(lvRange) + (isLast and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
          if lv < 34 or lv > 38
-            if name not in [\? " "]
-               if lv is 33
+            if name !in [\? " "]
+               if lv == 33
                   parentName = "#parentName (#name)"
                else
                   parentName = fullName or name
-            else if lv is 32
+            else if lv == 32
                parentName = \" + parentName + \"
          lastIndex = childs.length - 1
          for child, i in childs
-            addNode child, line, lv, parentName, extinct, chrs, not i, i is lastIndex, childs[i + 1]?2
+            addNode child, line, lv, parentName, extinct, chrs, !i, i == lastIndex, childs[i + 1]?2
    addNode tree,, -1 "" no "" yes yes
    chars := Object.keys chars
    for char, i in chars
@@ -405,7 +403,6 @@ parse = !->
             chr = char
                .substring chrsRank.1 * 2 chrsRank.2 * 2
                .replace /\  /g \\t
-               .replace /\ /g \\t
             chrs.push chr
          else break
       chars[i] = chrs
@@ -423,7 +420,7 @@ catch
    modfCounts = {}
    for k, info of infos
       modfCounts[k] = info.count
-if modfTime is +localStorage.taxonModfTime
+if modfTime == +localStorage.taxonModfTime
    for k, info of infos
       info.modfCount = info.count - modfCounts[k]
 else
@@ -436,7 +433,7 @@ else
 App =
    oninit: !->
       for k, prop of @
-         @[k] = prop.bind @ if typeof prop is \function
+         @[k] = prop.bind @ if typeof prop == \function
       @lines = []
       @start = void
       @len = 0
@@ -482,7 +479,7 @@ App =
 
    getRankTexts: (lv, lang, isGetAbbr) ->
       texts = textRanks[lv]
-      text = texts[Number lang is \vi]
+      text = texts[Number lang == \vi]
       if Array.isArray text
          text[+isGetAbbr]
       else text
@@ -514,7 +511,7 @@ App =
                   fullName .= toLowerCase!
                   textVi .= toLowerCase!
                if @findExact
-                  val is fullName or val is textVi
+                  val == fullName or val == textVi
                else
                   fullName.includes val or textVi.includes val
             if @findIndex >= @findLines.length
@@ -534,17 +531,17 @@ App =
          @scroll!
 
    toggleFindExact: !->
-      not= @findExact
+      != @findExact
       localStorage.taxonFindExact = @findExact and \1 or ""
       @find!
 
    toggleFindCase: !->
-      not= @findCase
+      != @findCase
       localStorage.taxonFindCase = @findCase and \1 or ""
       @find!
 
    togglePopupLang: !->
-      @popupLang = @popupLang is \vi and \en or \vi
+      @popupLang = @popupLang == \vi and \en or \vi
       localStorage.taxonPopupLang = @popupLang
 
    closeFind: !->
@@ -578,14 +575,14 @@ App =
          | src.includes \i.pinimg.com
             src .= replace \564x \originals
          | src.includes \i.imgur.com
-            if @code is \Delete
+            if @code == \Delete
                src -= /(?<=:\/\/)i\.|m\.\w+$/g
                src += \?_taxonDelete=1
             else
                src .= replace /m(?=\.\w+$)/ \r
          | src.includes \cdn.jsdelivr.net/gh/tientq64/taimg
             name = src.split \/ .[* - 1]
-            act = @code is \Delete and \delete or \blob
+            act = @code == \Delete and \delete or \blob
             src = "https://github.com/tientq64/taimg/#act/main/#name"
          window.open src, \_blank
 
@@ -625,14 +622,14 @@ App =
             name = @getFullNameNoSubgenus line
             action =
                | event.altKey => \g
-               | @code is \KeyC => \c
-               | @code is \KeyB => \b
-               | @code is \KeyL => \l
-               | @code is \KeyH => \h
-               | @code is \KeyE => \e
-               | @code is \KeyS => \s
-               | @code is \KeyN => \n
-               | @code is \KeyK => \k
+               | @code == \KeyC => \c
+               | @code == \KeyB => \b
+               | @code == \KeyL => \l
+               | @code == \KeyH => \h
+               | @code == \KeyE => \e
+               | @code == \KeyS => \s
+               | @code == \KeyN => \n
+               | @code == \KeyK => \k
                else @rightClickAction
             switch action
             | \g
@@ -670,7 +667,7 @@ App =
          q = @getWikiPageName line, \en
          window.open "https://en.wikipedia.org/wiki/#q" \_blank
 
-   mouseenterName: (line, event) !->
+   mouseenterName: (line, isBcrum, event) !->
       unless line.name in [\? " "]
          @hoveredLine = line
          {imgs} = line
@@ -752,19 +749,19 @@ App =
                                        onload: (event) !~>
                                           {target} = event
                                           {width, height} = target
-                                          if (width < 320 and height < 240) or (not isTwoImage and 1.233 < width / height < 1.333)
+                                          if (width < 320 and height < 240) or (!isTwoImage and 1.233 < width / height < 1.333)
                                              target.classList.add \popupImg--cover
                                           if @popper
                                              updateHeight!
                                        onerror: !~>
                                           if @popper
                                              @popper.update!
-                                 if imgs.length is 2 or imgs.some (?1)
+                                 if imgs.length == 2 or imgs.some (?1)
                                     m \.popupGenderCaptn,
-                                       if imgs.length is 2
+                                       if imgs.length == 2
                                           i and \Cái or \Đực
                                        if img.1
-                                          if imgs.length is 2
+                                          if imgs.length == 2
                                              " \u2013 #{img.1}"
                                           else
                                              img.1
@@ -775,11 +772,11 @@ App =
             @popper.update!
          else
             @popper = Popper.createPopper event.target, popupEl,
-               placement: \left
+               placement: isBcrum and \bottom or \left
                modifiers:
                   *  name: \offset
                      options:
-                        offset: [0 21]
+                        offset: isBcrum and [0 0] or [0 21]
                   *  name: \preventOverflow
                      options:
                         padding: 2
@@ -830,10 +827,17 @@ App =
          else
             @getIcon line.parent
 
+   getParents: (line) ->
+      parents = []
+      while line.parent
+         line = line.parent
+         parents.push line
+      parents
+
    getWikiPageName: (line, lang) ->
       {disam} = line
       if disam
-         index = Number lang is \vi
+         index = Number lang == \vi
          if disamLang = disam[index]
             chr = disamLang.0
             disamLang .= substring 1
@@ -857,12 +861,12 @@ App =
          unless cb
             @abortCtrler = void
          {extract_html} = data
-         if data.type is \standard
+         if data.type == \standard
             title = data.title.replace /\ \(.+?\)/ ""
             name1 = line.fullName or line.name
             names = [name1]
             name2 = @getFullNameNoSubgenus line
-            names.push name2 unless name2 is name1
+            names.push name2 unless name2 == name1
             node = line
             while node .= parent
                names.push @getFullNameNoSubgenus node
@@ -875,12 +879,12 @@ App =
                title = title
                   .replace /,/g ""
                   .trim!
-               if title and not names.includes title and not title.includes ". "
+               if title and !names.includes title and !title.includes ". "
                   title = title.0.toUpperCase! + title.substring 1
                   titles ?= []
                   unless titles.includes title
                      titles.push title
-         if (data.type is \standard or isDev) and extract_html
+         if (data.type == \standard or isDev) and extract_html
             summary = /<p>(.+?)<\/p>/su
                .exec extract_html .0
                .replace /\n+/g " "
@@ -893,9 +897,9 @@ App =
 
    fetchTextEnCopyLines: !->
       for line in @lines
-         # if line.lv > 38 and line.textEn is void and line.textEnCopy is void
-         # if (line.lv > 38 or line.childsCount > 1) and line.textEn is void and line.textEnCopy is void
-         if (line.lv >= 0 and line.childsCount isnt 1) and line.textEn is void and line.textEnCopy is void
+         # if line.lv > 38 and line.textEn == void and line.textEnCopy == void
+         # if (line.lv > 38 or line.childsCount > 1) and line.textEn == void and line.textEnCopy == void
+         if (line.lv >= 0 and line.childsCount != 1) and line.textEn == void and line.textEnCopy == void
             line.textEnCopy = \...
             @fetchWiki line, (line, {titles}) !~>
                if titles
@@ -910,7 +914,7 @@ App =
       presEl.style.transform = "translateY(#{transY}px)"
       localStorage.taxonTop = top
       start = Math.floor top / lineH
-      unless start is @start and @lines.length is @len
+      unless start == @start and @lines.length == @len
          @start = start
          @lines = lines.slice start, start + @len
          if isDev
@@ -926,7 +930,7 @@ App =
    onkeydown: (event) !->
       unless event.repeat
          unless event.location in [1 2]
-            noFocus = document.activeElement is document.body
+            noFocus = document.activeElement == document.body
             @isKeyDown = yes
             @code = event.code
             switch @code
@@ -936,7 +940,7 @@ App =
 
    onkeyup: (event) !->
       if @isKeyDown
-         noFocus = document.activeElement is document.body
+         noFocus = document.activeElement == document.body
          {ctrlKey: ctrl, shiftKey: shift, altKey: alt} = event
          switch @code
          | \KeyF
@@ -953,7 +957,7 @@ App =
          | \KeyI
             if noFocus
                val = event.shiftKey and 2 or 1
-               infoLv := if infoLv and infoLv is val => 0 else val
+               infoLv := if infoLv and infoLv == val => 0 else val
                localStorage.taxonInfoLv = infoLv
                m.redraw!
          | \KeyA
@@ -1041,64 +1045,76 @@ App =
       @scroll!
       m.redraw!
 
+   lineView: (line, isBcrum, bcrumZ) ->
+      m \.line,
+         key: line.index
+         class: @class do
+            "lineFind": @finding and line == @findLines[@findIndex]
+         chars[line.chrs]reduce (accum, char, i) ~>
+            prevVdom = accum.at -1
+            if !prevVdom or (char.trim! and prevVdom.children.0.children.trim!)
+               accum.push do
+                  m \.indent,
+                     class: chrsRanks[i]0
+                     char
+            else
+               accum.at -1 .children.0.children += char
+            accum
+         , []
+         m \.node,
+            style:
+               zIndex: bcrumZ
+            m \span.name,
+               class: @getRankName line.lv
+               onmouseenter: @mouseenterName.bind void line, isBcrum
+               onmouseleave: @mouseleaveName
+               onmousedown: @mousedownName.bind void line
+               oncontextmenu: @contextmenuName.bind void line
+               line.name
+            if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy != \...)
+               m \span.dash,
+                  \\u2014
+            if line.textEn
+               m \span.textEn,
+                  line.textEn
+            if line.textEnCopy
+               if Array.isArray line.textEnCopy
+                  m \.textEn,
+                     line.textEnCopy.map (text) ~>
+                        m \.textEnCopy,
+                           class: "textEnCopyIsDuplicateTextEn" if line.isDuplicateTextEn
+                           onclick: @onclickTextEnCopy.bind void line, text
+                           text
+               else
+                  m \span.textEn,
+                     line.textEnCopy
+            if line.textVi
+               m \span.textVi,
+                  line.textVi
+            if line.isShowChildsCount
+               m \span.textVi,
+                  "(#{line.childsCount})"
+            line.imgs?map (img, i) ~>
+               if img and i < 2
+                  m \img.img,
+                     src: img.0
+                     onmousedown: @mousedownImg.bind void img
+
    view: ->
       m.fragment do
          m \#scrollEl,
             onscroll: @onscroll
             m \#presEl,
                @lines.map (line) ~>
-                  m \.line,
-                     key: line.index
-                     class: @class do
-                        "lineFind": @finding and line is @findLines[@findIndex]
-                     chars[line.chrs]reduce (accum, char, i) ~>
-                        prevVdom = accum.at -1
-                        if !prevVdom or (char.trim! and prevVdom.children.0.children.trim!)
-                           accum.push do
-                              m \span,
-                                 class: chrsRanks[i]0
-                                 char
-                        else
-                           accum.at -1 .children.0.children += char
-                        accum
-                     , []
-                     m \.node,
-                        m \span.name,
-                           class: @getRankName line.lv
-                           onmouseenter: @mouseenterName.bind void line
-                           onmouseleave: @mouseleaveName
-                           onmousedown: @mousedownName.bind void line
-                           oncontextmenu: @contextmenuName.bind void line
-                           line.name
-                        if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy isnt \...)
-                           m \span.dash,
-                              \\u2014
-                        if line.textEn
-                           m \span.textEn,
-                              line.textEn
-                        if line.textEnCopy
-                           if Array.isArray line.textEnCopy
-                              m \.textEn,
-                                 line.textEnCopy.map (text) ~>
-                                    m \.textEnCopy,
-                                       class: "textEnCopyIsDuplicateTextEn" if line.isDuplicateTextEn
-                                       onclick: @onclickTextEnCopy.bind void line, text
-                                       text
-                           else
-                              m \span.textEn,
-                                 line.textEnCopy
-                        if line.textVi
-                           m \span.textVi,
-                              line.textVi
-                        if line.isShowChildsCount
-                           m \span.textVi,
-                              "(#{line.childsCount})"
-                        line.imgs?map (img, i) ~>
-                           if img and i < 2
-                              m \img.img,
-                                 src: img.0
-                                 onmousedown: @mousedownImg.bind void img
+                  @lineView line, no
             m \#heightEl
+         if @lines.1
+            m \.bcrums,
+               @getParents @lines.1 .map (line, i) ~>
+                  m \.bcrum,
+                     key: line.index
+                     @lineView line, yes, textRanks.length - i
+                     @lineView lines[line.index + 1], yes
          if infoLv
             m \#infosEl,
                for , info of infos
@@ -1115,7 +1131,7 @@ App =
                m \.info @popupLang
          else
             m \.lang,
-               class: "langIsVi" if @popupLang is \vi
+               class: "langIsVi" if @popupLang == \vi
                title: "Ngôn ngữ trong phần mô tả"
                onclick: !~>
                   @togglePopupLang!
@@ -1129,7 +1145,7 @@ App =
                   oninput: !~>
                      @find it.target.value
                   onkeydown: !~>
-                     if it.key is \Enter
+                     if it.key == \Enter
                         @findGo it.shiftKey && -1 || 1
                m \#findTextEl,
                   (@findLines.length and @findIndex + 1 or 0) + \/ + @findLines.length
@@ -1142,7 +1158,7 @@ App =
                   class: \findButtonOn if @findCase
                   title: "Phân biệt hoa-thường"
                   onclick: @toggleFindCase
-                  "Tt"
+                  "Aa"
                m \.findButton#findClose,
                   title: "Đóng"
                   onclick: @closeFind

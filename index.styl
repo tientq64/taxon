@@ -15,16 +15,22 @@ body
    font-size: 16px
    overflow: hidden
    background: #282a39
+   color: #fff
    color-scheme: dark
    user-select: none
    cursor: default
 
 .loading
    position: absolute
-   left: 50%
-   top: 50%
-   color: #fff
-   transform: translate(-50%, -50%)
+   left: 0
+   top: 0
+   width: 100vw
+   height: 100vh
+   display: flex
+   flex-direction: column
+   gap: 16px
+   justify-content: center
+   align-items: center
 
 // ::-webkit-scrollbar
 //    -webkit-appearance none
@@ -40,21 +46,28 @@ body
 
 .line
    height: var(--lineH)
+   display: flex
+   align-items: center
+   font-family: "DejaVuSansMono", monospace
+   white-space: pre
+   tab-size: 2
 
 .lineFind > .node
-   background: #213647
+   border-radius: 0
+   outline: 2px solid #f9d87d
+
+.indent
+   height: var(--lineH)
 
 .node
-   padding-left: 6px
-   padding-right: 6px
+   height: 100%
+   padding: 0 6px
    border-radius: 4px
    display: inline-flex
-   align-items: baseline
+   align-items: center
    font-family: var(--sans)
    font-size: 16px
    vertical-align: middle
-   // &:hover
-   // 	box-shadow: 0 0 0 1px #648185 inset
 
 .name
    cursor: pointer
@@ -147,16 +160,38 @@ body
    height: 100%
    margin: 0
    padding-left: 64px
-   font-family: "DejaVuSansMono",   monospace
    font-size: 16px
-   white-space: pre
-   tab-size: 2
-   /.yahei &
-      padding-left: 64px
-      font-size: 16px
-   /.verdana &
-      padding-left: 176px
-      font-size: 13px
+
+.bcrums
+   position: absolute
+   left: 64px
+   top: 0
+
+.bcrum
+   position: absolute
+   pointer-events: none
+
+.bcrum > .line:nth-child(1)
+   border-radius: 0
+   background: #282a39
+
+// .bcrum > .line:nth-child(1) > .indent
+//    visibility: hidden
+
+.bcrum > .line:nth-child(2)
+   > .indent
+      clip-path: inset(0 0 1ex 0)
+      background: #282a39
+
+      &:has(+ .node)
+         clip-path: inset(0 0.28ch 1ex 0)
+
+   > .node
+      display: none
+
+.bcrum > .line > .node
+   background: #282a39
+   pointer-events: auto
 
 #infosEl
    position: absolute
@@ -168,6 +203,7 @@ body
    grid-template-columns: repeat(3, auto)
    gap: 4px 16px
    background: #fff
+   color: #000
 
 .modfCountIncr
    color: #16a34a
@@ -184,10 +220,12 @@ body
    border-radius: 6px 4px 4px 4px
    text-align: center
    background: #2cb3e6
+   color: #0c4a6e
    cursor: pointer
 
 .langIsVi
    background: #f472b6
+   color: #831843
 
 #findEl
    position: absolute
@@ -199,6 +237,7 @@ body
    display: flex
    align-items: center
    background: #fff
+   color: #000
 
 #findInputEl
    width: 0
@@ -247,9 +286,10 @@ body
    font-size: 16px
    text-align: center
    overflow: hidden
+   color: #000
    box-shadow: 1px 2px 4px 1px #0008
-   // box-shadow: -4px 0 #011627, 1px 2px 4px 1px #0008
    pointer-events: none
+   z-index: 100
 
 .popupBody
    width: 328px
@@ -325,16 +365,13 @@ body
    flex-grow: 1
    overflow: hidden
 
-   // &:after
-   // 	content: ""
-   // 	position: absolute
-   // 	left: 0
-   // 	top: 0
-   // 	width: 100%
-   // 	height: 100%
-   // 	border-radius: 8px
-   // 	box-shadow: 0 0 0 1px #aaa inset, 0 0 0 5px #fff inset
-   // 	pointer-events: none
+   &:after
+      content: ""
+      position: absolute
+      inset: 0
+      border-radius: 6px
+      box-shadow: inset 0 0 16px 1px #0003
+      pointer-events: none
 
 .popupBgImg
    position: absolute
