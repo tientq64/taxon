@@ -5,8 +5,7 @@ localStorage
    ..taxonRightClickAction ?= \k
    ..taxonPopupLang ?= \en
 
-cstyle = getComputedStyle document.documentElement
-lineH = parseInt cstyle.getPropertyValue \--lineH
+lineHeight = 19
 lines = []
 chars = {}
 chrsRanks =
@@ -88,6 +87,8 @@ infos =
       label: "Phân loài hoặc loài còn tồn tại"
    speciesSubspExtinct:
       label: "Phân loài hoặc loài tuyệt chủng"
+   speciesSubspHasEnName:
+      label: "Phân loài và loài có tên tiếng Anh"
    speciesSubspHasViName:
       label: "Phân loài và loài có tên tiếng Việt"
    speciesSubspHasImg:
@@ -105,10 +106,11 @@ parse = !->
    tree = [0 \Life no [, \/Sự_sống] [] "Life" "Sự sống"]
    refs = [tree]
    headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?(?: (!))?$/
-   tailRegex = /^([-/:@%~^+$<>=!&?]|https?:\/\/)/
+   tailRegex = /^([-/:@%~^+$<>=!&*?]|https?:\/\/)/
    disamSplitRegex = /(?=[\\/])/
    inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
    inaturalistExts = "": \jpg e: \jpeg p: \png J: \JPG E: \JPEG P: \PNG u: ""
+   reeflifesurveyExts = j: \jpg J: \JPG
    bugguideRegex = /^([A-Z\d]+)([r]?)$/
    bugguideTypes = "": \cache r: \raw
    lines := []
@@ -295,7 +297,7 @@ parse = !->
                            path = \images/species
                         src = "https://d1iraxgbwuhpbw.cloudfront.net/#path/#src.jpg"
                      | \+
-                        src = "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/#{src}1/320"
+                        src = "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/#{src}/320"
                      | \$
                         src = "https://reptile-database.reptarium.cz/content/photo_#src.jpg"
                      | \<
@@ -309,6 +311,10 @@ parse = !->
                         src = "https://i.pinimg.com/564x/#src.jpg"
                      | \&
                         src = "https://images.marinespecies.org/thumbs/#src.jpg?w=320"
+                     | \*
+                        ext = reeflifesurveyExts[src.at -1]
+                        src .= slice 0 -1
+                        src = "https://images.reeflifesurvey.com/0/species_#src.w400.h266.#ext"
                      else
                         src = "h#src"
                      [src, captn]
@@ -351,7 +357,8 @@ parse = !->
             fullName = "#parentName #name"
          if lv == 39
             infos.species.count++
-         infos.speciesSubspHasViName.count++ if textEn
+         infos.speciesSubspHasEnName.count++ if textEn
+         infos.speciesSubspHasViName.count++ if textVi
          unless childs
             infos.speciesSubsp.count++
             infos.speciesSubspHasImg.count++ if imgs
@@ -453,7 +460,7 @@ App =
       @popupLang = localStorage.taxonPopupLang
 
    oncreate: !->
-      heightEl.style.height = lines.length * lineH + \px
+      heightEl.style.height = lines.length * lineHeight + \px
       addEventListener \keydown @onkeydown
       addEventListener \keyup @onkeyup
       addEventListener \mousedown @onmousedown
@@ -527,7 +534,7 @@ App =
    findGo: (num = 0) !->
       if @findLines.length
          @findIndex = (@findIndex + num) %% @findLines.length
-         scrollEl.scrollTop = (@findLines[@findIndex]index - 4) * lineH
+         scrollEl.scrollTop = (@findLines[@findIndex]index - 4) * lineHeight
          @scroll!
 
    toggleFindExact: !->
@@ -550,6 +557,15 @@ App =
          @findLines = []
          @fetchTextEnCopyLines!
          m.redraw!
+
+   openGoogleCommonName: (line) ->
+      name = @getFullNameNoSubgenus line
+      row = line.index
+      copiedType = switch
+         | line.textVi => 0
+         | line.imgs => 1
+         else 2
+      window.open "https://google.com/search?q=#name+common+name&row=#row&copiedType=#copiedType" \_blank
 
    mousedownImg: (img, event) !->
       {target} = event
@@ -574,6 +590,8 @@ App =
             src .= replace \?w=320 \?w=1200
          | src.includes \i.pinimg.com
             src .= replace \564x \originals
+         | src.includes \reeflifesurvey.com
+            src .= replace \.w400.h266 ""
          | src.includes \i.imgur.com
             if @code == \Delete
                src -= /(?<=:\/\/)i\.|m\.\w+$/g
@@ -602,18 +620,28 @@ App =
             name = @getFullNameNoSubgenus line
             if event.altKey
                if isDev
-                  text = name
+                  copiedText = name
                else
-                  text = line.name
+                  copiedText = line.name
+            else if event.ctrlKey
+               if isDev
+                  childs = lines.filter (line2) ~>
+                     line2.parent == line and !line2.textEn and !line2.isDuplicateTextEn
+                  childs .= slice 0 10
+                  for let child, i in childs
+                     setTimeout !~>
+                        @openGoogleCommonName child
+                     , i * 100
             else
                if isDev
-                  window.open "https://google.com/search?q=#name+common+name" \_blank
+                  @openGoogleCommonName line
                else
-                  text = name
-            try
-               navigator.clipboard.writeText text
-            catch
-               alert e.message
+                  copiedText = name
+            if copiedText
+               try
+                  navigator.clipboard.writeText copiedText
+               catch
+                  alert e.message
 
    contextmenuName: (line, event) !->
       event.preventDefault!
@@ -622,7 +650,6 @@ App =
             name = @getFullNameNoSubgenus line
             action =
                | event.altKey => \g
-               | @code == \KeyC => \c
                | @code == \KeyB => \b
                | @code == \KeyL => \l
                | @code == \KeyH => \h
@@ -634,8 +661,6 @@ App =
             switch action
             | \g
                window.open "https://google.com/search?tbm=isch&q=#name" \_blank
-            | \c
-               window.open "https://google.com/search?q=#name+common+name" \_blank
             | \b
                window.open "https://bugguide.net/index.php?q=search&keys=#name"
             | \l
@@ -750,14 +775,14 @@ App =
                                           {target} = event
                                           {width, height} = target
                                           if (width < 320 and height < 240) or (!isTwoImage and 1.233 < width / height < 1.333)
-                                             target.classList.add \popupImg--cover
+                                             target.classList.add \popupImgCover
                                           if @popper
                                              updateHeight!
                                        onerror: !~>
                                           if @popper
                                              @popper.update!
                                  if imgs.length == 2 or imgs.some (?1)
-                                    m \.popupGenderCaptn,
+                                    m \.popupGenderText,
                                        if imgs.length == 2
                                           i and \Cái or \Đực
                                        if img.1
@@ -806,14 +831,14 @@ App =
       line.textEnCopy = text
       row = line.index
       try
-         copyText = await navigator.clipboard.readText!
-         copyText and+= \\n
-         copyText += "#row|DA84.&D-+7eDL2qr|"
-         copyText += switch
+         copiedText = await navigator.clipboard.readText!
+         copiedText and+= \\n
+         copiedText += "#row|DA84.&D-+7eDL2qr|"
+         copiedText += switch
             | line.textVi => " #text"
             | line.imgs => " #text #"
             else " # #text"
-         await navigator.clipboard.writeText copyText
+         await navigator.clipboard.writeText copiedText
       catch
          alert e.message
 
@@ -910,10 +935,10 @@ App =
 
    scroll: !->
       top = Math.round scrollEl.scrollTop
-      transY = top - top % lineH
-      presEl.style.transform = "translateY(#{transY}px)"
+      transY = top - top % lineHeight
+      linesEl.style.transform = "translateY(#{transY}px)"
       localStorage.taxonTop = top
-      start = Math.floor top / lineH
+      start = Math.floor top / lineHeight
       unless start == @start and @lines.length == @len
          @start = start
          @lines = lines.slice start, start + @len
@@ -1002,10 +1027,10 @@ App =
                         @lines = []
                         {scrollTop} = scrollEl
                         await parse!
-                        heightEl.style.height = lines.length * lineH + \px
+                        heightEl.style.height = lines.length * lineHeight + \px
                         @scroll!
                         m.redraw.sync!
-                        maxScrollTop = lines.length * lineH - scrollEl.offsetHeight
+                        maxScrollTop = lines.length * lineHeight - scrollEl.offsetHeight
                         if scrollTop > maxScrollTop
                            scrollTop = maxScrollTop
                         scrollEl.scrollTop = scrollTop
@@ -1041,7 +1066,7 @@ App =
       @isKeyDown = no
 
    onresize: !->
-      @len = Math.ceil(innerHeight / lineH) + 1
+      @len = Math.ceil(innerHeight / lineHeight) + 1
       @scroll!
       m.redraw!
 
@@ -1064,7 +1089,7 @@ App =
          m \.node,
             style:
                zIndex: bcrumZ
-            m \span.name,
+            m \.nodeName,
                class: @getRankName line.lv
                onmouseenter: @mouseenterName.bind void line, isBcrum
                onmouseleave: @mouseleaveName
@@ -1072,43 +1097,43 @@ App =
                oncontextmenu: @contextmenuName.bind void line
                line.name
             if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy != \...)
-               m \span.dash,
+               m \.nodeDash,
                   \\u2014
             if line.textEn
-               m \span.textEn,
+               m \.nodeTextEn,
                   line.textEn
             if line.textEnCopy
                if Array.isArray line.textEnCopy
-                  m \.textEn,
+                  m \.nodeTextEn,
                      line.textEnCopy.map (text) ~>
-                        m \.textEnCopy,
-                           class: "textEnCopyIsDuplicateTextEn" if line.isDuplicateTextEn
+                        m \.nodeTextEnCopy,
+                           class: "nodeTextEnCopyIsDuplicateTextEn" if line.isDuplicateTextEn
                            onclick: @onclickTextEnCopy.bind void line, text
                            text
                else
-                  m \span.textEn,
+                  m \.nodeTextEn,
                      line.textEnCopy
             if line.textVi
-               m \span.textVi,
+               m \.nodeTextVi,
                   line.textVi
             if line.isShowChildsCount
-               m \span.textVi,
+               m \.nodeTextVi,
                   "(#{line.childsCount})"
             line.imgs?map (img, i) ~>
                if img and i < 2
-                  m \img.img,
+                  m \img.nodeImg,
                      src: img.0
                      onmousedown: @mousedownImg.bind void img
 
    view: ->
-      m.fragment do
-         m \#scrollEl,
+      m \.main,
+         m \.scroll#scrollEl,
             onscroll: @onscroll
-            m \#presEl,
+            m \.lines#linesEl,
                @lines.map (line) ~>
                   @lineView line, no
-            m \#heightEl
-         if @lines.1
+            m \.height#heightEl
+         if @lines.1 and !maxLv
             m \.bcrums,
                @getParents @lines.1 .map (line, i) ~>
                   m \.bcrum,
@@ -1116,7 +1141,7 @@ App =
                      @lineView line, yes, textRanks.length - i
                      @lineView lines[line.index + 1], yes
          if infoLv
-            m \#infosEl,
+            m \.infos,
                for , info of infos
                   if infoLv >= info.lv
                      m.fragment do
@@ -1137,8 +1162,8 @@ App =
                   @togglePopupLang!
                @popupLang
          if @finding
-            m \#findEl,
-               m \input#findInputEl,
+            m \.find,
+               m \input.findInput#findInputEl,
                   placeholder: "Tìm kiếm"
                   autocomplete: \off
                   value: @findVal
@@ -1147,7 +1172,7 @@ App =
                   onkeydown: !~>
                      if it.key == \Enter
                         @findGo it.shiftKey && -1 || 1
-               m \#findTextEl,
+               m \.findCount,
                   (@findLines.length and @findIndex + 1 or 0) + \/ + @findLines.length
                m \.findButton,
                   class: \findButtonOn if @findExact
@@ -1159,10 +1184,10 @@ App =
                   title: "Phân biệt hoa-thường"
                   onclick: @toggleFindCase
                   "Aa"
-               m \.findButton#findClose,
+               m \.findButton.findClose,
                   title: "Đóng"
                   onclick: @closeFind
                   "\u2a09"
-         m \#popupEl
+         m \.popup#popupEl
 
 m.mount document.body, App

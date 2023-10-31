@@ -448,6 +448,7 @@ App =
       @imgurEditRatio1Img = (320 / 240)toFixed 3
       @imgurEditRatio2Img = (280 / 240)toFixed 3
       @inaturalistSearchImportedData = null
+      @googleCommonNameClipboardText = void
       window.addEventListener \selectionchange @onselectionchange, yes
       window.addEventListener \mousedown @onmousedown, yes
       window.addEventListener \mouseup @onmouseup, yes
@@ -498,8 +499,9 @@ App =
                      el.remove!
                   while el = nextEl
                @hasSubspecies = /sub-?species/i.test document.body.innerText
-               if @els.commons
-                  @prerender that.href
+               el = document.querySelector \.binomial or document.querySelector \#firstHeading
+               q = el.innerText
+               @prerender "https://www.flickr.com/search/?text=#q"
                if @els.viLang
                   @summ = yes
                   q = that.href.split \/ .[* - 1]
@@ -551,11 +553,15 @@ App =
                els = document.querySelectorAll ".taxon_list_taxon > .noimg"
                for el in els
                   el.remove!
+            unless document.querySelector \.taxon_list_taxon>.taxon.species
+               @doCombo \G+F
          | t.biolib
             setTimeout !~>
                document.activeElement.blur!
             , 10
          | t.flickr
+            if document.querySelector \.search-empty
+               @doCombo \N
             uiEvent = new UIEvent \resize
             window.dispatchEvent uiEvent
             setTimeout !~>
@@ -566,6 +572,11 @@ App =
                   el.click!
                , 100
             , 900
+         # | t.google
+         #    if el = document.querySelector \iframe
+         #       if el.title == \reCAPTCHA
+         #          if el = el.contentWindow.document.querySelector \.recaptcha-checkbox-border
+         #             el.click!
 
    oncreate: !->
       if t.wiki
@@ -773,26 +784,15 @@ App =
    emptySel: !->
       @selection.removeAllRanges!
 
-   copy: (text) ->
+   copy: (text) !->
       if text?
-         if navigator.clipboard
-            that.writeText text
-         else
-            el = document.createElement \textarea
-            el.className = \_copy
-            el.value = text
-            el.onblur = el.focus.bind el
-            document.body.appendChild el
-            document.activeElement.blur!
-            el.select!
-            document.execCommand \copy
-            el.remove!
+         await navigator.clipboard.writeText text
 
-   openLinksExtract: (targets, noOpen) !->
+   openLinksExtract: (targets, dontOpenTab) !->
       urls = []
       @data = @extract targets,
          link: (target, link) !~>
-            return if noOpen and urls.length >= 10
+            return if dontOpenTab and urls.length >= 10
             unless target.dataset.openedLi
                target.dataset.openedLi = 1
                if link
@@ -800,8 +800,8 @@ App =
                      link.dataset.openedA = 1
                      urls.push link.href
       if urls.length
-         unless noOpen
-            @copy @data
+         unless dontOpenTab
+            await @copy @data
             chrome.runtime.sendMessage do
                act: \openUrls
                urls: urls
@@ -822,8 +822,10 @@ App =
       window.open do
          \https://api.imgur.com/oauth2/authorize?client_id=92ac14aabe20918&response_type=token&state=taxon
 
-   closeTab: ->
-      chrome.runtime.sendMessage \closeTab
+   closeTab: (timer) ->
+      setTimeout !~>
+         chrome.runtime.sendMessage \closeTab
+      , timer
 
    dataUrlToBase64: (dataUrl) ->
       dataUrl - /^data:[a-z\d-]+\/[a-z\d-]+;base64,/
@@ -979,7 +981,7 @@ App =
          else resolve!
 
    uploadBase64ToGithub: (base64, message, isFemale) !->
-      filename = @numToRadix62 Date.now! / 10000 - 169851443
+      filename = @numToRadix62 Date.now! / 10000 - 169856664
       saved = no
       notify = @notify "Đang upload ảnh lên Github" -1
       unless window.Octokit
@@ -1414,6 +1416,29 @@ App =
          @modals.push modal
          m.redraw!
 
+   googleCommonNameCopy: (el, isCloseTab) !->
+      @googleCommonNameClipboardText ?= await navigator.clipboard.readText!
+      isEl = el instanceof Element
+      text = if isEl => el.innerText else el
+      text = text
+         .replace /\ [-(,].+/ ""
+         .replace /\ · .+/ ""
+      text = @formatTaxonText text
+      params = new URLSearchParams location.search
+      row = Number params.get \row
+      copiedType = Number params.get \copiedType
+      copiedText = @googleCommonNameClipboardText
+      copiedText and+= \\n
+      copiedText += "#row|DA84.&D-+7eDL2qr|"
+      copiedText += switch copiedType
+         | 0 => " #text"
+         | 1 => " #text #"
+         else " # #text"
+      await @copy copiedText
+      @notify text
+      @mark el if isEl
+      @closeTab 1000 if isCloseTab
+
    extract: (targets, opts = {}, parent, items = [], index = 0) ->
       if typeof targets is \string
          targets = targets
@@ -1631,7 +1656,8 @@ App =
                name = opts.notMatchText
                tab = notMatchTab
          if nameEl
-            if aEl = nameEl.querySelector 'a[href*="_("]'
+            selector = "a[href*='_(']"
+            if aEl = nameEl.matches selector and nameEl or nameEl.querySelector selector
                ma = /_\((.+?)\)/exec aEl
                name += " \\#{ma.1}"
          text = void
@@ -1726,7 +1752,7 @@ App =
 
    doCombo: (combo, target, sel, event, args) !->
       doCombo = (combo2 = combo, target2 = target, sel2 = sel, args2 = args) !~>
-         @doCombo combo2, target2, sel2, event, args2
+         await @doCombo combo2, target2, sel2, event, args2
       comboIncludes = (...keys) ~>
          //(^|\+)(#{keys.join \|})(\+|$)//test combo
       if @modals.length
@@ -1736,12 +1762,17 @@ App =
       else if combo is \0
          @comboRanks = []
       didSel = no
+      didSelThenAutoCopy = yes
       if sel
          data = sel.replace @regexes.startsPrefixes, ""
          data = @formatTaxonText data
          switch combo
          | \LMB
-            @lineData.0 = " # #data"
+            if t.googleCommonName
+               await @googleCommonNameCopy data, yes
+               didSelThenAutoCopy = no
+            else
+               @lineData.0 = " # #data"
             didSel = yes
          | \RMB
             @lineData.1 = " | #data"
@@ -1750,12 +1781,12 @@ App =
             @lineData.0 = " #"
             @lineData.1 = " | #data"
             didSel = yes
-         if didSel
+         if didSel and didSelThenAutoCopy
             if @cfg.lineDataSeparateNameAndImg
                @lineData.2 = ""
                @lineData.3 = ""
             @data = @lineData.join ""
-            @copy @data
+            await @copy @data
             @mark target
             @emptySel!
       unless didSel
@@ -1833,7 +1864,8 @@ App =
                      else if matched = src is /\/\/(static\.inaturalist\.org|inaturalist-open-data\.s3\.amazonaws\.com)\//
                         isAmazonAws = matched.1 is \inaturalist-open-data.s3.amazonaws.com and \: or ""
                         [, name, ext] = /\/photos\/(\d+)\/[a-z]+\.([a-zA-Z]*)/.exec src
-                        type = {jpg: "" jpeg: \e png: \p JPG: \J JPEG: \E PNG: \P "": \u}[ext]
+                        exts = jpg: "", jpeg: \e, png: \p, JPG: \J, JPEG: \E, PNG: \P, "": \u
+                        type = exts[ext]
                         data = ":#isAmazonAws#name#type"
                         if @inaturalistSearchImportedData
                            isWriteLocalData = no
@@ -1884,7 +1916,7 @@ App =
                         name = regex.exec src .1 .toLowerCase!
                         data = "^#isUpload#name"
                      else if src.includes \//cdn.download.ams.birds.cornell.edu/
-                        if name = /\/asset\/(\d+)1(\/|$)/exec src ?.1
+                        if name = /\/asset\/(\d+)(\/|$)/exec src ?.1
                            data = "+#name"
                         else
                            @notify "Không thể lấy dữ liệu hình ảnh"
@@ -1904,6 +1936,11 @@ App =
                      else if src.includes \//images.marinespecies.org/
                         name = /^https:\/\/images\.marinespecies\.org\/thumbs\/(.+?)\.jpg/exec src .1
                         data = "&#name"
+                     else if matched = src is /images\.reeflifesurvey\.com\/0\/species_(\w+)(?:\.w\d+\.h\d+)?\.(jpg|JPG)$/
+                        name = matched.1
+                        exts = jpg: \j, JPG: \J
+                        ext = exts[matched.2]
+                        data = "*#name#ext"
                      else if src.includes \//i.imgur.com/
                         name = /^https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
                         data = "-#name"
@@ -1928,7 +1965,7 @@ App =
                         @lineData.0 = ""
                         @lineData.1 = ""
                      @data = @lineData.join ""
-                     @copy @data
+                     await @copy @data
                      @mark target
                   else
                      switch combo
@@ -1949,6 +1986,10 @@ App =
                               await @modalImgGithub do
                                  image: image
                                  isFemale: isFemale
+            | t.googleCommonName and (el = target.querySelector ":scope>span>a[jsname]>h3")
+               await @googleCommonNameCopy el, yes
+            | t.googleCommonName and target.localName == \b
+               await @googleCommonNameCopy target, yes
             | target.matches "a:not(.new)[href]" and combo is \RMB
                if combo is \RMB
                   window.open target.href
@@ -1961,18 +2002,18 @@ App =
                   if rank
                      @data = @extract td,
                         ranks: [rank]
-                     @copy @data
+                     await @copy @data
                      @mark td
             | el = target.closest ".infobox.biota .binomial, .infobox.taxobox .binomial"
                if combo in [\RMB \LMB]
                   @data = @extract el,
                      ranks: [@ranks.species]
-                  @copy @data
+                  await @copy @data
                   @mark el
             | el = target.closest "dl> dt:only-child"
                if combo in [\RMB \LMB]
                   @data = @extract el
-                  @copy @data
+                  await @copy @data
                   @mark el
             | target is target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
                doCombo combo,, target.innerText
@@ -1991,13 +2032,13 @@ App =
                      .replace /\s+-\s+|\s*\u2013\s*/g \\n
                   @data = @extract text,
                      ranks: [rank]
-                  @copy @data
+                  await @copy @data
                   @mark target
             | target.matches '#firstHeading, ._summTitle, h1, b, em'
                doCombo combo,, target.innerText
             | target.matches 'i'
                @data = @extract target
-               @copy @data
+               await @copy @data
                @mark target
             | @node and 0 < @nodeOffset < @node.length - 1
                text = @node.wholeText.trim!
@@ -2018,7 +2059,7 @@ App =
                   .trim!
                text = @formatTaxonText text
                @data = " # #text"
-               @copy @data
+               await @copy @data
                @mark @node
             | target.localName in [\li \dd]
                ul = target.parentElement
@@ -2064,7 +2105,7 @@ App =
                         .trim!
                   @data = @extract text,
                      ranks: [rank]
-                  @copy @data
+                  await @copy @data
                   @mark el
             | t.wiki and td = target.closest \td
                table = td.closest \table
@@ -2109,7 +2150,7 @@ App =
                   @data -= /\*/g
                else
                   @data .= replace /(?!^)(?=\n|$)/g \*
-               @copy @data
+               await @copy @data
             | \V
                if t.inaturalist
                   if el = document.querySelector "[name=taxon_name]"
@@ -2153,7 +2194,7 @@ App =
                      q = document.querySelector \#firstHeading .innerText
                   else
                      el = document.querySelector \.binomial or document.querySelector \#firstHeading
-                     q = el?innerText
+                     q = el.innerText
                switch combo
                | \G
                   {keyGPlus} = @cfg
@@ -2246,7 +2287,7 @@ App =
                      g = canvas.getContext \2d
                      g.putImageData imgData, -l, -t, l, t, width, height
                      dataUrl = canvas.toDataURL \image/webp 0.9
-                     @copy dataUrl
+                     await @copy dataUrl
                      URL.revokeObjectURL url
                      notify.update "Xóa viền ảnh thành công"
                   img.src = url
@@ -2292,7 +2333,7 @@ App =
                   if text = prompt "Nhập danh sách dữ liệu Chi và Loài:"
                      if text .= replace /^\r?\n+|\r?\n+$/g ""
                         lineRegex = /^(\t*)([^ ]+)(\*?)(?: # (.+))?$/
-                        tailRegex = /^([-/:@%~^+$<>=!&?]|https?:\/\/)/
+                        tailRegex = /^([-/:@%~^+$<>=!&*?]|https?:\/\/)/
                         text = text.split /\r?\n/
                         [,, genusName, genusExtinct, genusTail] = lineRegex.exec text.0
                         lines = text.slice 1

@@ -62,19 +62,12 @@
    },
    "[taxon]": {
       "editor.tabSize": 2,
-      // "editor.tabSize": 4,
-      // "editor.fontFamily": "PT Mono, Clear Sans, Arial, sans-serif",
-      // "editor.fontSize": 14.5,
-      "editor.fontFamily": "D2Coding, Droid Sans Mono Slashed, Consolas",
+      "editor.fontFamily": "D2Coding",
       "editor.fontSize": 16,
-      // "editor.fontFamily": "sans-serif",
-      // "editor.fontSize": 16,
       "editor.insertSpaces": false,
       "editor.wordWrap": "wordWrapColumn",
       "editor.wordWrapColumn": 110,
       "editor.rulers": [120],
-      // "editor.wordWrapColumn": 200,
-      // "editor.rulers": [120],
       "editor.foldingStrategy": "indentation"
    },
    "material-icon-theme.files.associations": {
