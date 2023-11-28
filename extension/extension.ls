@@ -465,15 +465,16 @@ App =
          chrome.storage.local.get do
             <[cfg token tokenTime album inaturalistSearchImportedData]>
             ({@cfg = {}, @token, tokenTime, @album, @inaturalistSearchImportedData}) !~>
-               unless t.imgur
-                  unless @token and tokenTime + 6048e5 > Date.now!
-                     await @getImgurToken!
-                  unless @album
-                     until await @getImgurAlbum! =>
+               # unless t.imgur
+               #    unless @token and tokenTime + 6048e5 > Date.now!
+               #       await @getImgurToken!
+               #    unless @album
+               #       until await @getImgurAlbum! =>
                if t.inaturalistSearch
                   if @inaturalistSearchImportedData
                      @inaturalistSearchImportedData = JSON.parse @inaturalistSearchImportedData
                      @renderInaturalistSearchImportedData!
+               m.redraw!
          switch
          | t.wiki
             switch
@@ -564,14 +565,14 @@ App =
                @doCombo \N
             uiEvent = new UIEvent \resize
             window.dispatchEvent uiEvent
-            setTimeout !~>
-               el = document.querySelector '[data-track="search-layout-justified"]'
-               el.click!
-               setTimeout !~>
-                  el = document.querySelector '[data-track="search-layout-tiles"]'
-                  el.click!
-               , 100
-            , 900
+            # setTimeout !~>
+            #    el = document.querySelector '[data-track="search-layout-justified"]'
+            #    el.click!
+            #    setTimeout !~>
+            #       el = document.querySelector '[data-track="search-layout-tiles"]'
+            #       el.click!
+            #    , 100
+            # , 900
          # | t.google
          #    if el = document.querySelector \iframe
          #       if el.title == \reCAPTCHA
@@ -632,7 +633,7 @@ App =
                @upperFirst text
          text = text
             .trim!
-            .replace /\u2019/g "'"
+            .replace /\u2019|\u02bb/g "'"
             .replace /\xa0+/g " "
             .replace /\ \u2013.*/ ""
             .replace /\u2013/g \-
@@ -658,8 +659,9 @@ App =
       table = td.closest \table
       grid = @table table
       col = grid.find (.includes td)
+      index = col.indexOf td
       col
-         .slice col.indexOf td
+         .slice index
          .filter Boolean
 
    findRank: (kind, fn) ->
@@ -816,7 +818,10 @@ App =
 
    setCfg: (prop, val, cb) !->
       @cfg[prop] = val
-      chrome.storage.local.set {@cfg}, cb
+      chrome.storage.local.set {@cfg}, !~>
+         cb?!
+         m.redraw!
+      m.redraw!
 
    openTabGetImgurToken: ->
       window.open do
@@ -981,7 +986,7 @@ App =
          else resolve!
 
    uploadBase64ToGithub: (base64, message, isFemale) !->
-      filename = @numToRadix62 Date.now! / 10000 - 169856664
+      filename = @numToRadix62 Date.now! / 10000 - 170096855
       saved = no
       notify = @notify "Đang upload ảnh lên Github" -1
       unless window.Octokit
@@ -1537,14 +1542,6 @@ App =
                      opts.link? target, link
             nameEl = null
             do
-               if el = target.querySelector ':scope > a > .toctext'
-                  if el.innerText.trim!0 is /[A-Z]/
-                     nameEl = el
-                     break
-               if el = target.querySelector ':scope > a:not([data-excl])'
-                  if el.nextSibling?textContent.0 is \:
-                     nameEl = el
-                     break
                if el = target.querySelector ':scope > i:first-child'
                   if el.innerText.trim!0 is /[A-Z]/
                      if node = el.nextSibling
@@ -1553,9 +1550,8 @@ App =
                               if el2.localName == \i
                                  name = "#{el.innerText.trim!} #{el2.innerText.trim!}"
                                  break
-                     else
-                        nameEl = el
-                        break
+                     nameEl = el
+                     break
                if el = target.querySelector ':scope > i > a:not([data-excl])'
                   val = el.innerText.trim!
                   if val.0 is /[A-Z]/
@@ -1572,6 +1568,10 @@ App =
                      break
                if el = target.querySelector ':scope > i'
                   if el.innerText.trim!
+                     nameEl = el
+                     break
+               if el = target.querySelector ':scope > a > .toctext'
+                  if el.innerText.trim!0 is /[A-Z]/
                      nameEl = el
                      break
                if el = target.querySelector ':scope > a:not([data-excl])'
@@ -1665,6 +1665,13 @@ App =
             if target instanceof Element
                textEl = null
                do !~>
+                  if el = target.querySelector "._commonName"
+                     textEl := el
+                     el.remove!
+                     return
+                  if el = target.querySelector ":scope > b:is(:first-child, :last-child)"
+                     textEl := el
+                     return
                   if el = target.querySelector ':scope > a:first-child'
                      textEl := el
                      return
@@ -1701,12 +1708,12 @@ App =
                            unless val.endsWith \(
                               return
                if textEl
-                  if textEl is nameEl
+                  if textEl == nameEl
                      textEl = null
                if textEl
                   text = textEl.innerText
                if text
-                  text = text.split /, ?/ 1 .0
+                  text = text.split /(, ?| or )/ 1 .0
                   text = @upperFirst text
                   if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines|Malaysia|Indonesia|Japan|Yunnan|Java|Australia|Southeast Asia|Africa|Indomalaya|Thailand|Papua New Guinea|Island of Reunion|Madagascar|Sri Lanka)$/.test text
                      text = void
@@ -1791,7 +1798,7 @@ App =
             @emptySel!
       unless didSel
          if target
-            if target.closest \span#Tạo_mới
+            if target.closest 'span#Tạo_mới, ._dontCopy'
                return
             switch
             | combo is \Backquote+RMB
@@ -1987,7 +1994,11 @@ App =
                                  image: image
                                  isFemale: isFemale
             | t.googleCommonName and (el = target.querySelector ":scope>span>a[jsname]>h3")
-               await @googleCommonNameCopy el, yes
+               text = match el.parentElement.href
+                  | /(\/\/|www\.)fishbase\./
+                     el.textContent.split /, | : / .at 1
+                  else el
+               await @googleCommonNameCopy text, yes
             | t.googleCommonName and target.localName == \b
                await @googleCommonNameCopy target, yes
             | target.matches "a:not(.new)[href]" and combo is \RMB
@@ -2010,7 +2021,7 @@ App =
                      ranks: [@ranks.species]
                   await @copy @data
                   @mark el
-            | el = target.closest "dl> dt:only-child"
+            | el = target.closest "dl > dt:only-child"
                if combo in [\RMB \LMB]
                   @data = @extract el
                   await @copy @data
@@ -2109,16 +2120,24 @@ App =
                   @mark el
             | t.wiki and td = target.closest \td
                table = td.closest \table
-               col = @tableCol td
+               cols = @tableCol td
+               ths = Array.from table.rows.0.cells
+               isNameCol = ths[td.cellIndex]innerText.toLowerCase! == "scientific name"
+               if isNameCol
+                  commonNameColIndex = ths.findIndex (.innerText.toLowerCase! == "common name")
+                  for col in cols
+                     commonName = col.parentElement.cells[commonNameColIndex]innerText
+                     col.innerHTML += "<div class='_commonName'>#commonName</div>"
+                  switch combo
+                  | \RMB \LMB
+                     data = @extract cols
+                     await @copy data
+                     @mark cols
+                     if @cfg.copyExtractDeepAndOpenLinkExtract
+                        @openLinksExtract cols
                switch combo
-               | \RMB \LMB
-                  data = @extract col
-                  await @copy data
-                  @mark col
-                  if @cfg.copyExtractDeepAndOpenLinkExtract
-                     @openLinksExtract col
                | \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
-                  @openLinksExtract col, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
+                  @openLinksExtract cols, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
          else
             switch combo
             | \C
@@ -2546,6 +2565,11 @@ App =
                            m \a._col6._row._center._middle._textGreen,
                               href: el.href
                               "Commons"
+                     if @cfg
+                        m \._col._column._center._middle._hover2._cursorPointer._dontCopy,
+                           onclick: !~>
+                              @doCombo "G+#{@cfg.keyGPlus}"
+                           "G+#{@cfg.keyGPlus}"
                | t.imgurEdit
                   m \._p3,
                      m \p "Tỷ lệ h.tại: #@imgurEditRatio"

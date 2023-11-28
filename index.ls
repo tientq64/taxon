@@ -561,11 +561,23 @@ App =
    openGoogleCommonName: (line) ->
       name = @getFullNameNoSubgenus line
       row = line.index
-      copiedType = switch
+      copiedType =
          | line.textVi => 0
          | line.imgs => 1
          else 2
       window.open "https://google.com/search?q=#name+common+name&row=#row&copiedType=#copiedType" \_blank
+
+   getSiblingLines: (startLine, maxChilds = 10, conditionFunc = ~> yes) ->
+      childs = []
+      index = lines.indexOf startLine
+      loop
+         child = lines[index]
+         if !child or childs.length >= maxChilds or child.lv < startLine.lv
+            break
+         else if child.lv == startLine.lv and child.name !in ["" \?] and conditionFunc child
+            childs.push child
+         index++
+      childs
 
    mousedownImg: (img, event) !->
       {target} = event
@@ -625,9 +637,8 @@ App =
                   copiedText = line.name
             else if event.ctrlKey
                if isDev
-                  childs = lines.filter (line2) ~>
-                     line2.parent == line and !line2.textEn and !line2.isDuplicateTextEn
-                  childs .= slice 0 10
+                  childs = @getSiblingLines line, 10 ~>
+                     !it.textEn and !it.isDuplicateTextEn
                   for let child, i in childs
                      setTimeout !~>
                         @openGoogleCommonName child
@@ -647,50 +658,66 @@ App =
       event.preventDefault!
       if isDev
          unless line.name in ["" \?]
-            name = @getFullNameNoSubgenus line
-            action =
-               | event.altKey => \g
-               | @code == \KeyB => \b
-               | @code == \KeyL => \l
-               | @code == \KeyH => \h
-               | @code == \KeyE => \e
-               | @code == \KeyS => \s
-               | @code == \KeyN => \n
-               | @code == \KeyK => \k
-               else @rightClickAction
-            switch action
-            | \g
-               window.open "https://google.com/search?tbm=isch&q=#name" \_blank
-            | \b
-               window.open "https://bugguide.net/index.php?q=search&keys=#name"
-            | \l
-               window.open "https://www.biolib.cz/en/formsearch/?string=#name&searchgallery=1&action=execute"
-            | \h
-               [genus, species] = name.split " "
-               if species
-                  window.open "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species" \_blank
-               else
-                  window.open "http://fishbase.us/Nomenclature/ValidNameList.php?syng=#genus&crit2=CONTAINS&crit1=EQUAL"
-            | \e
-               handle = (name) ~>
-                  data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#name")json!
-                  item = data.find (.name.includes name) or data.0
-                  if item
-                     window.open "https://ebird.org/species/#{item.code}"
-                     yes
-               unless await handle name
-                  if line.textEn
-                     await handle line.textEn
-            | \s
-               name = name.toLowerCase!replace /\ /g \-
-               window.open "https://www.seriouslyfish.com/species/#name"
-            | \n
-               window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
-            | \k
-               window.open "https://www.flickr.com/search/?text=#name"
+            if event.ctrlKey
+               childs = @getSiblingLines line, 10
+               for child in childs
+                  name = @getFullNameNoSubgenus child
+                  @windowOpenByAction \k name
+            else
+               name = @getFullNameNoSubgenus line
+               action =
+                  | event.altKey => \g
+                  | @code == \KeyB => \b
+                  | @code == \KeyL => \l
+                  | @code == \KeyH => \h
+                  | @code == \KeyE => \e
+                  | @code == \KeyS => \s
+                  | @code == \KeyN => \n
+                  | @code == \KeyK => \k
+                  else @rightClickAction
+               @windowOpenByAction action, name
       else
          q = @getWikiPageName line, \en
          window.open "https://en.wikipedia.org/wiki/#q" \_blank
+
+   windowOpenByAction: (action, name) !->
+      switch action
+      | \g
+         window.open "https://google.com/search?tbm=isch&q=#name" \_blank
+      | \b
+         window.open "https://bugguide.net/index.php?q=search&keys=#name"
+      | \l
+         window.open "https://www.biolib.cz/en/formsearch/?string=#name&searchgallery=1&action=execute"
+      | \h
+         [genus, species] = name.split " "
+         if species
+            window.open "https://fishbase.us/photos/ThumbnailsSummary.php?Genus=#genus&Species=#species" \_blank
+         else
+            window.open "http://fishbase.us/Nomenclature/ValidNameList.php?syng=#genus&crit2=CONTAINS&crit1=EQUAL"
+      | \e
+         handle = (name) ~>
+            data = await (await fetch "https://api.ebird.org/v2/ref/taxon/find?key=jfekjedvescr&q=#name")json!
+            item = data.find (.name.includes name) or data.0
+            if item
+               window.open "https://ebird.org/species/#{item.code}"
+               yes
+         unless await handle name
+            if line.textEn
+               await handle line.textEn
+      | \s
+         name .= toLowerCase!replace /\ /g \-
+         window.open "https://www.seriouslyfish.com/species/#name"
+      | \n
+         window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
+      | \k
+         window.open "https://www.flickr.com/search/?text=#name"
+
+   getAbbrWordName: (word) ->
+      chr = word.0
+      if chr == \"
+         "\"#{word.1}.\""
+      else
+         "#chr."
 
    mouseenterName: (line, isBcrum, event) !->
       unless line.name in [\? " "]
@@ -722,23 +749,23 @@ App =
                   | 4
                      switch step
                      | 0
-                        name := "#{vals.0} #{vals.1.0}. #{vals.2} #{vals.3}"
+                        name := "#{vals.0} #{@getAbbrWordName vals.1} #{vals.2} #{vals.3}"
                         nameEl.textContent = name
                         updateWidth 1
                      | 1
-                        name := "#{vals.0.0}. #{vals.1} #{vals.2} #{vals.3}"
+                        name := "#{@getAbbrWordName vals.0} #{vals.1} #{vals.2} #{vals.3}"
                         nameEl.textContent = name
                   | 3
                      switch step
                      | 0
-                        name := "#{vals.0} #{vals.1.0}. #{vals.2}"
+                        name := "#{vals.0} #{@getAbbrWordName vals.1} #{vals.2}"
                         nameEl.textContent = name
                         updateWidth 1
                      | 1
-                        name := "#{vals.0.0}. #{vals.1} #{vals.2}"
+                        name := "#{@getAbbrWordName vals.0} #{vals.1} #{vals.2}"
                         nameEl.textContent = name
                   | 2
-                     name := "#{vals.0.0}. #{vals.1}"
+                     name := "#{@getAbbrWordName vals.0} #{vals.1}"
                      nameEl.textContent = name
          popup =
             view: (vnode) ~>
