@@ -46,5 +46,7 @@ fs.outputFileSync \vscode-ext/dist/extension.js code
 json = fs.readJsonSync \vscode-ext/language-configuration.json
 fs.outputJsonSync \vscode-ext/dist/language-configuration.json json
 
+fs.copySync \icon.png \vscode-ext/dist/icon.png
 fs.copySync \vscode-ext/LICENSE \vscode-ext/dist/LICENSE
+
 fs.outputJsonSync \vscode-ext/dist/package.json pack

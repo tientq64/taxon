@@ -62,7 +62,7 @@
    },
    "[taxon]": {
       "editor.tabSize": 2,
-      "editor.fontFamily": "D2Coding",
+      // "editor.fontFamily": "D2Coding",
       "editor.fontSize": 16,
       "editor.insertSpaces": false,
       "editor.wordWrap": "wordWrapColumn",
