@@ -1595,6 +1595,7 @@ App =
             .replace /^([A-Z][a-z]+) \([A-Z][a-z]+\)( [a-z]{2,})$/ \$1$2
             .replace /\([A-Z]\.\)\s/ ""
             .replace /[()]/g ""
+            .replace /× ?/ ""
          # if name is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
          # 	subgenera[that.1] = yes
          if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is name
