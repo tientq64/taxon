@@ -2123,7 +2123,7 @@ App =
                table = td.closest \table
                cols = @tableCol td
                ths = Array.from table.rows.0.cells
-               isNameCol = ths[td.cellIndex]innerText.toLowerCase! == "scientific name"
+               isNameCol = /(scientific|binomial) name/.test ths[td.cellIndex]innerText.toLowerCase!
                if isNameCol
                   commonNameColIndex = ths.findIndex (.innerText.toLowerCase! == "common name")
                   for col in cols

@@ -63,7 +63,7 @@
    "[taxon]": {
       "editor.tabSize": 2,
       // "editor.fontFamily": "D2Coding",
-      "editor.fontSize": 16,
+      // "editor.fontSize": 16,
       "editor.insertSpaces": false,
       "editor.wordWrap": "wordWrapColumn",
       "editor.wordWrapColumn": 110,
@@ -78,5 +78,6 @@
       "vscode-ext": "vscode"
    },
    // "liveServer.settings.wait": 200
-   "liveServer.settings.wait": 400
+   "liveServer.settings.wait": 400,
+   "liveServer.settings.NoBrowser": true
 }
