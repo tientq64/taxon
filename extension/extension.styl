@@ -436,13 +436,25 @@ body
    .search-prints-results
    .sidebar-column
    .moola-search-div
+   .photo-list-getty-item-view
       display none
    .search-slender-advanced-panel-view
       top 0
    .no-results-message-container + .search-box-container
       display none !important
-   // .photo-list-tile-view
-   //   translate 0 -1248px
+   .photo-list-view:has(> .forced-aspect-ratio)
+      &
+         height: unset !important
+         display: grid
+         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))
+         grid-auto-rows: 248px
+         gap: 8px
+      > .photo-list-tile-view
+         position: static
+         height: auto !important
+         // border: 0
+         // background: none
+         transform: unset !important
 
 ._row
    display flex

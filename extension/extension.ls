@@ -986,7 +986,7 @@ App =
          else resolve!
 
    uploadBase64ToGithub: (base64, message, isFemale) !->
-      filename = @numToRadix62 Date.now! / 10000 - 170096855
+      filename = @numToRadix62 Date.now! / 10000 - 170368424
       saved = no
       notify = @notify "Đang upload ảnh lên Github" -1
       unless window.Octokit
