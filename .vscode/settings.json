@@ -66,9 +66,9 @@
       // "editor.fontSize": 16,
       "editor.insertSpaces": false,
       "editor.wordWrap": "on",
-      // "editor.wordWrap": "wordWrapColumn",
-      // "editor.wordWrapColumn": 110,
-      // "editor.rulers": [120],
+      "editor.wordWrap": "wordWrapColumn",
+      "editor.wordWrapColumn": 110,
+      "editor.rulers": [120],
       "editor.foldingStrategy": "indentation"
    },
    "material-icon-theme.files.associations": {
