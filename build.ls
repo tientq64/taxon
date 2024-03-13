@@ -1,22 +1,22 @@
 require! {
-   "fs-extra": fs
-   "js-yaml": jsyaml
-   "livescript2": livescript
-   "stylus2": stylus
-   "jsdom": {JSDOM}
-   terser
-   minify
+	"fs-extra": fs
+	"js-yaml": jsyaml
+	"livescript2": livescript
+	"stylus2": stylus
+	"jsdom": {JSDOM}
+	terser
+	minify
 }
 
 dom = await JSDOM.fromFile \dev.html
 {document} = dom.window
 
 for el in document.querySelectorAll "[data-dev]"
-   el.remove!
+	el.remove!
 
 css = fs.readFileSync \index.styl \utf8
 css = stylus.render css,
-   compress: yes
+	compress: yes
 cssEl = document.querySelector "[data-css]"
 cssEl.outerHTML = "<style>#css</style>"
 

@@ -1,9 +1,9 @@
 @font-face
-   font-family: "DejaVuSansMono"
-   src: url("https://cdn.jsdelivr.net/gh/tientq64/fonts/DejaVuSansMono.woff2")
+	font-family: "DejaVuSansMono"
+	src: url("https://cdn.jsdelivr.net/gh/tientq64/fonts/DejaVuSansMono.woff2")
 
 *, :before, :after
-   box-sizing: border-box
+	box-sizing: border-box
 
 $sans = sans-serif
 $mono = unquote("DejaVuSansMono, monospace")
@@ -11,376 +11,376 @@ $mono = unquote("DejaVuSansMono, monospace")
 $lineHeight = 19px
 
 $rankColors = {
-   life: #3b82f6
-   domain: #3b82f6
-   kingdom: #3b82f6
-   phylum: #ff1267
-   class: #ff8e08
-   order: #2cb3e6
-   family: #6ae22e
-   tribe: #a370ff
-   genus: #ffcc66
-   species: #fff
-   subspecies: #fff
+	life: #3b82f6
+	domain: #3b82f6
+	kingdom: #3b82f6
+	phylum: #ff1267
+	class: #ff8e08
+	order: #2cb3e6
+	family: #6ae22e
+	tribe: #a370ff
+	genus: #ffcc66
+	species: #fff
+	subspecies: #fff
 }
 
 html
-   height: 100%
+	height: 100%
 
 body
-   height: 100%
-   margin: 0
-   font-family: $sans
-   font-size: 16px
-   overflow: hidden
-   background: #282a39
-   color: #fff
-   color-scheme: dark
-   user-select: none
-   cursor: default
+	height: 100%
+	margin: 0
+	font-family: $sans
+	font-size: 16px
+	overflow: hidden
+	background: #282a39
+	color: #fff
+	color-scheme: dark
+	user-select: none
+	cursor: default
 
 for rankName, color in $rankColors
-   .{rankName}
-      color: color
+	.{rankName}
+		color: color
 
 .loading
-   height: 100%
-   display: flex
-   flex-direction: column
-   gap: 16px
-   justify-content: center
-   align-items: center
+	height: 100%
+	display: flex
+	flex-direction: column
+	gap: 16px
+	justify-content: center
+	align-items: center
 
 .main
-   height: 100%
+	height: 100%
 
 .scroll
-   height: 100%
-   overflow-x: hidden
-   overflow-y: auto
+	height: 100%
+	overflow-x: hidden
+	overflow-y: auto
 
 .height
-   width: 0
-   margin-top: -100vh
-   pointer-events: none
+	width: 0
+	margin-top: -100vh
+	pointer-events: none
 
 .lines
-   height: 100%
-   margin: 0
-   padding-left: 64px
+	height: 100%
+	margin: 0
+	padding-left: 64px
 
 .line
-   height: $lineHeight
-   display: flex
-   align-items: center
-   font-family: $mono
-   white-space: pre
-   tab-size: 2
+	height: $lineHeight
+	display: flex
+	align-items: center
+	font-family: $mono
+	white-space: pre
+	tab-size: 2
 
 .lineFind > .node
-   border-radius: 0
-   outline: 2px solid #f9d87d
+	border-radius: 0
+	outline: 2px solid #f9d87d
 
 .indent
-   height: $lineHeight
+	height: $lineHeight
 
 .node
-   height: 100%
-   padding: 0 6px
-   border-radius: 4px
-   display: inline-flex
-   align-items: center
-   font-family: $sans
+	height: 100%
+	padding: 0 6px
+	border-radius: 4px
+	display: inline-flex
+	align-items: center
+	font-family: $sans
 
 .nodeName
-   cursor: pointer
+	cursor: pointer
 
 .nodeDash
-   margin-left: 8px
-   color: #648185
+	margin-left: 8px
+	color: #648185
 
 .nodeTextEn
-   margin-left: 6px
-   color: #648185
+	margin-left: 6px
+	color: #648185
 
 .nodeTextVi
-   margin-left: 6px
-   color: #a39f83
+	margin-left: 6px
+	color: #a39f83
 
 .nodeTextEn + .nodeTextVi
-   &:before
-      content: "\b7"
-      margin-right: 6px
+	&:before
+		content: "\b7"
+		margin-right: 6px
 
 .nodeTextEnCopy
-   display: inline-block
-   gap: 6px
-   text-decoration: underline
-   text-decoration-skip-ink: none
-   cursor: copy
+	display: inline-block
+	gap: 6px
+	text-decoration: underline
+	text-decoration-skip-ink: none
+	cursor: copy
 
-   &:not(:first-child)
-      margin-left: 6px
+	&:not(:first-child)
+		margin-left: 6px
 
 .nodeTextEnCopyIsDuplicateTextEn
-   color: #ab5b78
+	color: #ab5b78
 
 .nodeImg
-   min-width: 6px
-   min-height: 6px
-   max-width: 16px
-   max-height: 16px
-   margin-left: 8px
-   padding: 1px
-   background: #fff
-   cursor: pointer
+	min-width: 6px
+	min-height: 6px
+	max-width: 16px
+	max-height: 16px
+	margin-left: 8px
+	padding: 1px
+	background: #fff
+	cursor: pointer
 
 .nodeImg + .nodeImg
-   margin-left: 4px
+	margin-left: 4px
 
 .bcrums
-   position: absolute
-   left: 64px
-   top: 0
+	position: absolute
+	left: 64px
+	top: 0
 
 .bcrum
-   position: absolute
-   pointer-events: none
+	position: absolute
+	pointer-events: none
 
 .bcrum > .line:nth-child(1)
-   border-radius: 0
-   background: #282a39
+	border-radius: 0
+	background: #282a39
 
 .bcrum > .line:nth-child(2)
-   > .indent
-      clip-path: inset(0 0 1ex 0)
-      background: #282a39
+	> .indent
+		clip-path: inset(0 0 1ex 0)
+		background: #282a39
 
-      &:has(+ .node)
-         clip-path: inset(0 0.28ch 1ex 0)
+		&:has(+ .node)
+			clip-path: inset(0 0.28ch 1ex 0)
 
-   > .node
-      display: none
+	> .node
+		display: none
 
 .bcrum > .line > .node
-   background: #282a39
-   pointer-events: auto
+	background: #282a39
+	pointer-events: auto
 
 .infos
-   position: absolute
-   right: 16px
-   bottom: 0px
-   padding: 16px 24px
-   border-radius: 8px 4px 4px 4px
-   display: grid
-   grid-template-columns: repeat(3, auto)
-   gap: 4px 16px
-   background: #fff
-   color: #000
+	position: absolute
+	right: 16px
+	bottom: 0px
+	padding: 16px 24px
+	border-radius: 8px 4px 4px 4px
+	display: grid
+	grid-template-columns: repeat(3, auto)
+	gap: 4px 16px
+	background: #fff
+	color: #000
 
 .modfCountIncr
-   color: #16a34a
+	color: #16a34a
 
 .modfCountDecr
-   color: #db2777
+	color: #db2777
 
 .lang
-   position: absolute
-   right: 22px
-   bottom: 6px
-   width: 30px
-   padding: 6px
-   border-radius: 6px 4px 4px 4px
-   text-align: center
-   background: #2cb3e6
-   color: #0c4a6e
-   cursor: pointer
+	position: absolute
+	right: 22px
+	bottom: 6px
+	width: 30px
+	padding: 6px
+	border-radius: 6px 4px 4px 4px
+	text-align: center
+	background: #2cb3e6
+	color: #0c4a6e
+	cursor: pointer
 
 .langIsVi
-   background: #f472b6
-   color: #831843
+	background: #f472b6
+	color: #831843
 
 .find
-   position: absolute
-   top: 0
-   right: 16px
-   width: 300px
-   padding: 6px
-   border-radius: 4px 4px 4px 8px
-   display: flex
-   align-items: center
-   background: #fff
-   color: #000
+	position: absolute
+	top: 0
+	right: 16px
+	width: 300px
+	padding: 6px
+	border-radius: 4px 4px 4px 8px
+	display: flex
+	align-items: center
+	background: #fff
+	color: #000
 
 .findInput
-   width: 0
-   height: 24px
-   padding: 0 8px
-   border: 0
-   flex-grow: 1
-   font: inherit
-   background: inherit
-   color: inherit
-   outline: 0
+	width: 0
+	height: 24px
+	padding: 0 8px
+	border: 0
+	flex-grow: 1
+	font: inherit
+	background: inherit
+	color: inherit
+	outline: 0
 
 .findCount
-   margin: 0 8px 0
-   font-size: 14px
-   color: #888
+	margin: 0 8px 0
+	font-size: 14px
+	color: #888
 
 .findButton
-   width: 28px
-   margin-left: 4px
-   border-radius: 4px
-   display: flex
-   justify-content: center
-   align-items: center
-   align-self: stretch
-   font-family: $mono
-   cursor: pointer
+	width: 28px
+	margin-left: 4px
+	border-radius: 4px
+	display: flex
+	justify-content: center
+	align-items: center
+	align-self: stretch
+	font-family: $mono
+	cursor: pointer
 
-   &:hover
-      background: #07d3
+	&:hover
+		background: #07d3
 
 .findButtonOn
-   color: #07d
+	color: #07d
 
 .findClose
-   font-weight: 700
-   color: #e43
+	font-weight: 700
+	color: #e43
 
-   &:hover
-      background: #e433
+	&:hover
+		background: #e433
 
 .popup
-   max-width: min-content
-   border-radius: 8px
-   text-align: center
-   overflow: hidden
-   color: #000
-   box-shadow: 1px 2px 12px 1px #0008
-   pointer-events: none
-   z-index: 100
+	max-width: min-content
+	border-radius: 8px
+	text-align: center
+	overflow: hidden
+	color: #000
+	box-shadow: 1px 2px 12px 1px #0008
+	pointer-events: none
+	z-index: 100
 
 .popupBody
-   width: 328px
-   padding: 8px 4px
-   border-radius: 8px
-   display: flex
-   flex-direction: column
-   background: #f1f5f9
-   animation: popup 50ms forwards
+	width: 328px
+	padding: 8px 4px
+	border-radius: 8px
+	display: flex
+	flex-direction: column
+	background: #f1f5f9
+	animation: popup 50ms forwards
 
 @keyframes popup
-   from
-      transform: scale(.96)
-   to
-      transform: scale(1)
+	from
+		transform: scale(.96)
+	to
+		transform: scale(1)
 
 .popupIsTrinomial .popupName
-   font-size: 15px
+	font-size: 15px
 
 .popupIsTwoImage
-   width: 652px
+	width: 652px
 
 .popupName
-   position: relative
-   padding: 2px 8px 4px
-   display: flex
-   justify-content: center
-   align-items: center
-   font-weight: bold
-   white-space: nowrap
+	position: relative
+	padding: 2px 8px 4px
+	display: flex
+	justify-content: center
+	align-items: center
+	font-weight: bold
+	white-space: nowrap
 
 .popupIcon
-   position: absolute
-   left: 8px
-   height: 24px
+	position: absolute
+	left: 8px
+	height: 24px
 
 .popupRank
-   position: absolute
-   right: 8px
-   color: #648185
-   font-size: 11px
+	position: absolute
+	right: 8px
+	color: #648185
+	font-size: 11px
 
 .popupTextEn, .popupTextVi
-   padding: 0 8px 1px
-   white-space: nowrap
-   text-overflow: ellipsis
-   overflow: hidden
-   color: #333
+	padding: 0 8px 1px
+	white-space: nowrap
+	text-overflow: ellipsis
+	overflow: hidden
+	color: #333
 
 .popupGenders
-   margin-top: 6px
-   display: flex
-   justify-content: center
-   column-gap: 4px
+	margin-top: 6px
+	display: flex
+	justify-content: center
+	column-gap: 4px
 
 .popupGender
-   width: 100%
-   display: flex
-   flex-direction: column
-   align-self: stretch
+	width: 100%
+	display: flex
+	flex-direction: column
+	align-self: stretch
 
 .popupPicture
-   position: relative
-   width: 320px
-   border-radius: 6px
-   display: flex
-   justify-content: center
-   align-items: center
-   flex-grow: 1
-   overflow: hidden
+	position: relative
+	width: 320px
+	border-radius: 6px
+	display: flex
+	justify-content: center
+	align-items: center
+	flex-grow: 1
+	overflow: hidden
 
-   &:after
-      content: ""
-      position: absolute
-      inset: 0
-      border-radius: 6px
-      box-shadow: inset 0 0 16px 1px #0003
-      pointer-events: none
+	&:after
+		content: ""
+		position: absolute
+		inset: 0
+		border-radius: 6px
+		box-shadow: inset 0 0 16px 1px #0003
+		pointer-events: none
 
 .popupBgImg
-   position: absolute
-   left: 0
-   top: 0
-   width: 100%
-   height: 100%
-   display: block
-   object-fit: cover
-   filter: blur(24px) saturate(2)
+	position: absolute
+	left: 0
+	top: 0
+	width: 100%
+	height: 100%
+	display: block
+	object-fit: cover
+	filter: blur(24px) saturate(2)
 
 .popupImg
-   max-width: 320px
-   max-height: 240px
-   display: block
-   background: #fff
-   filter: contrast(1.1) saturate(1.1)
-   image-rendering: -webkit-optimize-contrast
-   z-index: 0
+	max-width: 320px
+	max-height: 240px
+	display: block
+	background: #fff
+	filter: contrast(1.1) saturate(1.1)
+	image-rendering: -webkit-optimize-contrast
+	z-index: 0
 
 .popupImgCover
-   width: 100%
-   height: 100%
-   object-fit: cover
+	width: 100%
+	height: 100%
+	object-fit: cover
 
 .popupGenderText
-   margin-top: 2px
-   margin-bottom: -1px
-   padding: 0 8px
-   font-size: 14px
-   color: #333
+	margin-top: 2px
+	margin-bottom: -1px
+	padding: 0 8px
+	font-size: 14px
+	color: #333
 
 .popupSummary
-   padding: 0 8px
-   line-height: 1.35
+	padding: 0 8px
+	line-height: 1.35
 
-   &:not(:empty)
-      margin-top: 6px
+	&:not(:empty)
+		margin-top: 6px
 
-   > p
-      margin: 0
-      text-align: justify !important
-   a
-      text-decoration: none
-      color: inherit
+	> p
+		margin: 0
+		text-align: justify !important
+	a
+		text-decoration: none
+		color: inherit
