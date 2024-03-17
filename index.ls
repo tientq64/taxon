@@ -270,12 +270,15 @@ parse = !->
 								src = "https://i.imgur.com/#{src}m.png"
 							| \/
 								if src.0 == \/
-									type = \en
-									src .= substring 1
+									src = "https:#src.jpg"
 								else
-									type = \commons
-								ext = src.split \. .at -1
-								src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-#{src.0}.#ext"
+									if src.0 == \~
+										type = \en
+										src .= substring 1
+									else
+										type = \commons
+									ext = src.split \. .at -1
+									src = "https://upload.wikimedia.org/wikipedia/#type/thumb/#{src.0}/#src/320px-#{src.0}.#ext"
 							| \:
 								[, host, src, ext] = inaturalistRegex.exec src
 								host = host and \inaturalist-open-data.s3.amazonaws.com or \static.inaturalist.org
@@ -881,8 +884,9 @@ App =
 
 	getParents: (line) ->
 		parents = []
-		while line.parent
-			line = line.parent
+		loop
+			line .= parent
+			break if !line
 			parents.push line
 		parents
 
@@ -958,6 +962,8 @@ App =
 						titles .= map (title) ~>
 							title.replace /’/g \'
 					line.textEnCopy = titles or no
+					if line.isDuplicateTextEn
+						line.textEnCopy or= [\""]
 					m.redraw!
 
 	scroll: !->
@@ -1097,7 +1103,7 @@ App =
 		@scroll!
 		m.redraw!
 
-	lineView: (line, isBcrum, bcrumZ) ->
+	lineView: (line, isBcrum, bcrumZIndex, prevLine) ->
 		m \.line,
 			key: line.index
 			class: @class do
@@ -1115,7 +1121,10 @@ App =
 			, []
 			m \.node,
 				style:
-					zIndex: bcrumZ
+					width: (prevLine.lv - line.lv) * 18 + \px if prevLine
+					background: \#0000 if line.name == " "
+					overflow: \hidden if prevLine
+					zIndex: bcrumZIndex
 				m \.nodeName,
 					class: @getRankName line.lv
 					onmouseenter: @mouseenterName.bind void line, isBcrum
@@ -1158,15 +1167,18 @@ App =
 				onscroll: @onscroll
 				m \.lines#linesEl,
 					@lines.map (line) ~>
-						@lineView line, no
+						@lineView line, no, void, void
 				m \.height#heightEl
 			if @lines.1 and !maxLv
 				m \.bcrums,
-					@getParents @lines.1 .map (line, i) ~>
+					@getParents @lines.1 .map (line, i, items) ~>
+						prevLine = items.findLast (item, j) ~>
+							j < i and item.name != " "
+						console.log items
 						m \.bcrum,
 							key: line.index
-							@lineView line, yes, textRanks.length - i
-							@lineView lines[line.index + 1], yes
+							@lineView line, yes, textRanks.length - i, prevLine
+							@lineView lines[line.index + 1], yes, void, prevLine
 			if infoLv
 				m \.infos,
 					for , info of infos

@@ -14,12 +14,12 @@ $rankColors = {
 	life: #3b82f6
 	domain: #3b82f6
 	kingdom: #3b82f6
-	phylum: #ff1267
-	class: #ff8e08
-	order: #2cb3e6
-	family: #6ae22e
-	tribe: #a370ff
-	genus: #ffcc66
+	phylum: #f54f8c
+	class: #ff8b47
+	order: #78c7df
+	family: #5ece85
+	tribe: #d391dd
+	genus: #e2c08d
 	species: #fff
 	subspecies: #fff
 }
@@ -33,7 +33,7 @@ body
 	font-family: $sans
 	font-size: 16px
 	overflow: hidden
-	background: #282a39
+	background: #282739
 	color: #fff
 	color-scheme: dark
 	user-select: none
@@ -86,6 +86,7 @@ for rankName, color in $rankColors
 
 .node
 	height: 100%
+	margin-top: 8px
 	padding: 0 6px
 	border-radius: 4px
 	display: inline-flex
@@ -97,15 +98,18 @@ for rankName, color in $rankColors
 
 .nodeDash
 	margin-left: 8px
-	color: #648185
+	color: #8e95a1
 
 .nodeTextEn
 	margin-left: 6px
-	color: #648185
+	font-weight: 700
+	font-style: italic
+	color: #8e95a1
 
 .nodeTextVi
 	margin-left: 6px
-	color: #a39f83
+	font-style: italic
+	color: #a3a190
 
 .nodeTextEn + .nodeTextVi
 	&:before
@@ -149,12 +153,12 @@ for rankName, color in $rankColors
 
 .bcrum > .line:nth-child(1)
 	border-radius: 0
-	background: #282a39
+	background: #282739
 
 .bcrum > .line:nth-child(2)
 	> .indent
 		clip-path: inset(0 0 1ex 0)
-		background: #282a39
+		background: #282739
 
 		&:has(+ .node)
 			clip-path: inset(0 0.28ch 1ex 0)
@@ -163,7 +167,7 @@ for rankName, color in $rankColors
 		display: none
 
 .bcrum > .line > .node
-	background: #282a39
+	background: #282739
 	pointer-events: auto
 
 .infos
@@ -300,7 +304,7 @@ for rankName, color in $rankColors
 .popupRank
 	position: absolute
 	right: 8px
-	color: #648185
+	color: #5e6570
 	font-size: 11px
 
 .popupTextEn, .popupTextVi

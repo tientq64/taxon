@@ -1,7 +1,7 @@
 App =
 	oninit: !->
 		for k, val of @
-			@[k] = val.bind @ if typeof val is \function
+			@[k] = val.bind @ if typeof val == \function
 		@cfg = null
 		@cssUnitless =
 			animationIterationCount: yes
@@ -459,7 +459,7 @@ App =
 		window.addEventListener \visibilitychange @onvisibilitychange, yes
 		if t.imgurAuth
 			if el = document.querySelector ".authorize-banner-title>.green"
-				if el.innerText is \tiencoffee
+				if el.innerText == \tiencoffee
 					document.getElementById \allow .click!
 		else
 			chrome.storage.local.get do
@@ -517,7 +517,7 @@ App =
 					sizeEl = document.getElementById \crop-dimensions
 					@imgurEditRatio = @imgurEditRatioOrg = +(widthEl.value / heightEl.value)toFixed 3
 					window.addEventListener \mousemove (event) !~>
-						if event.which is 1
+						if event.which == 1
 							[, w, h] = /^(\d+)x(\d+)$/exec sizeEl.innerText
 							@imgurEditRatio = +(w / h)toFixed 3
 							m.redraw!
@@ -542,7 +542,7 @@ App =
 								, 100
 						, 500
 				else
-					if location.search is \?state=taxon
+					if location.search == \?state=taxon
 						@token = /access_token=([a-z\d]+)/exec location.hash .1
 						chrome.storage.local.set do
 							token: @token
@@ -604,7 +604,7 @@ App =
 			if styl instanceof Object
 				for k, val of styl
 					res[k] = val
-					res[k] += \px if not @cssUnitless[k] and +val
+					res[k] += \px if !@cssUnitless[k] and +val
 		res
 
 	upperFirst: (text) ->
@@ -612,6 +612,11 @@ App =
 
 	upperFirstLowerRest: (text) ->
 		text.charAt 0 .toUpperCase! + text.substring 1 .toLowerCase!
+
+	clamp: (val, min, max) ->
+		if val < min => min
+		else if val > max => max
+		else val
 
 	chunkArr: (arr, size) ->
 		newArr = []
@@ -627,7 +632,7 @@ App =
 		if text and text.length > 1
 			words = text.split /\s+/
 			text =
-				if words.every (.0.toUpperCase! is it.0)
+				if words.every (.0.toUpperCase! == it.0)
 					@upperFirstLowerRest text
 				else
 					@upperFirst text
@@ -652,7 +657,7 @@ App =
 					resRow = grid[][i]
 					for j til rowSpan
 						resRow.row = row
-						resRow[y + j] = if i is x and not j => cell else no
+						resRow[y + j] = if i == x and !j => cell else no
 		grid.filter (.length)
 
 	tableCol: (td) ->
@@ -665,7 +670,7 @@ App =
 			.filter Boolean
 
 	findRank: (kind, fn) ->
-		if typeof kind is \function
+		if typeof kind == \function
 			[kind, fn] = [, kind]
 		ranks = kind and @ranks[kind] or @ranks
 		if rank = ranks.find fn
@@ -689,7 +694,7 @@ App =
 
 	onselectionchange: (event) !->
 		@sel = @selection + ""
-		if @sel and @combo is \LMB
+		if @sel and @combo == \LMB
 			@selecting = yes
 
 	onmousedown: (event) !->
@@ -703,7 +708,7 @@ App =
 
 	onmouseup: (event) !->
 		{which} = event
-		if @lastCode is which
+		if @lastCode == which
 			@oncombo event
 
 	onauxclick: (event) !->
@@ -714,7 +719,7 @@ App =
 	oncontextmenu: (event) !->
 		if @canContextMenu
 			@canContextMenu = no
-		else if not event.target.closest \._rightClickZone
+		else if !event.target.closest \._rightClickZone
 			event.preventDefault!
 
 	onkeydown: (event) !->
@@ -736,7 +741,7 @@ App =
 				@resetCombo!
 
 	onkeyup: (event) !->
-		if @lastCode is event.code
+		if @lastCode == event.code
 			@oncombo event
 
 	onvisibilitychange: (event) !->
@@ -746,12 +751,12 @@ App =
 		if @selecting
 			@selecting = no
 		else
-			if not @sel and event.type is \mouseup
+			if !@sel and event.type == \mouseup
 				@target = event.target
 				@node = @selection.anchorNode
 				@nodeOffset = @selection.anchorOffset
 			el = document.activeElement
-			if @combo and el.localName not in <[input textarea select]> and not el.isContentEditable
+			if @combo and el.localName !in <[input textarea select]> and !el.isContentEditable
 				@combo = @modfCombo + @combo
 				sel = @sel.trim!
 				@doCombo @combo, @target, sel, event, []
@@ -763,7 +768,7 @@ App =
 				els = [els]
 			for let el in els
 				if el
-					if el.nodeName is \#text
+					if el.nodeName == \#text
 						range = document.createRange!
 						range.selectNode el
 						el = range
@@ -908,7 +913,7 @@ App =
 							albums.map (album) ~>
 								m \._col._p2._column._center._round6._cursorPointer._hover,
 									class: @class do
-										"_active": @album is album.id
+										"_active": @album == album.id
 									style: @style do
 										width: 80
 									onclick: !~>
@@ -985,8 +990,8 @@ App =
 					resolve album
 			else resolve!
 
-	uploadBase64ToGithub: (base64, message, isFemale) !->
-		filename = @numToRadix62 Date.now! / 10000 - 170368424
+	uploadBase64ToGithub: (base64, message, isFemale) ->
+		filename = @numToRadix62 Date.now! / 10000 - 171063787
 		saved = no
 		notify = @notify "Đang upload ảnh lên Github" -1
 		unless window.Octokit
@@ -1013,381 +1018,203 @@ App =
 		m.redraw!
 		[filename, res, saved]
 
-	modalImgGithub: ({image, isFemale}) !->
-		loaded = no
-		img = new Image
-		imgW = 0
-		imgH = 0
-		maxWidth = 320
-		maxHeight = 240
-		ratioMax = maxWidth / maxHeight
-		width = 0
-		height = 0
-		ratio = 0
-		g = void
-		sel = void
-		res = void
+	modalImgGithub: ({target, isFemale}) !->
+		canvasW = void
+		canvasH = void
+		canvasW_2 = void
+		canvasH_2 = void
+		canvasRatio = void
+		imageOrgW = target.naturalWidth
+		imageOrgH = target.naturalHeight
+		imageRatio = imageOrgW / imageOrgH
+		ratio = void
+		imageW = void
+		imageH = void
+		imageW_2 = void
+		imageH_2 = void
+		imageX = 0
+		imageY = 0
+		transX = 0
+		transY = 0
+		scale = 1
+		isMoving = no
 		modal = void
-		copied = no
-		compressed = no
-		saved = no
-		filename = void
-		base64 = void
-		size = void
-		edges = [[0 -1] [-1 0] [1 0] [0 1] [-1 -1] [1 -1] [-1 1] [1 1]]
-		resize = (w, h) !~>
-			imgW := w
-			imgH := h
-			ratio := imgW / imgH
-			if ratio >= ratioMax
-				width := maxWidth
-				height := Math.round width / ratio
+		canvas = void
+		resultCanvas = void
+		canSave = no
+		fileSize = 0
+		fileName = ""
+		g = void
+		sizes =
+			[320 300]
+			[320 280]
+			[320 260]
+			[320 240]
+			[320 220]
+			[320 200]
+			[320 180]
+			[320 170]
+			[320 160]
+			[320 140]
+			[320 120]
+			[320 100]
+		currentSize = void
+		setSize = (size) !~>
+			currentSize := size
+			canvasW := size.0
+			canvasH := size.1
+			canvasW_2 := canvasW / 2
+			canvasH_2 := canvasH / 2
+			canvasRatio := canvasW / canvasH
+			ratio := imageRatio / canvasRatio
+			if ratio >= 1
+				imageH := canvasH
+				imageW := canvasH * imageRatio
+				imageX := -(imageW - canvasW) / 2
 			else
-				height := maxHeight
-				width := Math.round height * ratio
-			loaded := yes
-			m.redraw.sync!
-			g := imgGithubCanvasEl.getContext \2d
-			g.imageSmoothingEnabled = no
-		updateSelCropPos = (onlyXY) !~>
-			sel.cx = Math.round sel.l / width * imgW
-			sel.cy = Math.round sel.t / height * imgH
-			unless onlyXY
-				sel.cw = Math.round sel.w / width * imgW
-				sel.ch = Math.round sel.h / height * imgH
-				sel.ratio = sel.cw / sel.ch
-		crop = !~>
-			if sel and sel.phase < 2
-				imgData = g.getImageData sel.cx, sel.cy, sel.cw, sel.ch
-				resize sel.cw, sel.ch
-				g.putImageData imgData, 0 0
-				sel := void
+				imageW := canvasW
+				imageH := canvasW / imageRatio
+				imageY := -(imageH - canvasH) / 2
+			imageW_2 := imageW / 2
+			imageH_2 := imageH / 2
+			m.redraw!
+		onwheel = (event) !~>
+			canSave := no
+			scale -= event.deltaY / 5000
+			scale := 1 if scale < 1
+			draw!
+		onpointerdown = (event) !~>
+			if event.buttons == 1
+				event.target.setPointerCapture event.pointerId
+				canSave := no
+				isMoving := yes
+				addEventListener \pointerup onpointerupGlobal
+		onpointermove = (event) !~>
+			event.redraw = no
+			if isMoving
+				transX += event.movementX / scale
+				transY += event.movementY / scale
+				draw!
+		onpointerupGlobal = (event) !~>
+			if isMoving
+				isMoving := no
+				removeEventListener \pointerup onpointerupGlobal
 				m.redraw!
-		compress = (sharpen) !~>
-			new Promise (resolve) !~>
-				unless compressed
-					compressed := yes
-					m.redraw!
-					unless window.pica
-						code = await (await fetch \https://cdn.jsdelivr.net/npm/pica@8.0.0/dist/pica.min.js)text!
-						window.eval code
-					pic = new window.pica
-					canvas = document.createElement \canvas
-					canvas.width = width
-					canvas.height = height
-					if sharpen
-						await pic.resize imgGithubCanvasEl, canvas,
-							unsharpAmount: 80
-							unsharpRadius: 0.6
-							unsharpThreshold: 2
-					else
-						await pic.resize imgGithubCanvasEl, canvas
-					resize width, height
-					g.drawImage canvas, 0 0
-					dataUrl = canvas.toDataURL \image/webp 0.9
-					img.src = dataUrl
-					img.onload = !~>
-						g.drawImage img, 0 0
-						base64 := dataUrl.split \, .1
-						size := atob base64 .length
-						m.redraw!
-		save = !~>
-			unless saved
-				saved := yes
-				crop!
+		oncontextmenu = (event) !~>
+			canSave := yes
+		draw = (isRedraw) !~>
+			g.clearRect 0, 0, canvasW, canvasH
+			if resultCanvas
+				g.drawImage resultCanvas, 0 0
+				return
+			g.save!
+			g.translate imageW_2, imageH_2
+			g.scale scale, scale
+			g.translate -imageW_2, -imageH_2
+			g.translate transX, transY
+			g.beginPath!
+			g.rect imageX, imageY, imageW, imageH
+			g.fill!
+			g.closePath!
+			g.drawImage target, imageX, imageY, imageW, imageH
+			redraw = no
+			if !isRedraw
+				t = g.getTransform!
+				left = t.e - (-imageX + -imageX * (scale - 1))
+				right = imageW * scale - canvasW + left
+				top = t.f - (-imageY + -imageY * (scale - 1))
+				bottom = imageH * scale - canvasH + top
+				if left > 0
+					transX -= left
+					redraw = yes
+				else if right < 0
+					transX -= right
+					redraw = yes
+				if top > 0
+					transY -= top
+					redraw = yes
+				else if bottom < 0
+					transY -= bottom
+					redraw = yes
+			g.restore!
+			if redraw
+				draw yes
+		onLoad = !~>
+			g := canvas.getContext \2d
+			# g.imageSmoothingEnabled = no
+			draw!
+		onclickUpload = (event) !~>
+			canSave := no
+			unless window.pica
+				code = await (await fetch \https://cdn.jsdelivr.net/npm/pica@9.0.1/dist/pica.min.js)text!
+				window.eval code
+			pica = new window.pica
+			blob = await @readCopiedImgBlob!
+			base64 = await @readAsBase64 blob
+			image = new Image
+			image.src = "data:image/png;base64,#base64"
+			image.onload = !~>
+				newResultCanvas = document.createElement \canvas
+				newResultCanvas.width = canvasW
+				newResultCanvas.height = canvasH
+				# newG = newResultCanvas.getContext \2d
+				# newG.drawImage image, 0 0
+				await pica.resize image, newResultCanvas,
+					unsharpAmount: 80
+					unsharpRadius: 0.6
+					unsharpThreshold: 40
+				g.drawImage newResultCanvas, 0 0
+				dataUrl = newResultCanvas.toDataURL \image/webp 0.99
+				base64 = dataUrl.split \, .1
+				resultCanvas := newResultCanvas
 				m.redraw!
-				[filename, res, saved] := await @uploadBase64ToGithub base64, image, isFemale
+				do
+					[filename, res, saved] = await @uploadBase64ToGithub base64, target.src, isFemale
+				until saved
+				fileName := filename
+				fileSize := res.data.content.size
 				m.redraw!
+		setSize sizes.3
 		@modal "Tải hình ảnh lên Github",, (modal$) ~>
 			modal := modal$
-			m \.imgGithubModal,
-				if loaded
-					m \._row._top._gap4,
-						m \._col._relative,
-							m \canvas._block#imgGithubCanvasEl,
-								style: @style do
-									width: width
-									height: height
-								width: imgW
-								height: imgH
-								onpointerdown: (event) !~>
-									event.redraw = no
-									imgGithubCanvasEl.setPointerCapture event.pointerId
-									sel :=
-										x: event.offsetX
-										y: event.offsetY
-										phase: 2
-									m.redraw!
-								onpointermove: (event) !~>
-									event.redraw = no
-									if sel and sel.phase
-										{offsetX, offsetY} = event
-										{x, y} = sel
-										sel.phase = 1
-										if offsetX < 0
-											l = 0
-											w = x
-										else if offsetX > width
-											l = x
-											w = width - x
-										else
-											l = if offsetX < x => offsetX else x
-											w = Math.abs offsetX - x
-										r = l + w
-										if offsetY < 0
-											t = 0
-											h = y
-										else if offsetY > height
-											t = y
-											h = height - y
-										else
-											t = if offsetY < y => offsetY else y
-											h = Math.abs offsetY - y
-										b = t + h
-										updateSelCropPos!
-										sel <<< {l, t, w, h, r, b}
-										m.redraw!
-								onlostpointercapture: (event) !~>
-									event.redraw = no
-									if sel
-										if sel.phase is 1
-											sel.phase = 0
-										else
-											sel := void
-										m.redraw!
-							if sel and sel.phase < 2
-								m \#imgGithubSelEl,
-									style: @style do
-										left: sel.l
-										top: sel.t
-										width: sel.w
-										height: sel.h
-									onpointerdown: (event) !~>
-										event.redraw = no
-										if event.target is imgGithubSelEl
-											if sel
-												imgGithubSelEl.setPointerCapture event.pointerId
-												sel <<<
-													x: event.x - imgGithubCanvasEl.offsetLeft
-													y: event.y - imgGithubCanvasEl.offsetTop
-													l0: sel.l
-													t0: sel.t
-													move: yes
-												m.redraw!
-									onpointermove: (event) !~>
-										event.redraw = no
-										if sel and sel.move
-											mx = event.x - imgGithubCanvasEl.offsetLeft
-											my = event.y - imgGithubCanvasEl.offsetTop
-											{w, h} = sel
-											l = sel.l0 + mx - sel.x
-											t = sel.t0 + my - sel.y
-											r = l + w
-											b = t + h
-											if l < 0
-												l = 0
-											else if r > width
-												l = width - w
-											if t < 0
-												t = 0
-											else if b > height
-												t = height - h
-											r = l + w
-											b = t + h
-											updateSelCropPos yes
-											sel <<< {l, t, r, b}
-											m.redraw!
-									onlostpointercapture: (event) !~>
-										event.redraw = no
-										if sel and sel.move
-											sel.move = no
-											m.redraw!
-									m \.imgGithubSelEdges,
-										edges.map (edge) ~>
-											m \.imgGithubSelEdge,
-												style: @style do
-													left: edge.0 * 50 + 50 + \%
-													top: edge.1 * 50 + 50 + \%
-												onpointerdown: (event) !~>
-													event.redraw = no
-													if sel
-														event.target.setPointerCapture event.pointerId
-														sel <<<
-															x: event.x - imgGithubCanvasEl.offsetLeft
-															y: event.y - imgGithubCanvasEl.offsetTop
-															l0: sel.l
-															t0: sel.t
-															w0: sel.w
-															h0: sel.h
-															r0: sel.r
-															b0: sel.b
-															resize: yes
-														m.redraw!
-												onpointermove: (event) !~>
-													event.redraw = no
-													if sel and sel.resize
-														mx = event.x - imgGithubCanvasEl.offsetLeft
-														my = event.y - imgGithubCanvasEl.offsetTop
-														dx = mx - sel.x
-														dy = my - sel.y
-														{l, t, w, h, r, b} = sel
-														if edge.0
-															w = sel.w0 + dx * edge.0
-														if edge.0 is -1
-															l = sel.l0 + dx
-															if l < 0
-																l = 0
-																w = sel.r0
-															else if l > sel.r0
-																l = sel.r0
-																w = 0
-														else if edge.0 is 1
-															r = l + w
-															if r > width
-																w = width - sel.l0
-															else if r < sel.l0
-																w = 0
-															r = l + w
-														if edge.1
-															h = sel.h0 + dy * edge.1
-														if edge.1 is -1
-															t = sel.t0 + dy
-															if t < 0
-																t = 0
-																h = sel.b0
-															else if t > sel.b0
-																t = sel.b0
-																h = 0
-														else if edge.1 is 1
-															b = t + h
-															if b > height
-																h = height - sel.t0
-															else if b < sel.t0
-																h = 0
-															b = t + h
-														updateSelCropPos!
-														sel <<< {l, t, w, h, r, b}
-														m.redraw!
-												onlostpointercapture: (event) !~>
-													event.redraw = no
-													if sel and sel.resize
-														sel.resize = no
-														m.redraw!
-						m \._column._gap3,
-							style:
-								minWidth: \200px
-							m \div,
-								class: @class do
-									ratio < ratioMax and \_textRed or \_textGreen
-								"Tỷ lệ: " + ratio.toFixed 3
-							m \._row._middle._gap3,
-								"w:"
-								m \input._col,
-									value: imgW
-								"h:"
-								m \input._col,
-									value: imgH
-							if sel and sel.phase < 2
-								m.fragment do
+			m do
+				oncreate: (vnode) !~>
+					canvas := vnode.dom.querySelector \canvas
+					onLoad!
+				view: ~>
+					m \._column._gap4,
+						m \._row._gap4._top,
+							m \._column._gap4.h_240,
+								m \canvas._block._round8._cursorGrab._rightClickZone,
+									class: @class do
+										"_cursorGrabbing": isMoving
+									width: canvasW
+									height: canvasH
+									onwheel: onwheel
+									onpointerdown: onpointerdown
+									onpointermove: onpointermove
+									oncontextmenu: oncontextmenu
+								m \._row._gap4,
 									m \div,
+										"Kích thước: #{(fileSize / 1024)toFixed 1} KB"
+									m \div,
+										"Tên: #fileName"
+							m \._column._wrap._gap2._mr2,
+								style:
+									height: \360px
+								sizes.map (size) ~>
+									m \button,
+										key: size
 										class: @class do
-											sel.ratio < ratioMax and \_textRed or \_textGreen
-										"Tỷ lệ: " + sel.ratio.toFixed 3
-									m \._row._middle._gap3,
-										"w:"
-										m \input._col,
-											type: \number
-											value: sel.cw
-											oninput: (event) !~>
-												val = event.target.valueAsNumber
-												if val?
-													sel.w = val / imgW * width
-													updateSelCropPos!
-										"h:"
-										m \input._col,
-											type: \number
-											value: sel.ch
-											oninput: (event) !~>
-												val = event.target.valueAsNumber
-												if val?
-													sel.h = val / imgH * height
-													updateSelCropPos!
-									m \._row._middle._gap3,
-										"x:"
-										m \input._col,
-											type: \number
-											value: sel.cx
-											oninput: (event) !~>
-												val = event.target.valueAsNumber
-												if val?
-													sel.l = val / imgW * width
-													updateSelCropPos yes
-										"y:"
-										m \input._col,
-											type: \number
-											value: sel.cy
-											oninput: (event) !~>
-												val = event.target.valueAsNumber
-												if val?
-													sel.t = val / imgH * height
-													updateSelCropPos yes
-									m \button,
-										onclick: (event) !~>
-											crop!
-										"Cắt ảnh"
-									m \div,
-							if size
-								m \div,
-									"Kích thước: #{(size / 1024)toFixed 2} KB"
-							unless base64
-								m.fragment do
-									m \button,
-										disabled: compressed or saved
-										onclick: (event) !~>
-											compress no
-										"Nén mặc định"
-									m \button,
-										disabled: compressed or saved
-										onclick: (event) !~>
-											compress yes
-										"Nén sắc nét"
-							if res
-								if res.status is 201
-									m \._row._middle._gapX3._textGreen,
-										"Đã tải lên: "
-										m \._select._cursorCopy,
-											onclick: (event) !~>
-												@copy " # =#filename"
-											oncontextmenu: (event) !~>
-												@copy " | =#filename"
-											"=#filename"
-								else
-									m \._textRed "Đã xảy ra lỗi"
+											"_bgBlue _textWhite": currentSize == size
+										onclick: !~>
+											setSize size
+										size.join " x "
+						m \._row._center,
 							m \button,
-								disabled: saved or not base64
-								onclick: (event) !~>
-									save!
-								"Lưu"
-				else
-					m \._column._center,
-						m \img._w100._contain._bgBlack._rightClickZone,
-							style: @style do
-								maxWidth: 320
-							src: image
-							oncontextmenu: !~>
-								copied := yes
-						m \._my4._textSmall._textGray "Sao chép ảnh trên, sau đó bấm tiếp tục"
-						m \button,
-							disabled: not copied
-							onclick: !~>
-								blob = await @readCopiedImgBlob!
-								url = await @readAsBase64 blob
-								url = "data:#{blob.type};base64,#url"
-								img.src = url
-								img.onload = !~>
-									resize img.naturalWidth, img.naturalHeight
-									g.drawImage img, 0 0 imgW, imgH
-							"Tiếp tục"
+								disabled: !canSave
+								onclick: onclickUpload
+								"Tải lên"
 
 	notify: (html, ms) ->
 		notify =
@@ -1408,13 +1235,14 @@ App =
 		notify.update html, ms
 		notify
 
-	modal: (title, width, view) ->
+	modal: (title, width, view, onClose) ->
 		new Promise (resolve) !~>
 			modal =
 				title: title
 				width: width
 				view: view
 				close: (val) !~>
+					onClose?!
 					@modals.splice @modals.indexOf(modal), 1
 					resolve val
 					m.redraw!
@@ -1445,7 +1273,7 @@ App =
 		@closeTab 1000 if isCloseTab
 
 	extract: (targets, opts = {}, parent, items = [], index = 0) ->
-		if typeof targets is \string
+		if typeof targets == \string
 			targets = targets
 				.trim!
 				.split /\n+/
@@ -1471,14 +1299,14 @@ App =
 			uniqTexts = []
 			for item in items
 				itemName = item.0.name - \*
-				if itemName is \? or not uniqTexts.includes itemName
+				if itemName == \? or !uniqTexts.includes itemName
 					uniqItems.push item
 					uniqTexts.push itemName
 			items.splice 0 Infinity, ...uniqItems
 			items.sort (a, b) ~>
 				a.0.extinct.length - b.0.extinct.length or
-				(a.0.name is \?) - (b.0.name is \?) or
-				(a.0.name is \_) - (b.0.name is \_)
+				(a.0.name == \?) - (b.0.name == \?) or
+				(a.0.name == \_) - (b.0.name == \_)
 		for target, i in targets
 			isElTarget = target instanceof Element
 			name = void
@@ -1508,7 +1336,7 @@ App =
 			speciesRegex = /^[A-Z]([a-z]+|\.)\s([A-Z]([a-z]+|\.)\s)?([a-z-]{2,})/
 			otherRankRegex = /^([A-Z][a-z]+)/
 			if isElTarget
-				if target.childNodes.length is 1 and target.firstElementChild?matches "ul, ol, dl"
+				if target.childNodes.length == 1 and target.firstElementChild?matches "ul, ol, dl"
 					@extract target.firstChild.children,
 						opts
 						parent
@@ -1534,7 +1362,7 @@ App =
 					for link in links
 						innerText = link.innerText.trim!
 						switch
-						| innerText is \†
+						| innerText == \†
 							link.dataset.excl = 1
 						# | @regexes.prefixes.test innerText
 						# 	link.dataset.excl = 1
@@ -1543,9 +1371,9 @@ App =
 				nameEl = null
 				do
 					if el = target.querySelector ':scope > i:first-child'
-						if el.innerText.trim!0 is /[A-Z]/
+						if el.innerText.trim!0 == /[A-Z]/
 							if node = el.nextSibling
-								if node.textContent.trim! is \ssp.
+								if node.textContent.trim! == \ssp.
 									if el2 = node.nextElementSibling
 										if el2.localName == \i
 											name = "#{el.innerText.trim!} #{el2.innerText.trim!}"
@@ -1554,16 +1382,16 @@ App =
 							break
 					if el = target.querySelector ':scope > i > a:not([data-excl])'
 						val = el.innerText.trim!
-						if val.0 is /[A-Z]/
+						if val.0 == /[A-Z]/
 							if rank
-								if rank.lv is 38 and speciesRegex.test val or rank.lv is 39 and subspeciesRegex.test val
+								if rank.lv == 38 and speciesRegex.test val or rank.lv == 39 and subspeciesRegex.test val
 									nameEl = el
 									break
 							else
 								nameEl = el
 								break
 					if el = target.querySelector ':scope > b > a:not([data-excl])'
-						if el.innerText.trim!0 is /[A-Z]/
+						if el.innerText.trim!0 == /[A-Z]/
 							nameEl = el
 							break
 					if el = target.querySelector ':scope > i'
@@ -1571,7 +1399,7 @@ App =
 							nameEl = el
 							break
 					if el = target.querySelector ':scope > a > .toctext'
-						if el.innerText.trim!0 is /[A-Z]/
+						if el.innerText.trim!0 == /[A-Z]/
 							nameEl = el
 							break
 					if el = target.querySelector ':scope > a:not([data-excl])'
@@ -1579,10 +1407,10 @@ App =
 						break
 				while no
 				if nameEl
-					if nameEl.localName is \i and (node = nameEl.nextSibling) and node.nodeName is \#text
-						if node.wholeText is /^( subsp\. | sp\. | +var\. )/
+					if nameEl.localName == \i and (node = nameEl.nextSibling) and node.nodeName == \#text
+						if node.wholeText == /^( subsp\. | sp\. | +var\. )/
 							nameEl = null
-						else if node.wholeText.trim! is \f.
+						else if node.wholeText.trim! == \f.
 							if el = nameEl.nextElementSibling
 								name = el.innerText
 								nameEl = null
@@ -1596,9 +1424,9 @@ App =
 				.replace /\([A-Z]\.\)\s/ ""
 				.replace /[()]/g ""
 				.replace /× ?/ ""
-			# if name is /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
+			# if name == /^[A-Z][a-z]+ \(([A-Z][a-z]+)\) [a-z]{2,}$/
 			# 	subgenera[that.1] = yes
-			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ is name
+			if /\ cf\. |(?<!sub)sp\. | sp\. (?![a-z])/ == name
 				continue
 			tab = void
 			rank ?= @findRank \prefixes (.startsRegex.test targetText)
@@ -1607,25 +1435,25 @@ App =
 			notMatchTab ?= tab
 			if rank
 				switch
-				| rank.lv is 41
+				| rank.lv == 41
 					if matched = formRegex.exec name
 						name = matched.4
 					name .= split " " .0
-				| rank.lv is 40
+				| rank.lv == 40
 					if matched = varietyRegex.exec name
 						name = matched.3
 					else if matched = varietyNameRegex.exec name
 						name = matched.0
 					else
 						name = opts.notMatchText
-				| rank.lv is 39
+				| rank.lv == 39
 					if matched = subspeciesRegex.exec name
 						name = matched.3
 					else if matched = subspeciesNameRegex.exec name
 						name = matched.0
 					else
 						name = opts.notMatchText
-				| rank.lv is 38
+				| rank.lv == 38
 					if matched = speciesRegex.exec name
 						name = matched.4
 					else
@@ -1692,9 +1520,9 @@ App =
 									return
 								if mat = val.match /^ \( ?$/
 									el3 = el2.nextSibling
-									if el3?localName is \a
+									if el3?localName == \a
 										el4 = el3.nextSibling
-										if el4?textContent is \)
+										if el4?textContent == \)
 											text := el3.innerText
 											return
 						if el = target.querySelector ':scope > i + span'
@@ -1765,9 +1593,9 @@ App =
 			//(^|\+)(#{keys.join \|})(\+|$)//test combo
 		if @modals.length
 			return
-		if rank = @findRank (.combo is combo)
+		if rank = @findRank (.combo == combo)
 			@comboRanks.push rank
-		else if combo is \0
+		else if combo == \0
 			@comboRanks = []
 		didSel = no
 		didSelThenAutoCopy = yes
@@ -1802,9 +1630,9 @@ App =
 				if target.closest 'span#Tạo_mới, ._dontCopy'
 					return
 				switch
-				| combo is \Backquote+RMB
+				| combo == \Backquote+RMB
 					@canContextMenu = yes
-				| (target.localName is \img) or
+				| (target.localName == \img) or
 					(t.inaturalist and target.matches "a.photo-container, a.photo") or
 					(t.flickr and target.matches ".photo")
 					unless t.imgurEdit
@@ -1868,9 +1696,9 @@ App =
 									else
 										src.replace /https:\/\/upload\.wikimedia\.org\/wikipedia\/(commons|en)\/./ ""
 								if src.includes \/wikipedia/en/
-									data = \/ + data
-							else if matched = src is /\/\/(static\.inaturalist\.org|inaturalist-open-data\.s3\.amazonaws\.com)\//
-								isAmazonAws = matched.1 is \inaturalist-open-data.s3.amazonaws.com and \: or ""
+									data .= replace \/ \/~
+							else if matched = src == /\/\/(static\.inaturalist\.org|inaturalist-open-data\.s3\.amazonaws\.com)\//
+								isAmazonAws = matched.1 == \inaturalist-open-data.s3.amazonaws.com and \: or ""
 								[, name, ext] = /\/photos\/(\d+)\/[a-z]+\.([a-zA-Z]*)/.exec src
 								exts = jpg: "", jpeg: \e, png: \p, JPG: \J, JPEG: \E, PNG: \P, "": \u
 								type = exts[ext]
@@ -1880,7 +1708,7 @@ App =
 									{genusName, speciesList} = @inaturalistSearchImportedData
 									if target.classList.contains \inaturalistSearchFigureImg
 										{speciesName} = target.dataset
-										species = speciesList.find (.name is speciesName)
+										species = speciesList.find (.name == speciesName)
 										if species
 											species.newImg = species.oldImg
 											isWriteLocalData = yes
@@ -1888,9 +1716,9 @@ App =
 											@notify "Không có loài này trong danh sách"
 									else if el = target.closest ".taxon_list_taxon:has(.species > .sciname)"
 										vals = el.querySelector \.sciname .innerText .split ' '
-										if vals.length is 2
-											if genusName is vals.0
-												species = speciesList.find (.name is vals.1)
+										if vals.length == 2
+											if genusName == vals.0
+												species = speciesList.find (.name == vals.1)
 												if species
 													species.newImg = data
 													isWriteLocalData = yes
@@ -1915,8 +1743,8 @@ App =
 								if src.includes \/raw/
 									name += \r
 								data = "~#name"
-							else if src is /fishbase\.[a-z]+\//
-								isUpload = src is /uploadphoto/i and \^ or ""
+							else if src == /fishbase\.[a-z]+\//
+								isUpload = src == /uploadphoto/i and \^ or ""
 								regex =
 									if src.includes \workimagethumb
 										/%2fuploadphoto%2fuploads%2f(.+)\.[a-z]+&w=\d+$/i
@@ -1928,15 +1756,15 @@ App =
 									data = "+#name"
 								else
 									@notify "Không thể lấy dữ liệu hình ảnh"
-							else if matched = src is /reptarium\.cz\/content\/photo_(.+)\.jpg$/
-								name = matched.1
+							else if src == /reptarium\.cz\/content\/photo_(.+)\.jpg$/
+								name = that.1
 								data = "$#name"
-							else if matched = src is /www\.fishwisepro\.com\/pics\/JPG\/(?:TN\/TN)?(\w+)\.jpg$/
-								name = matched.1
+							else if src == /www\.fishwisepro\.com\/pics\/JPG\/(?:TN\/TN)?(\w+)\.jpg$/
+								name = that.1
 								data = "<#name"
-							else if matched = src is /biogeodb\.stri\.si\.edu\/(\w+)\/resources\/img\/images\/species\/(\w+)\.jpg$/
-								node = matched.1
-								name = matched.2
+							else if src == /biogeodb\.stri\.si\.edu\/(\w+)\/resources\/img\/images\/species\/(\w+)\.jpg$/
+								node = that.1
+								name = that.2
 								data = ">#node/#name"
 							else if src.includes \//i.pinimg.com/
 								name = /^https:\/\/i\.pinimg\.com\/\w+\/(.+?)\.jpg$/exec src .1
@@ -1944,24 +1772,26 @@ App =
 							else if src.includes \//images.marinespecies.org/
 								name = /^https:\/\/images\.marinespecies\.org\/thumbs\/(.+?)\.jpg/exec src .1
 								data = "&#name"
-							else if matched = src is /images\.reeflifesurvey\.com\/0\/species_(\w+)(?:\.w\d+\.h\d+)?\.(jpg|JPG)$/
-								name = matched.1
+							else if src == /images\.reeflifesurvey\.com\/0\/species_(\w+)(?:\.w\d+\.h\d+)?\.(jpg|JPG)$/
+								name = that.1
 								exts = jpg: \j, JPG: \J
-								ext = exts[matched.2]
+								ext = exts[that.2]
 								data = "*#name#ext"
 							else if src.includes \//i.imgur.com/
 								name = /^https:\/\/i\.imgur\.com\/([A-Za-z\d]{7})/exec src .1
 								data = "-#name"
+							else if src == /^https:\/\/(.+)\.jpg$/
+								data = "//#{that.1}"
 							else
 								data = src
 							data = caption.replace \% data
 							switch
-							| combo is \RMB
+							| combo == \RMB
 								@lineData.2 = data
-							| combo is \Q+RMB
+							| combo == \Q+RMB
 								@lineData.2 = data
 								@lineData.3 = " | ?"
-							| combo is \W+RMB
+							| combo == \W+RMB
 								@lineData.2 = " # ?"
 								@lineData.3 = data
 							| comboIncludes \Shift \Alt
@@ -1983,7 +1813,7 @@ App =
 									image = target.src
 									isOpenNewTab = comboIncludes \MMB or (t.inaturalist and target.classList.contains \photo)
 									isFemale = comboIncludes \Shift
-									@mark target
+									# @mark target
 									if comboIncludes \I
 										await @uploadImgur do
 											image: image
@@ -1992,7 +1822,7 @@ App =
 											isFemale: isFemale
 									else
 										await @modalImgGithub do
-											image: image
+											target: target
 											isFemale: isFemale
 				| t.googleCommonName and (el = target.querySelector ":scope>span>a[jsname]>h3")
 					text = match el.parentElement.href
@@ -2002,8 +1832,8 @@ App =
 					await @googleCommonNameCopy text, yes
 				| t.googleCommonName and target.localName == \b
 					await @googleCommonNameCopy target, yes
-				| target.matches "a:not(.new)[href]" and combo is \RMB
-					if combo is \RMB
+				| target.matches "a:not(.new)[href]" and combo == \RMB
+					if combo == \RMB
 						window.open target.href
 				| td = target.closest ".infobox.biota td:nth-child(2), .infobox.taxobox td:nth-child(2)"
 					if combo in [\RMB \LMB]
@@ -2027,7 +1857,7 @@ App =
 						@data = @extract el
 						await @copy @data
 						@mark el
-				| target is target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
+				| target == target.closest ".infobox.biota, .infobox.taxobox" ?.querySelector \th
 					doCombo combo,, target.innerText
 				| target.closest \.CategoryTreeItem
 					wrapper = target.closest \#mw-subcategories
@@ -2035,7 +1865,7 @@ App =
 					| \Alt+RMB \Shift+Alt+RMB \Alt+LMB \Shift+Alt+LMB
 						links = wrapper.querySelectorAll \.CategoryTreeItem
 						@openLinksExtract links, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
-				| t.wikispecies and target.localName is \p
+				| t.wikispecies and target.localName == \p
 					if combo in [\RMB \LMB]
 						text = target.innerText.trim!split /\n+/ .[* - 1]trim!
 						rank = @findRank \prefixes (.startsRegex.test text)
@@ -2062,7 +1892,7 @@ App =
 						text = text
 							.split \,
 							.filter (s) ~>
-								s and not /[)]/test s
+								s and !/[)]/test s
 							.0
 							.trim!
 					text = text
@@ -2094,7 +1924,7 @@ App =
 						lis = []
 						for sibUl in sibUls
 							lis.push ...sibUl.children
-							sibUl.remove! unless sibUl is ul
+							sibUl.remove! unless sibUl == ul
 						ul.replaceChildren ...lis
 				| el = target.closest "
 				.infobox.biota p, .infobox.biota td:only-child,
@@ -2221,7 +2051,10 @@ App =
 						if keyGPlus
 							doCombo "G+#keyGPlus"
 						else
-							location.href = "https://google.com/search?tbm=isch&q=#q"
+							if t.flickr
+								doCombo "G+N"
+							else
+								location.href = "https://google.com/search?tbm=isch&q=#q"
 					| \G+F
 						location.href = "https://google.com/search?tbm=isch&q=#q"
 					| \G+N \N
@@ -2244,6 +2077,14 @@ App =
 						location.href = "https://www.seriouslyfish.com/species/#q"
 					| \G+K \K
 						location.href = "https://www.flickr.com/search/?text=#q"
+				| \Q
+					switch
+					| t.googleCommonName, t.wikiPage
+						doCombo \G+K
+					| t.flickr
+						doCombo \G+N
+					| t.inaturalist
+						doCombo \G+F
 				| \I+U
 					if blob = await @readCopiedImgBlob!
 						base64 = await @readAsBase64 blob
@@ -2365,7 +2206,7 @@ App =
 								species = void
 								for line in lines
 									[, tab, name, extinct, tail] = lineRegex.exec line
-									if tab.length is 38
+									if tab.length == 38
 										textEn = void
 										img = void
 										if tail
@@ -2463,9 +2304,9 @@ App =
 				listEl = document.querySelector \.taxa.list
 				for itemEl in listEl.children
 					vals = itemEl.querySelector \.sciname .innerText .split ' '
-					if vals.length is 2
+					if vals.length == 2
 						speciesName = vals.1
-						if species = speciesList.find (.name is speciesName)
+						if species = speciesList.find (.name == speciesName)
 							figureEl = itemEl.querySelector \.inaturalistSearchFigure
 							src = species.newImg
 							if src
@@ -2483,7 +2324,7 @@ App =
 								| \-
 									src = "https://i.imgur.com/#{src}m.png"
 								| \/
-									if src.0 is \/
+									if src.0 == \/
 										type = \en
 										src .= substring 1
 									else
@@ -2524,23 +2365,19 @@ App =
 						m \._notify m.trust notify.html
 				m \._modals._row._center,
 					@modals.map (modal, i) ~>
-						m \._modal._column,
+						m \._modal._column._gap4._p4,
 							key: modal
 							style: @style do
 								width: modal.width
 								marginTop: i * 32
-							onbeforeremove: (vnode) ~>
-								new Promise (resolve) !~>
-									vnode.dom.classList.add \_fadeOut95
-									setTimeout resolve, 1000
-							m \._row._middle._gap4._pl4._pr3._pt3,
-								m \._col._textTruncate._textBold,
+							m \._row._middle._gap4,
+								m \._col._textTruncate,
 									modal.title
 								m \button._modalClose,
 									onclick: !~>
 										modal.close!
-									"\u2a09"
-							m \._col._scroll._px4._pt3._pb4,
+									\x
+							m \._col._scroll,
 								modal.view modal
 			if @shownUI and (t.wikiPage or t.imgurEdit)
 				m \._sideRight,
@@ -2548,7 +2385,7 @@ App =
 					| t.wikiPage
 						m \._column._p4._h100._scroll._noscrollbar,
 							if @summ
-								if @summ is yes
+								if @summ == yes
 									m \._mt5._textCenter "Đang tải..."
 								else
 									m \._summ,

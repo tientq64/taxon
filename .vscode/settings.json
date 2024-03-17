@@ -12,31 +12,31 @@
 				"settings": {"foreground": "#3b82f6"}
 			}, {
 				"scope": ["pink.taxon"],
-				"settings": {"foreground": "#ff1267"}
+				"settings": {"foreground": "#f54f8c"}
 			}, {
 				"scope": ["orange.taxon"],
-				"settings": {"foreground": "#ff8e08"}
+				"settings": {"foreground": "#ff8b47"}
 			}, {
 				"scope": ["blue.taxon"],
-				"settings": {"foreground": "#2cb3e6"}
+				"settings": {"foreground": "#78c7df"}
 			}, {
 				"scope": ["green.taxon"],
-				"settings": {"foreground": "#6ae22e"}
+				"settings": {"foreground": "#5ece85"}
 			}, {
 				"scope": ["purple.taxon"],
-				"settings": {"foreground": "#a370ff"}
+				"settings": {"foreground": "#d391dd"}
 			}, {
 				"scope": ["yellow.taxon"],
-				"settings": {"foreground": "#ffcc66"}
+				"settings": {"foreground": "#e2c08d"}
 			}, {
 				"scope": ["white.taxon"],
 				"settings": {"foreground": "#ffffff"}
 			}, {
 				"scope": ["slate.taxon"],
-				"settings": {"foreground": "#648185"}
+				"settings": {"foreground": "#8e95a1", "fontStyle": "italic bold"}
 			}, {
 				"scope": ["gray.taxon"],
-				"settings": {"foreground": "#a39f83"}
+				"settings": {"foreground": "#a3a190", "fontStyle": "italic"}
 			}, {
 				"scope": [
 					"storage.type.livescript",
@@ -57,7 +57,7 @@
 					"entity.other.attribute-name.pseudo-element.css"
 				],
 				"settings": {
-					"fontStyle": ""
+					// "fontStyle": ""
 				}
 			}
 		]

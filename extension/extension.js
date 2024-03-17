@@ -1,6 +1,8 @@
 (async function () {
 	const { href, host, pathname, search } = location;
 
+	document.documentElement.id = "_html";
+
 	window.t = {
 		wikipedia: /wikipedia\.org/.test(host),
 		wikicommons: /commons\.wikimedia\.org/.test(host),

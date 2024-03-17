@@ -27,6 +27,8 @@ body, h1, h2, h3, h4, h5, h6, p, a, span
 	font-family $fontFamily !important
 body
 	font-size $fontSize
+	&:has(._modal)
+		overflow hidden
 #_app
 	position fixed
 	inset 0
@@ -71,12 +73,11 @@ body
 	top 6%
 	width fit-content
 	max-height 86%
-	// border-radius 8px
+	border-radius 12px
+	font-size 16px
 	background #fff
-	box-shadow 0 2px 4px #000c,0 8px 16px 4px #0003
+	box-shadow 0 10px 15px -3px #0008, 0 4px 6px -4px #0008
 	overflow hidden
-	transition margin-top .1s
-	animation _fadeIn95 .1s forwards
 	pointer-events auto
 	user-select none
 	z-index 1
@@ -84,34 +85,26 @@ body
 	input
 	select
 	textarea
-		padding 4px 8px
-		border solid 1px #aaa
-		// border-radius 4px
+		padding 6px 12px
+		border solid 1px #9ca3af
+		border-radius 4px
+		font inherit
 	button
-		background #eee
-		box-shadow 0 0 0 1px inset #fff
+		border 0
+		background #d1d5db
+		cursor pointer
 		&:hover
-			background #ddd
-			box-shadow 0 0 0 1px inset #eee
-		&:active
-			background #ccc
-			box-shadow none
+			background #9ca3af
 	._modalClose
-		width 24px
-		height 24px
+		width 48px
+		padding 6px 12px
 		display flex
 		justify-content center
 		align-items center
+		background: #e11d48
+		color #fff
 		&:hover
-			border-color #c43
-			background #f43
-			color #fff
-			box-shadow 0 0 0 1px inset #f76
-		&:active
-			border-color #943
-			background #c43
-			color #fff
-			box-shadow none
+			background: #f43f5e
 	input
 	textarea
 		outline 0
@@ -168,7 +161,7 @@ body
 	&:nth-child(7)
 		cursor ne-resize !important
 ._fadeOut95
-	animation _fadeOut95 .1s forwards
+	animation _fadeOut95 .2s cubic-bezier(0.33, 1, 0.68, 1) forwards
 @keyframes _fadeIn5
 	from
 		transform scale(.5)
@@ -237,10 +230,10 @@ body
 		bottom 60px
 	.mwe-popups-fade-in-up
 	.mwe-popups-fade-in-down
-		animation _fadeIn95 .1s forwards
+		animation _fadeIn95 .2s forwards
 	.mwe-popups-fade-out-up
 	.mwe-popups-fade-out-down
-		animation _fadeOut95 .1s forwards
+		animation _fadeOut95 .2s forwards
 	.infobox
 		padding 0
 		// border-radius 4px
@@ -456,211 +449,227 @@ body
 			// background: none
 			transform: unset !important
 
-._row
-	display flex
-	flex-direction row
-._column
-	display flex
-	flex-direction column
-._col
-	flex-grow 1
-._col0
-	flex-shrink 0
-input
-	&._col
-	&._col0
-		width 0
-for i in range(1, 12)
-	val = floor(i / 12 * 100%, 2)
-	._row > ._col{i}
-		width val
-	._column > ._col{i}
-		height val
-	val = floor(100% / i, 2)
-	._row{i}
-		display grid
-		grid-template-columns repeat(i,1fr)
-		> ._col{i}
-			grid-column span (i)
-._full
-	position absolute
-	left 0
-	top 0
-	width 100%
-	height 100%
-._wrap
-	flex-wrap wrap
-._nowrap
-	flex-wrap nowrap
-for dir in row column
-	._{dir}
-		prop = dir is column ? "align-items" : "justify-content"
-		&._start
-			{prop} flex-start
-		&._center
-			{prop} center
-		&._end
-			{prop} flex-end
-		prop = dir is column ? "justify-content" : "align-items"
-		&._top
-			{prop} flex-start
-		&._middle
-			{prop} center
-		&._bottom
-			{prop} flex-end
-._between
-	justify-content space-between
-._around
-	justify-content space-around
-._evenly
-	justify-content space-evenly
-._stretch
-	align-items stretch
-props = {p: padding, m: margin}
-sides = {t: top, r: right, b: bottom, l: left}
-sizes = 48px 40px 32px 24px 16px 8px 4px 2px 0
-for size, i in sizes
-	j = 8 - i
-	._gap{j}
-		gap size
-	._gapX{j}
-		column-gap size
-	._gapY{j}
-		row-gap size
-for p, prop in props
+#_html
+	._row
+		display flex
+		flex-direction row
+	._column
+		display flex
+		flex-direction column
+	._col
+		flex-grow 1
+	._col0
+		flex-shrink 0
+	input
+		&._col
+		&._col0
+			width 0
+	for i in range(1, 12)
+		val = floor(i / 12 * 100%, 2)
+		._row > ._col{i}
+			width val
+		._column > ._col{i}
+			height val
+		val = floor(100% / i, 2)
+		._row{i}
+			display grid
+			grid-template-columns repeat(i,1fr)
+			> ._col{i}
+				grid-column span (i)
+	._full
+		position absolute
+		left 0
+		top 0
+		width 100%
+		height 100%
+	._wrap
+		flex-wrap wrap
+	._nowrap
+		flex-wrap nowrap
+	for dir in row column
+		._{dir}
+			prop = dir is column ? "align-items" : "justify-content"
+			&._start
+				{prop} flex-start
+			&._center
+				{prop} center
+			&._end
+				{prop} flex-end
+			prop = dir is column ? "justify-content" : "align-items"
+			&._top
+				{prop} flex-start
+			&._middle
+				{prop} center
+			&._bottom
+				{prop} flex-end
+	._between
+		justify-content space-between
+	._around
+		justify-content space-around
+	._evenly
+		justify-content space-evenly
+	._stretch
+		align-items stretch
+	props = {p: padding, m: margin}
+	sides = {t: top, r: right, b: bottom, l: left}
+	sizes = 48px 40px 32px 24px 16px 8px 4px 2px 0
 	for size, i in sizes
-		i = 8 - i
-		hasNegate = p is m and i
-		._{p}{i}
-			{prop} size
-		if hasNegate
-			._-{p}{i}
-				{prop} -(size)
-for p, prop in props
-	for size, i in sizes
-		i = 8 - i
-		hasNegate = p is m and i
-		._{p}x{i}
-			{prop}-left size
-			{prop}-right size
-		._{p}y{i}
-			{prop}-top size
-			{prop}-bottom size
-		if hasNegate
-			._-{p}x{i}
-				{prop}-left -(size)
-				{prop}-right -(size)
-			._-{p}y{i}
-				{prop}-top -(size)
-				{prop}-bottom -(size)
-for p, prop in props
-	for size, i in sizes
-		i = 8 - i
-		hasNegate = p is m and i
-		for s, side in sides
-			._{p}{s}{i}
-				{prop}-{side} size
+		j = 8 - i
+		._gap{j}
+			gap size
+		._gapX{j}
+			column-gap size
+		._gapY{j}
+			row-gap size
+	for p, prop in props
+		for size, i in sizes
+			i = 8 - i
+			hasNegate = p is m and i
+			._{p}{i}
+				{prop} size
 			if hasNegate
-				.-_{p}{s}{i}
-					{prop}-{side} -(size)
-for pos in absolute relative fixed
-	._{pos}
-		position pos
-for dis in block inline-block inline flex inline-flex
-	._{dis}
-		display dis
-._w100
-	width 100%
-._h100
-	height 100%
-._hidden, [hidden]
-	display none
-aligns = {left: Left, center: Center, right: Right, justify: Justify}
-for align, a in aligns
-	._text{a}
-		text-align unquote(align)
-._textNowrap
-	white-space nowrap
-	word-break break-word
-._textTruncate
-	overflow hidden
-	text-overflow ellipsis
-	white-space nowrap
-	word-break break-word
-._textBold
-	font-weight 700
-._textItalic
-	font-style italic
-small
-._textSmall
-	font-size smaller
-._scroll
-	overflow auto
-._scrollY
-	overflow-x hidden
-	overflow-y auto
-._noscroll
-	overflow hidden
-._event
-	pointer-events auto
-._noevent
-	pointer-events none
-._select
-	user-select text
-._selectAll
-	user-select all
-._noselect
-	user-select none
-._cover
-	object-fit cover
-._contain
-	object-fit contain
-._scaleDown
-	object-fit scale-down
-// ._round8
-// 	border-radius 8px
-// ._round6
-// 	border-radius 6px
-// ._round4
-// 	border-radius 4px
-._border
-	border solid 1px #aaa
-._dashed
-	border dashed 1px #aaa
-._dotted
-	border dotted 1px #aaa
-._border0
-	border 0
-._outline
-	box-shadow 0 0 0 1px #aaa
-._bgBlack
-	background #000
-._bgWhite
-	background #fff
-._bgRed
-	background #f43
-._bgYellow
-	background #eb4
-._bgGreen
-	background #2a3
-._textGray
-	color #888
-._textRed
-	color #f43
-._textGreen
-	color #2a3
-._active
-._hover:hover
-	background $prim
-	color #fff
-._hover2:hover
-	background $prim2
-._cursor
-	cursor default
-._cursorPointer
-	cursor pointer
-._cursorCopy
-	cursor copy
-._noscrollbar
-	&::-webkit-scrollbar
+				._-{p}{i}
+					{prop} -(size)
+	for p, prop in props
+		for size, i in sizes
+			i = 8 - i
+			hasNegate = p is m and i
+			._{p}x{i}
+				{prop}-left size
+				{prop}-right size
+			._{p}y{i}
+				{prop}-top size
+				{prop}-bottom size
+			if hasNegate
+				._-{p}x{i}
+					{prop}-left -(size)
+					{prop}-right -(size)
+				._-{p}y{i}
+					{prop}-top -(size)
+					{prop}-bottom -(size)
+	for p, prop in props
+		for size, i in sizes
+			i = 8 - i
+			hasNegate = p is m and i
+			for s, side in sides
+				._{p}{s}{i}
+					{prop}-{side} size
+				if hasNegate
+					.-_{p}{s}{i}
+						{prop}-{side} -(size)
+	for pos in absolute relative fixed
+		._{pos}
+			position pos
+	for dis in block inline-block inline flex inline-flex
+		._{dis}
+			display dis
+	._w100
+		width 100%
+	._h100
+		height 100%
+	._w320
+		width 320px
+	._h240
+		height 240px
+	._hidden, [hidden]
 		display none
+	aligns = {left: Left, center: Center, right: Right, justify: Justify}
+	for align, a in aligns
+		._text{a}
+			text-align unquote(align)
+	._textNowrap
+		white-space nowrap
+		word-break break-word
+	._textTruncate
+		overflow hidden
+		text-overflow ellipsis
+		white-space nowrap
+		word-break break-word
+	._textBold
+		font-weight 700
+	._textItalic
+		font-style italic
+	small
+	._textSmall
+		font-size smaller
+	._scroll
+		overflow auto
+	._scrollY
+		overflow-x hidden
+		overflow-y auto
+	._noscroll
+		overflow hidden
+	._event
+		pointer-events auto
+	._noevent
+		pointer-events none
+	._select
+		user-select text
+	._selectAll
+		user-select all
+	._noselect
+		user-select none
+	._noDrag
+		-webkit-user-drag none
+		user-drag none
+	._cover
+		object-fit cover
+	._contain
+		object-fit contain
+	._scaleDown
+		object-fit scale-down
+	._round8
+		border-radius 8px
+	._round6
+		border-radius 6px
+	._round4
+		border-radius 4px
+	._border
+		border solid 1px #aaa
+	._dashed
+		border dashed 1px #aaa
+	._dotted
+		border dotted 1px #aaa
+	._border0
+		border 0
+	._outline
+		box-shadow 0 0 0 1px #aaa
+	._bgBlack
+		background #000
+	._bgWhite
+		background #fff
+	._bgRed
+		background #f43
+	._bgYellow
+		background #eb4
+	._bgGreen
+		background #2a3
+	._bgBlue
+		background #2563eb
+	._textGray
+		color #888
+	._textRed
+		color #f43
+	._textGreen
+		color #2a3
+	._textWhite
+		color #fff
+	._active
+	._hover:hover
+		background $prim
+		color #fff
+	._hover2:hover
+		background $prim2
+	._cursor
+		cursor default
+	._cursorPointer
+		cursor pointer
+	._cursorCopy
+		cursor copy
+	._cursorGrab
+		cursor grab
+	._cursorGrabbing
+		cursor grabbing
+	._noscrollbar
+		&::-webkit-scrollbar
+			display none
