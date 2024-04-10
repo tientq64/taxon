@@ -5,17 +5,18 @@
 *, :before, :after
 	box-sizing: border-box
 
-$sans = sans-serif
+$sans = unquote("Arial, sans-serif")
+$subSans = unquote("IBM Plex Sans, sans-serif")
 $mono = unquote("DejaVuSansMono, monospace")
 
 $lineHeight = 19px
 
 $rankColors = {
-	life: #3b82f6
-	domain: #3b82f6
-	kingdom: #3b82f6
-	phylum: #f54f8c
-	class: #ff8b47
+	life: #4081eb
+	domain: #4081eb
+	kingdom: #4081eb
+	phylum: #f75b94
+	class: #f88f52
 	order: #78c7df
 	family: #5ece85
 	tribe: #d391dd
@@ -102,11 +103,13 @@ for rankName, color in $rankColors
 
 .nodeTextEn
 	margin-left: 6px
+	font-family: $subSans
 	font-style: italic
 	color: #8e95a1
 
 .nodeTextVi
 	margin-left: 6px
+	font-family: $subSans
 	font-style: italic
 	color: #a3a190
 
@@ -308,6 +311,9 @@ for rankName, color in $rankColors
 
 .popupTextEn, .popupTextVi
 	padding: 0 8px 1px
+	font-family: $subSans
+	font-style: italic
+	font-weight: 500
 	white-space: nowrap
 	text-overflow: ellipsis
 	overflow: hidden
