@@ -991,7 +991,7 @@ App =
 			else resolve!
 
 	uploadBase64ToGithub: (base64, message, isFemale) ->
-		filename = @numToRadix62 Date.now! / 10000 - 171063787
+		filename = @numToRadix62 Date.now! / 10000 - 171093611
 		saved = no
 		notify = @notify "Đang upload ảnh lên Github" -1
 		unless window.Octokit
@@ -1046,9 +1046,9 @@ App =
 		fileName = ""
 		g = void
 		sizes =
-			[320 300]
-			[320 280]
-			[320 260]
+			[260 240]
+			[280 240]
+			[300 240]
 			[320 240]
 			[320 220]
 			[320 200]
@@ -1080,7 +1080,8 @@ App =
 			m.redraw!
 		onwheel = (event) !~>
 			canSave := no
-			scale -= event.deltaY / 5000
+			scale -= 0.02 * Math.sign event.deltaY
+			scale := Number scale.toFixed 2
 			scale := 1 if scale < 1
 			draw!
 		onpointerdown = (event) !~>
@@ -1196,6 +1197,9 @@ App =
 									oncontextmenu: oncontextmenu
 								m \._row._gap4,
 									m \div,
+										"Thu phóng: #scale"
+								m \._row._gap4,
+									m \div,
 										"Kích thước: #{(fileSize / 1024)toFixed 1} KB"
 									m \div,
 										"Tên: #fileName"
@@ -1250,7 +1254,6 @@ App =
 			m.redraw!
 
 	googleCommonNameCopy: (el, isCloseTab) !->
-		@googleCommonNameClipboardText ?= await navigator.clipboard.readText!
 		isEl = el instanceof Element
 		text = if isEl => el.innerText else el
 		text = text
@@ -1258,15 +1261,19 @@ App =
 			.replace /\ · .+/ ""
 		text = @formatTaxonText text
 		params = new URLSearchParams location.search
-		row = Number params.get \row
-		copiedType = Number params.get \copiedType
-		copiedText = @googleCommonNameClipboardText
-		copiedText and+= \\n
-		copiedText += "#row|DA84.&D-+7eDL2qr|"
-		copiedText += switch copiedType
-			| 0 => " #text"
-			| 1 => " #text #"
-			else " # #text"
+		if params.has \row
+			row = Number params.get \row
+			copiedType = Number params.get \copiedType
+			@googleCommonNameClipboardText ?= await navigator.clipboard.readText!
+			copiedText = @googleCommonNameClipboardText
+			copiedText and+= \\n
+			copiedText += "#row|DA84.&D-+7eDL2qr|"
+			copiedText += switch copiedType
+				| 0 => " #text"
+				| 1 => " #text #"
+				| 2 => " # #text"
+		else
+			copiedText = " # #text"
 		await @copy copiedText
 		@notify text
 		@mark el if isEl
@@ -1544,7 +1551,9 @@ App =
 					if text
 						text = text.split /(, ?| or )/ 1 .0
 						text = @upperFirst text
-						if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines|Malaysia|Indonesia|Japan|Yunnan|Java|Australia|Southeast Asia|Africa|Indomalaya|Thailand|Papua New Guinea|Island of Reunion|Madagascar|Sri Lanka)$/.test text
+						if /^(Arizona|California|Nevada|Texas|Mexico|Panama|Ecuador|Colombia|Guatemala|Brazil|Bolivia|Chile|Argentina|Venezuela|Paraguay|India|Greece|China|South Africa|Kenya|Namibia|Turkey|Zimbabwe|Vietnam|Philippines|Malaysia|Indonesia|Japan|Yunnan|Java|Australia|Southeast Asia|Africa|Indomalaya|Thailand|Papua New Guinea|Island of Reunion|Madagascar|Sri Lanka|New Zealand)$/.test text
+							text = void
+						if /^(type species)$/i.test text
 							text = void
 					if text
 						text = @formatTaxonText text
@@ -1971,7 +1980,7 @@ App =
 						@openLinksExtract cols, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
 			else
 				switch combo
-				| \C
+				| \M
 					(@els.commons or @els.enLang)?click!
 				| \D
 					if t.inaturalist
@@ -2019,7 +2028,7 @@ App =
 					find \subspecies no no yes
 				| \Shift+F
 					find \subspecies no yes yes
-				| \G \G+F \G+N \G+E \G+H \G+S \G+K \N \H \K
+				| \G \G+F \G+N \G+E \G+H \G+S \G+K \G+C \N \H \K \C
 					switch
 					| t.google
 						q = document.querySelector '#REsRA, #APjFqb' .value
@@ -2077,6 +2086,8 @@ App =
 						location.href = "https://www.seriouslyfish.com/species/#q"
 					| \G+K \K
 						location.href = "https://www.flickr.com/search/?text=#q"
+					| \G+C \C
+						location.href = "https://google.com/search?q=#q+common+name"
 				| \Q
 					switch
 					| t.googleCommonName, t.wikiPage

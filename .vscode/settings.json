@@ -33,7 +33,7 @@
 				"settings": {"foreground": "#ffffff"}
 			}, {
 				"scope": ["slate.taxon"],
-				"settings": {"foreground": "#8e95a1", "fontStyle": "italic bold"}
+				"settings": {"foreground": "#8e95a1", "fontStyle": "italic"}
 			}, {
 				"scope": ["gray.taxon"],
 				"settings": {"foreground": "#a3a190", "fontStyle": "italic"}

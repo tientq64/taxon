@@ -408,12 +408,17 @@ parse = !->
 	for char, i in chars
 		chrs = []
 		len = char.length / 2
+		chr = ""
 		for chrsRank in chrsRanks
 			if len > chrsRank.1
-				chr = char
-					.substring chrsRank.1 * 2 chrsRank.2 * 2
-					.replace /\  /g \\t
-				chrs.push chr
+				chr2 = char.substring chrsRank.1 * 2, chrsRank.2 * 2
+				chr += chr2
+				if chr2.trimEnd!
+					chr .= replace /\  /g \\t
+					chrs.push chr
+					chr = ""
+				else
+					chrs.push void
 			else break
 		chars[i] = chrs
 	infos.taxon.count = lines.length
@@ -985,6 +990,12 @@ App =
 		event.redraw = no
 		@scroll!
 
+	onwheel: (event) !->
+		event.redraw = no
+		return if !event.altKey
+		event.preventDefault!
+		scrollEl.scrollTop += event.deltaY * 5
+
 	onkeydown: (event) !->
 		unless event.repeat
 			unless event.location in [1 2]
@@ -1108,17 +1119,10 @@ App =
 			key: line.index
 			class: @class do
 				"lineFind": @finding and line == @findLines[@findIndex]
-			chars[line.chrs]reduce (accum, char, i) ~>
-				prevVdom = accum.at -1
-				if !prevVdom or (char.trim! and prevVdom.children.0.children.trim!)
-					accum.push do
-						m \.indent,
-							class: chrsRanks[i]0
-							char
-				else
-					accum.at -1 .children.0.children += char
-				accum
-			, []
+			chars[line.chrs]map (char, i) ~>
+				m \.indent,
+					class: chrsRanks[i]0
+					char
 			m \.node,
 				style:
 					width: (prevLine.lv - line.lv) * 18 + \px if prevLine
@@ -1131,7 +1135,7 @@ App =
 					onmouseleave: @mouseleaveName
 					onmousedown: @mousedownName.bind void line
 					oncontextmenu: @contextmenuName.bind void line
-					line.name
+					line.name == " " and \-- or line.name
 				if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy != \...)
 					m \.nodeDash,
 						\\u2014
@@ -1164,6 +1168,7 @@ App =
 	view: ->
 		m \.main,
 			m \.scroll#scrollEl,
+				onwheel: @onwheel
 				onscroll: @onscroll
 				m \.lines#linesEl,
 					@lines.map (line) ~>
@@ -1172,9 +1177,7 @@ App =
 			if @lines.1 and !maxLv
 				m \.bcrums,
 					@getParents @lines.1 .map (line, i, items) ~>
-						prevLine = items.findLast (item, j) ~>
-							j < i and item.name != " "
-						console.log items
+						prevLine = items[i - 1]
 						m \.bcrum,
 							key: line.index
 							@lineView line, yes, textRanks.length - i, prevLine
