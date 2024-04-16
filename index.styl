@@ -1,11 +1,13 @@
+@import 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap'
+
 @font-face
 	font-family: "DejaVuSansMono"
-	src: url("https://cdn.jsdelivr.net/gh/tientq64/fonts/DejaVuSansMono.woff2")
+	src: url("assets/fonts/DejaVuSansMono.woff2")
 
 *, :before, :after
 	box-sizing: border-box
 
-$sans = unquote("Arial, sans-serif")
+$sans = unquote("Segoe UI, sans-serif")
 $subSans = unquote("IBM Plex Sans, sans-serif")
 $mono = unquote("DejaVuSansMono, monospace")
 
@@ -312,8 +314,6 @@ for rankName, color in $rankColors
 .popupTextEn, .popupTextVi
 	padding: 0 8px 1px
 	font-family: $subSans
-	font-style: italic
-	font-weight: 500
 	white-space: nowrap
 	text-overflow: ellipsis
 	overflow: hidden

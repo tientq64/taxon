@@ -1,7 +1,10 @@
 {
 	"editor.tabSize": 4,
 	"editor.insertSpaces": false,
-	"javascript.format.semicolons": "insert",
+	"[javascript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
 			{
@@ -33,10 +36,10 @@
 				"settings": {"foreground": "#ffffff"}
 			}, {
 				"scope": ["slate.taxon"],
-				"settings": {"foreground": "#8e95a1", "fontStyle": "italic"}
+				"settings": {"foreground": "#8e95a1", "fontStyle": ""}
 			}, {
 				"scope": ["gray.taxon"],
-				"settings": {"foreground": "#a3a190", "fontStyle": "italic"}
+				"settings": {"foreground": "#a3a190", "fontStyle": ""}
 			}, {
 				"scope": [
 					"storage.type.livescript",

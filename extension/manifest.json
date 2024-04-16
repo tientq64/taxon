@@ -3,9 +3,9 @@
 	"version": "0.2",
 	"manifest_version": 2,
 	"author": "tientq64",
-	"description": "taxon",
+	"description": "Phân loại sinh học.",
 	"icons": {
-		"24": "icon24.png"
+		"128": "icon.png"
 	},
 	"content_scripts": [
 		{

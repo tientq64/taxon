@@ -650,7 +650,7 @@ App =
 						for let child, i in childs
 							setTimeout !~>
 								@openGoogleCommonName child
-							, i * 100
+							, i * 500
 				else
 					if isDev
 						@openGoogleCommonName line
@@ -868,7 +868,7 @@ App =
 		try
 			copiedText = await navigator.clipboard.readText!
 			copiedText and+= \\n
-			copiedText += "#row|DA84.&D-+7eDL2qr|"
+			copiedText += "#row|kDDVKETwoTIKUZ2RYmima|"
 			copiedText += switch
 				| line.textVi => " #text"
 				| line.imgs => " #text #"

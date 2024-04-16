@@ -991,7 +991,7 @@ App =
 			else resolve!
 
 	uploadBase64ToGithub: (base64, message, isFemale) ->
-		filename = @numToRadix62 Date.now! / 10000 - 171277537
+		filename = @numToRadix62 Date.now! / 10000 - 171320025
 		saved = no
 		notify = @notify "Đang upload ảnh lên Github" -1
 		unless window.Octokit
@@ -1267,7 +1267,7 @@ App =
 			@googleCommonNameClipboardText ?= await navigator.clipboard.readText!
 			copiedText = @googleCommonNameClipboardText
 			copiedText and+= \\n
-			copiedText += "#row|DA84.&D-+7eDL2qr|"
+			copiedText += "#row|kDDVKETwoTIKUZ2RYmima|"
 			copiedText += switch copiedType
 				| 0 => " #text"
 				| 1 => " #text #"

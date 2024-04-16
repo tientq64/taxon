@@ -4,12 +4,10 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "ls2 build.ls; cd vscode-ext/dist; vsce package",
+			"command": "node build.js; cd vscode-ext/dist; vsce package",
 			"presentation": {
 				"clear": true,
-				"close": true,
 				"reveal": "silent",
-				"revealProblems": "onProblem",
 				"showReuseMessage": false
 			}
 		}
