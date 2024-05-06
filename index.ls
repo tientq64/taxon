@@ -105,7 +105,7 @@ parse = !->
 	data .= split \\n
 	tree = [0 \Life no [, \/Sự_sống] [] "Life" "Sự sống"]
 	refs = [tree]
-	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z]+?))?(?: (!))?$/
+	headRegex = /^(\t*)(.+?)(\*)?(?: ([\\/].*?))?(?: \|([-a-z\d]+?))?(?: (!))?$/
 	tailRegex = /^([-/:@%~^+$<>=!&*?]|https?:\/\/)/
 	disamSplitRegex = /(?=[\\/])/
 	inaturalistRegex = /^(:?)(\d+)([epJEPu]?)$/
@@ -785,8 +785,9 @@ App =
 							minWidth: width + \px
 						m \.popupName,
 							if icon
-								m \img.popupIcon,
-									src: "https://img.icons8.com/plumpy/1x/#icon.png"
+								m \.popupIcon,
+									style:
+										backgroundImage: "url(https://cdn-icons-png.flaticon.com/24/#{icon.slice 0 -3}/#icon.png)"
 							m \#nameEl name
 							m \.popupRank,
 								@getRankTexts line.lv, @popupLang, yes

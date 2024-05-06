@@ -618,6 +618,10 @@ App =
 		else if val > max => max
 		else val
 
+	wait: (msec) ->
+		new Promise (resolve) !~>
+			setTimeout resolve, msec
+
 	chunkArr: (arr, size) ->
 		newArr = []
 		for val, i in arr
@@ -991,7 +995,7 @@ App =
 			else resolve!
 
 	uploadBase64ToGithub: (base64, message, isFemale) ->
-		filename = @numToRadix62 Date.now! / 10000 - 171320025
+		filename = @numToRadix62 Date.now! / 10000 - 171401031
 		saved = no
 		notify = @notify "Đang upload ảnh lên Github" -1
 		unless window.Octokit
@@ -1012,8 +1016,9 @@ App =
 				saved = yes
 				notify.update "Đã upload ảnh lên Github: #copiedData"
 			else
-				notify.update "Upload ảnh lên Github thất bại"
+				throw res.error
 		catch
+			await @wait 2000
 			notify.update "Upload ảnh lên Github thất bại"
 		m.redraw!
 		[filename, res, saved]
@@ -1853,6 +1858,8 @@ App =
 						if rank
 							@data = @extract td,
 								ranks: [rank]
+							unless @data.trim!includes \\n
+								@data .= replace \* ""
 							await @copy @data
 							@mark td
 				| el = target.closest ".infobox.biota .binomial, .infobox.taxobox .binomial"
@@ -1956,6 +1963,8 @@ App =
 								.trim!
 						@data = @extract text,
 							ranks: [rank]
+						unless @data.trim!includes \\n
+							@data .= replace \* ""
 						await @copy @data
 						@mark el
 				| t.wiki and td = target.closest \td

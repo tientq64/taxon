@@ -5,6 +5,10 @@
 			"label": "build",
 			"type": "shell",
 			"command": "node build.js; cd vscode-ext/dist; vsce package",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
 			"presentation": {
 				"clear": true,
 				"reveal": "silent",

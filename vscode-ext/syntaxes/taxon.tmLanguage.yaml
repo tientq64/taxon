@@ -28,7 +28,7 @@ patterns:
 - match: ' [\\/][^ ]*'
   name: orange.taxon
 
-- match: ' \|[a-z\-]+'
+- match: ' \|[-a-z\d]+'
   name: orange.taxon
 
 - match: ' !'

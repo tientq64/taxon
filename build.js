@@ -50,4 +50,6 @@ const minify = require('minify')
 
 	fs.copyFileSync('icon.png', 'vscode-ext/dist/icon.png')
 	fs.copyFileSync('vscode-ext/LICENSE', 'vscode-ext/dist/LICENSE')
+
+	console.log('Built')
 })()
