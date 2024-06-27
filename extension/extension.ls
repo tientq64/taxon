@@ -995,7 +995,7 @@ App =
 			else resolve!
 
 	uploadBase64ToGithub: (base64, message, isFemale) ->
-		filename = @numToRadix62 Date.now! / 10000 - 171401031
+		filename = @numToRadix62 Date.now! / 10000 - 171937942
 		saved = no
 		notify = @notify "Đang upload ảnh lên Github" -1
 		unless window.Octokit
@@ -1894,6 +1894,9 @@ App =
 						@mark target
 				| target.matches '#firstHeading, ._summTitle, h1, b, em'
 					doCombo combo,, target.innerText
+				| target.matches 'font[face=VERDANA]'
+					text = target.innerText.split ', ' .0
+					doCombo combo,, text
 				| target.matches 'i'
 					@data = @extract target
 					await @copy @data

@@ -5,7 +5,7 @@ localStorage
 	..taxonRightClickAction ?= \k
 	..taxonPopupLang ?= \en
 
-lineHeight = 19
+lineHeight = 18
 lines = []
 chars = {}
 chrsRanks =
@@ -340,13 +340,13 @@ parse = !->
 		if parentLv >= 0
 			lvRange = lv - parentLv - 1
 			if extinct
-				chrs2 = (chrs + (isFirst and ("╸╸"repeat lvRange) + \╸┓ or ("  "repeat lvRange) + " ╏"))
-					.replace /\ (?=[╸━┓])/ \╹
+				chrs2 = (chrs + (isFirst and ("╍╍"repeat lvRange) + \╍┓ or ("  "repeat lvRange) + " ┋"))
+					.replace /\ (?=[╍━┓])/ \╹
 					.replace /┃(?=[━┓])/ \┣
 			else
 				chrs2 = (chrs + (isFirst and ("━━"repeat lvRange) + \━┓ or ("  "repeat lvRange) + " ┃"))
-					.replace /\ (?=[╸━┓])/ \┗
-					.replace /[┃╏](?=[━┓])/ \┣
+					.replace /\ (?=[╍━┓])/ \┗
+					.replace /[┃┋](?=[━┓])/ \┣
 		else
 			chrs2 = " ┃"
 		if chars[chrs2]?
@@ -391,7 +391,7 @@ parse = !->
 		lines.push line
 		if childs
 			line.childsCount = childs.length
-			chrs += "  "repeat(lvRange) + (isLast and "  " or (if extinct or nextSiblExtinct => " ╏" else " ┃"))
+			chrs += "  "repeat(lvRange) + (isLast and "  " or (if extinct or nextSiblExtinct => " ┋" else " ┃"))
 			if lv < 34 or lv > 38
 				if name !in [\? " "]
 					if lv == 33

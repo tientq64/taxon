@@ -1,17 +1,17 @@
 // @import 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap'
 
 @font-face
-	font-family: "DejaVuSansMono"
-	src: url("assets/fonts/DejaVuSansMono.woff2")
+	font-family: "PragmataPro Mono"
+	src: url("assets/fonts/PragmataPro-Mono-R.woff2")
 
 *, :before, :after
 	box-sizing: border-box
 
 $sans = unquote("sans-serif")
 $subSans = unquote("sans-serif")
-$mono = unquote("DejaVuSansMono, monospace")
+$mono = unquote("PragmataPro Mono, monospace")
 
-$lineHeight = 19px
+$lineHeight = 18px
 
 $rankColors = {
 	life: #4081eb
@@ -161,11 +161,11 @@ for rankName, color in $rankColors
 
 .bcrum > .line:nth-child(2)
 	> .indent
-		clip-path: inset(0 0 1ex 0)
+		clip-path: inset(0 0 .8ex 0)
 		background: #282739
 
 		&:has(+ .node)
-			clip-path: inset(0 0.28ch 1ex 0)
+			clip-path: inset(0 .12ch .8ex 0)
 
 	> .node
 		display: none
