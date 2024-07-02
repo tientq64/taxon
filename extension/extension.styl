@@ -448,6 +448,25 @@ body
 			// border: 0
 			// background: none
 			transform: unset !important
+._repfocus
+	tr:has(> td > font > img[src="DIV/DE_12v.gif"])
+	tr:has(> td > font > img[src="DIV/DK_12v.gif"])
+		display: none
+	._item
+		> td:nth-child(1)
+			img
+				border-color: #64748b
+				border-radius: 8px
+		> td:nth-child(2)
+			> font:first-child
+				font-size: 18px
+				img
+					height: 16px
+					border-radius: 3px
+					&:first-child
+						margin-left: 4px
+	._commonName
+		font-family: unset !important
 
 #_html
 	._row

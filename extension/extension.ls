@@ -578,6 +578,19 @@ App =
 			#       if el.title == \reCAPTCHA
 			#          if el = el.contentWindow.document.querySelector \.recaptcha-checkbox-border
 			#             el.click!
+			| t.repfocus
+				els = document.querySelectorAll 'tr > td:has(> font > img[src="DIV/UK_12v.gif"]) + td > font'
+				for el in els
+					el.innerHTML = el.innerText
+						.split /(?<=,\s+|[()])|(?=,\s+|[()])/
+						.map ~>
+							if it.length > 4 => "<span class='_commonName'>#it</span>"
+							else it
+						.join ""
+					el.closest 'tr:has(> td > table)' .classList.add \_item
+				if els.length
+					table = els.0.closest \table .parentElement.closest \table
+					table.classList.add \_list
 
 	oncreate: !->
 		if t.wiki
@@ -1892,11 +1905,8 @@ App =
 							ranks: [rank]
 						await @copy @data
 						@mark target
-				| target.matches '#firstHeading, ._summTitle, h1, b, em'
+				| target.matches '#firstHeading, ._summTitle, h1, b, em, ._commonName'
 					doCombo combo,, target.innerText
-				| target.matches 'font[face=VERDANA]'
-					text = target.innerText.split ', ' .0
-					doCombo combo,, text
 				| target.matches 'i'
 					@data = @extract target
 					await @copy @data
@@ -2281,6 +2291,11 @@ App =
 					if t.inaturalistSearch
 						if data = @inaturalistSearchImportedData
 							console.log data
+				| \R+T
+					if t.repfocus
+						if text = getSelection!
+							regex = RegExp text, \gi
+							document.body.innerHTML .= replace regex, (.toLowerCase!)
 				| \A
 					cfgs =
 						c: \copyExtractDeepAndOpenLinkExtract
