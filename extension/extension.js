@@ -19,7 +19,8 @@
 		ebird: /ebird\.org/.test(host),
 		seriouslyfish: /seriouslyfish\.com/.test(host),
 		flickr: /flickr\.com/.test(host),
-		repfocus: /repfocus\.dk/.test(host)
+		repfocus: /repfocus\.dk/.test(host),
+		herpmapper: /herpmapper\.org/.test(host)
 	}
 
 	t.wikiEdit = t.wikipedia && /\bveaction=edit\b/.test(search)

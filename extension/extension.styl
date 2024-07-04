@@ -449,13 +449,16 @@ body
 			// background: none
 			transform: unset !important
 ._repfocus
+	&, body > center > table
+		background: #e2e8f0
 	tr:has(> td > font > img[src="DIV/DE_12v.gif"])
 	tr:has(> td > font > img[src="DIV/DK_12v.gif"])
 		display: none
 	._item
 		> td:nth-child(1)
 			img
-				border-color: #64748b
+				padding: 2px
+				border-color: #94a3b8
 				border-radius: 8px
 		> td:nth-child(2)
 			> font:first-child
@@ -467,6 +470,53 @@ body
 						margin-left: 4px
 	._commonName
 		font-family: unset !important
+	._itemYear
+		display: none
+	._repfocusDetailsHidden
+		._item:not(:first-child)
+			height: 48px
+			> td
+				padding: 0 10px
+			> td:nth-child(1)
+				> img
+				> br
+					display: none
+				> a > img
+					width: 60px
+					height: 30px
+			> td:nth-child(2)
+				> font:nth-of-type(1)
+					font-size: 12px
+					font-weight: 700
+				> table:nth-of-type(2)
+				> font:nth-of-type(2)
+				img, br
+					display: none
+			td:has(+ td > font > [class="_commonName"])
+				padding: 0
+			font:has(> [class="_commonName"])
+				white-space: nowrap
+			._commonName
+				color: #0f172a
+		._itemYear
+			margin-left: 8px
+			display: inline-block
+			font-weight: 400
+			font-size: 10px
+			color: #64748b
+			transform: translateY(-1px)
+	._repfocusOldYearsHidden
+		._item
+			opacity: .25
+		._item:has([data-year="2020"])
+		._item:has([data-year="2021"])
+		._item:has([data-year="2022"])
+		._item:has([data-year="2023"])
+		._item:has([data-year="2024"])
+			opacity: unset
+._herpmapper
+	table tr > :is(th, td)
+		padding: 2px 8px
 
 #_html
 	._row

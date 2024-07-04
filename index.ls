@@ -682,6 +682,8 @@ App =
 						| @code == \KeyS => \s
 						| @code == \KeyN => \n
 						| @code == \KeyK => \k
+						| @code == \KeyR => \r
+						| @code == \KeyM => \m
 						else @rightClickAction
 					@windowOpenByAction action, name
 		else
@@ -719,6 +721,10 @@ App =
 			window.open "https://inaturalist.org/taxa/search?view=list&q=#name"
 		| \k
 			window.open "https://www.flickr.com/search/?text=#name"
+		| \r
+			window.open "https://repfocus.dk/#name.html"
+		| \m
+			window.open "https://www.herpmapper.org/taxon/#name"
 
 	getAbbrWordName: (word) ->
 		chr = word.0
@@ -1045,6 +1051,8 @@ App =
 								s) seriouslyfish
 								n) inaturalist
 								k) flickr (mặc định)
+								r) repfocus
+								m) herpmapper
 							""" @rightClickAction
 							if action
 								@rightClickAction = action

@@ -449,6 +449,8 @@ App =
 		@imgurEditRatio2Img = (280 / 240)toFixed 3
 		@inaturalistSearchImportedData = null
 		@googleCommonNameClipboardText = void
+		@repfocusDetailsHidden = yes
+		@repfocusOldYearsHidden = no
 		window.addEventListener \selectionchange @onselectionchange, yes
 		window.addEventListener \mousedown @onmousedown, yes
 		window.addEventListener \mouseup @onmouseup, yes
@@ -581,16 +583,31 @@ App =
 			| t.repfocus
 				els = document.querySelectorAll 'tr > td:has(> font > img[src="DIV/UK_12v.gif"]) + td > font'
 				for el in els
+					itemEl = el.closest 'tr:has(> td > font:only-child > table), tr:has(> td > table)'
+					itemEl.classList.add \_item
+					if wrongEl = itemEl.querySelector ':scope > td:nth-of-type(2) > font:only-child'
+						wrongEl.outerHTML = wrongEl.innerHTML
 					el.innerHTML = el.innerText
 						.split /(?<=,\s+|[()])|(?=,\s+|[()])/
 						.map ~>
 							if it.length > 4 => "<span class='_commonName'>#it</span>"
 							else it
 						.join ""
-					el.closest 'tr:has(> td > table)' .classList.add \_item
+					yearEl = itemEl.querySelector ':scope > td:nth-of-type(2) > table:nth-of-type(2) > tbody > tr:first-child > td:first-child > font'
+					if yearEl
+						year = yearEl.textContent.trim!
+						nameEl = itemEl.querySelector ':scope > td:nth-of-type(2) > font'
+						nameEl.innerHTML += "<i class='_itemYear' data-year='#year'>#year</i>"
 				if els.length
 					table = els.0.closest \table .parentElement.closest \table
 					table.classList.add \_list
+				@repfocusSetDetailsHidden @repfocusDetailsHidden
+				@repfocusSetOldYearsHidden @repfocusOldYearsHidden
+			| t.herpmapper
+				els = document.querySelectorAll 'table > tbody > tr'
+				for el in els
+					el.children.0.classList.add \_species
+					el.children.1.classList.add \_commonName
 
 	oncreate: !->
 		if t.wiki
@@ -1297,6 +1314,22 @@ App =
 		@mark el if isEl
 		@closeTab 1000 if isCloseTab
 
+	repfocusSetDetailsHidden: (hidden) !->
+		hidden = Boolean hidden ? !@repfocusDetailsHidden
+		@repfocusDetailsHidden = hidden
+		if hidden
+			document.body.classList.add \_repfocusDetailsHidden
+		else
+			document.body.classList.remove \_repfocusDetailsHidden
+
+	repfocusSetOldYearsHidden: (hidden) !->
+		hidden = Boolean hidden ? !@repfocusOldYearsHidden
+		@repfocusOldYearsHidden = hidden
+		if hidden
+			document.body.classList.add \_repfocusOldYearsHidden
+		else
+			document.body.classList.remove \_repfocusOldYearsHidden
+
 	extract: (targets, opts = {}, parent, items = [], index = 0) ->
 		if typeof targets == \string
 			targets = targets
@@ -1875,7 +1908,7 @@ App =
 								@data .= replace \* ""
 							await @copy @data
 							@mark td
-				| el = target.closest ".infobox.biota .binomial, .infobox.taxobox .binomial"
+				| el = target.closest ".infobox.biota .binomial, .infobox.taxobox .binomial, ._species"
 					if combo in [\RMB \LMB]
 						@data = @extract el,
 							ranks: [@ranks.species]
@@ -2291,11 +2324,16 @@ App =
 					if t.inaturalistSearch
 						if data = @inaturalistSearchImportedData
 							console.log data
-				| \R+T
+				| \T
+					if text = getSelection!
+						regex = RegExp text, \gi
+						document.body.innerHTML .= replace regex, (.toLowerCase!)
+				| \R+H
 					if t.repfocus
-						if text = getSelection!
-							regex = RegExp text, \gi
-							document.body.innerHTML .= replace regex, (.toLowerCase!)
+						@repfocusSetDetailsHidden!
+				| \R+Y
+					if t.repfocus
+						@repfocusSetOldYearsHidden!
 				| \A
 					cfgs =
 						c: \copyExtractDeepAndOpenLinkExtract
