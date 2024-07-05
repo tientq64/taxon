@@ -1025,33 +1025,35 @@ App =
 			else resolve!
 
 	uploadBase64ToGithub: (base64, message, isFemale) ->
-		filename = @numToRadix62 Date.now! / 10000 - 171937942
-		saved = no
-		notify = @notify "Đang upload ảnh lên Github" -1
+		notify = @notify "Đang upload ảnh lên GitHub", -1
 		unless window.Octokit
 			{Octokit} = await import \https://cdn.skypack.dev/@octokit/rest@18.12.0?min
 			window.Octokit = Octokit
 		octo = new window.Octokit do
 			auth: OCTOKEN
-		try
-			res = await octo.repos.createOrUpdateFileContents do
-				owner: \tientq64
-				repo: \taimg
-				path: "#filename.webp"
-				message: message
-				content: base64
-			if res.status == 201
-				copiedData = " #{isFemale and \| or \#} =#filename"
-				await @copy copiedData
-				saved = yes
-				notify.update "Đã upload ảnh lên Github: #copiedData"
-			else
-				throw res.error
-		catch
-			await @wait 2000
-			notify.update "Upload ảnh lên Github thất bại"
+		idNum = Math.floor Date.now! / 10000 - 172016494
+		loop
+			filename = @numToRadix62 idNum
+			try
+				res = await octo.repos.createOrUpdateFileContents do
+					owner: \tientq64
+					repo: \taimg
+					path: "#filename.webp"
+					message: message
+					content: base64
+				if res.status == 201
+					copiedData = " #{isFemale and \| or \#} =#filename"
+					await @copy copiedData
+					notify.update "Đã upload ảnh lên GitHub: #copiedData"
+					break
+				else
+					throw res.error
+			catch
+				notify.update "Upload ảnh lên GitHub thất bại, đang thử lại...", -1
+				idNum++
+				await @wait 2000
 		m.redraw!
-		[filename, res, saved]
+		[filename, res]
 
 	modalImgGithub: ({target, isFemale}) !->
 		canvasW = void
@@ -1204,14 +1206,12 @@ App =
 				base64 = dataUrl.split \, .1
 				resultCanvas := newResultCanvas
 				m.redraw!
-				do
-					[filename, res, saved] = await @uploadBase64ToGithub base64, target.src, isFemale
-				until saved
+				[filename, res] = await @uploadBase64ToGithub base64, target.src, isFemale
 				fileName := filename
 				fileSize := res.data.content.size
 				m.redraw!
 		setSize sizes.3
-		@modal "Tải hình ảnh lên Github",, (modal$) ~>
+		@modal "Tải hình ảnh lên GitHub",, (modal$) ~>
 			modal := modal$
 			m do
 				oncreate: (vnode) !~>
@@ -2213,7 +2213,7 @@ App =
 							canvas.height = height
 							g = canvas.getContext \2d
 							g.putImageData imgData, -l, -t, l, t, width, height
-							dataUrl = canvas.toDataURL \image/webp 0.9
+							dataUrl = canvas.toDataURL \image/webp 0.92
 							await @copy dataUrl
 							URL.revokeObjectURL url
 							notify.update "Xóa viền ảnh thành công"
@@ -2230,9 +2230,9 @@ App =
 							isFemale = comboIncludes \Shift
 							await @uploadBase64ToGithub base64, message, isFemale
 						catch
-							@notify "Base64 upload lên Github không hợp lệ"
+							@notify "Base64 upload lên GitHub không hợp lệ"
 					else
-						@notify "Không có base64 để upload lên Github"
+						@notify "Không có base64 để upload lên GitHub"
 				| \T+I \Shift+T+I
 					if blob = await @readCopiedImgBlob!
 						base64 = await @readAsBase64 blob
@@ -2240,7 +2240,7 @@ App =
 						isFemale = comboIncludes \Shift
 						await @uploadBase64ToGithub base64, message, isFemale
 					else
-						@notify "Không có ảnh để upload lên Github"
+						@notify "Không có ảnh để upload lên GitHub"
 				| \W+P
 					location.href = \https://en.wikipedia.org/wiki/Special:Preferences
 				| \W+E
@@ -2325,9 +2325,10 @@ App =
 						if data = @inaturalistSearchImportedData
 							console.log data
 				| \T
-					if text = getSelection!
-						regex = RegExp text, \gi
+					if selection = getSelection!
+						regex = RegExp selection.toString!, \gi
 						document.body.innerHTML .= replace regex, (.toLowerCase!)
+						selection.empty!
 				| \R+H
 					if t.repfocus
 						@repfocusSetDetailsHidden!
