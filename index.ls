@@ -625,45 +625,47 @@ App =
 			window.open src, \_blank
 
 	mousedownName: (line, event) !->
-		unless line.name in ["" \?]
-			switch event.which
-			| 1
+		return if event.currentTarget !== event.target
+		return if line.name in ["" \?]
+		switch event.which
+		| 1
+			if isDev
+				lang = event.altKey and \vi or \en
+				q = @getWikiPageName line, lang
+				window.open "https://#lang.wikipedia.org/wiki/#q" \_blank
+			else
+				q = @getWikiPageName line, \vi
+				window.open "https://vi.wikipedia.org/wiki/#q" \_blank
+		| 2
+			event.preventDefault!
+			name = @getFullNameNoSubgenus line
+			if event.altKey
 				if isDev
-					lang = event.altKey and \vi or \en
-					q = @getWikiPageName line, lang
-					window.open "https://#lang.wikipedia.org/wiki/#q" \_blank
+					copiedText = name
 				else
-					q = @getWikiPageName line, \vi
-					window.open "https://vi.wikipedia.org/wiki/#q" \_blank
-			| 2
-				event.preventDefault!
-				name = @getFullNameNoSubgenus line
-				if event.altKey
-					if isDev
-						copiedText = name
-					else
-						copiedText = line.name
-				else if event.ctrlKey
-					if isDev
-						childs = @getSiblingLines line, 10 ~>
-							!it.textEn and !it.isDuplicateTextEn
-						for let child, i in childs
-							setTimeout !~>
-								@openGoogleCommonName child
-							, i * 500
+					copiedText = line.name
+			else if event.ctrlKey
+				if isDev
+					childs = @getSiblingLines line, 10 ~>
+						!it.textEn and !it.isDuplicateTextEn
+					for let child, i in childs
+						setTimeout !~>
+							@openGoogleCommonName child
+						, i * 500
+			else
+				if isDev
+					@openGoogleCommonName line
 				else
-					if isDev
-						@openGoogleCommonName line
-					else
-						copiedText = name
-				if copiedText
-					try
-						navigator.clipboard.writeText copiedText
-					catch
-						alert e.message
+					copiedText = name
+			if copiedText
+				try
+					navigator.clipboard.writeText copiedText
+				catch
+					alert e.message
 
 	contextmenuName: (line, event) !->
 		event.preventDefault!
+		return if event.currentTarget !== event.target
 		if isDev
 			unless line.name in ["" \?]
 				if event.ctrlKey
@@ -1138,12 +1140,12 @@ App =
 					background: \#0000 if line.name == " "
 					overflow: \hidden if prevLine
 					zIndex: bcrumZIndex
+				onmouseenter: @mouseenterName.bind void line, isBcrum
+				onmouseleave: @mouseleaveName
+				onmousedown: @mousedownName.bind void line
+				oncontextmenu: @contextmenuName.bind void line
 				m \.nodeName,
 					class: @getRankName line.lv
-					onmouseenter: @mouseenterName.bind void line, isBcrum
-					onmouseleave: @mouseleaveName
-					onmousedown: @mousedownName.bind void line
-					oncontextmenu: @contextmenuName.bind void line
 					line.name == " " and \-- or line.name
 				if line.textEn or line.textVi or (line.textEnCopy and line.textEnCopy != \...)
 					m \.nodeDash,

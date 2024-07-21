@@ -2035,8 +2035,6 @@ App =
 						@openLinksExtract cols, combo in [\Shift+Alt+RMB \Shift+Alt+LMB]
 			else
 				switch combo
-				| \M
-					(@els.commons or @els.enLang)?click!
 				| \D
 					if t.inaturalist
 						document.querySelector \.next_page ?.click!
@@ -2083,7 +2081,7 @@ App =
 					find \subspecies no no yes
 				| \Shift+F
 					find \subspecies no yes yes
-				| \G \G+F \G+N \G+E \G+H \G+S \G+K \G+C \N \H \K \C
+				| \G \G+F \G+N \G+E \G+H \G+S \G+K \G+C \G+R \G+M \N \H \K \C \M
 					switch
 					| t.google
 						q = document.querySelector '#REsRA, #APjFqb' .value
@@ -2109,6 +2107,10 @@ App =
 						else
 							el = document.querySelector \.binomial or document.querySelector \#firstHeading
 							q = el.innerText
+					| t.repfocus
+						q = document.querySelector '._list b' .textContent
+					| t.herpmapper
+						q = document.querySelector '.row .col-md-12 i' .textContent
 					switch combo
 					| \G
 						{keyGPlus} = @cfg
@@ -2143,6 +2145,10 @@ App =
 						location.href = "https://www.flickr.com/search/?text=#q"
 					| \G+C \C
 						location.href = "https://google.com/search?q=#q+common+name"
+					| \G+R
+						location.href = "https://repfocus.dk/#q.html"
+					| \G+M \M
+						location.href = "https://www.herpmapper.org/taxon/#q"
 				| \Q
 					switch
 					| t.googleCommonName, t.wikiPage
@@ -2241,6 +2247,8 @@ App =
 						await @uploadBase64ToGithub base64, message, isFemale
 					else
 						@notify "Không có ảnh để upload lên GitHub"
+				| \W+C
+					(@els.commons or @els.enLang)?click!
 				| \W+P
 					location.href = \https://en.wikipedia.org/wiki/Special:Preferences
 				| \W+E
